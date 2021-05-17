@@ -19,3 +19,5 @@ Cookie和Token的获取先去参考桌面版(获取完导入到手机可以一�
 [桌面版](https://github.com/xiao-cao-x/pixiv-xiaocao-desktop)
 
 ### Dart API 在这个仓库 [xiao-cao-x/pixiv-dart-api-xiaocao](https://github.com/xiao-cao-x/pixiv-dart-api-xiaocao)
+
+##该软件免费 不收取打赏
