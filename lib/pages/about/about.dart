@@ -65,25 +65,25 @@ class _AboutPageState extends State<AboutPage> {
         Card(
           child: ListTile(
             onTap: () async {
-              final url = "https://github.com/xiao-cao-x/pixiv-android-xiaocao";
+              final url = "https://github.com/xiao-cao-x/pixiv-xiaocao-android";
               if (await canLaunch(url)) {
                 await launch(url);
               }
             },
             title: Text('此软件项目地址'),
-            subtitle: Text('github.com/xiao-cao-x/pixiv-android-xiaocao'),
+            subtitle: Text('github.com/xiao-cao-x/pixiv-xiaocao-android'),
           ),
         ),
         Card(
           child: ListTile(
             onTap: () async {
-              final url = "https://github.com/xiao-cao-x/pixiv-desktop-xiaocao";
+              final url = "https://github.com/xiao-cao-x/pixiv-xiaocao-desktop";
               if (await canLaunch(url)) {
                 await launch(url);
               }
             },
             title: Text('桌面版项目地址'),
-            subtitle: Text('github.com/xiao-cao-x/pixiv-desktop-xiaocao'),
+            subtitle: Text('github.com/xiao-cao-x/pixiv-xiaocao-desktop'),
           ),
         ),
         SizedBox(height: 20),
