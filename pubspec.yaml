@@ -1,0 +1,36 @@
+name: pixiv_xiaocao_android
+description: Pixiv 安卓客户端
+
+version: 0.0.1
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  json_annotation: ^4.0.1
+  dio: ^4.0.0
+  url_launcher: ^6.0.3
+  package_info: ^2.0.0
+  webview_flutter: ^2.0.4
+  flutter_cache_manager: ^3.0.2
+  extended_image: ^4.0.1
+  cached_network_image: ^3.0.0
+  flutter_staggered_grid_view: ^0.4.0
+  oktoast: ^3.0.0
+  path: ^1.8.0
+  path_provider: ^2.0.1
+  permission_handler: ^7.1.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
