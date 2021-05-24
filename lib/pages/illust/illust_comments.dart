@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:pixiv_xiaocao_android/api/entity/illust_comment/comment.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/avatar_view_from_url.dart';
+import 'package:pixiv_xiaocao_android/log/log_entity.dart';
+import 'package:pixiv_xiaocao_android/log/log_util.dart';
 
 class _CommentStruct {
   Comment data;
@@ -62,7 +64,7 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
           _initialize = false;
         }
       });
-    }else{
+    } else {
       return;
     }
 
@@ -70,10 +72,22 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
       widget.illustId,
       _currentPage,
       requestException: (e) {
-        print(e);
+        LogUtil.instance.add(
+          type: LogType.NetworkException,
+          id: widget.illustId,
+          title: '获取评论失败',
+          url: '',
+          context: '在评论界面',
+        );
       },
       decodeException: (e, response) {
-        print(e);
+        LogUtil.instance.add(
+          type: LogType.DeserializationException,
+          id: widget.illustId,
+          title: '获取评论反序列化异常',
+          url: '',
+          context: response,
+        );
       },
     );
 
@@ -87,7 +101,13 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
           _total = illustComments.body!.commentCount!;
           _hasNext = _total - (_currentPage * 20) > 0;
         } else {
-          print(illustComments.message);
+          LogUtil.instance.add(
+            type: LogType.Info,
+            id: widget.illustId,
+            title: '获取评论失败',
+            url: '',
+            context: 'error:${illustComments.message}',
+          );
         }
       }
     } else {
@@ -113,8 +133,30 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
     } else {
       return;
     }
-    final commentReplies = await PixivRequest.instance
-        .getCommentReplies(commentStruct.data.oneCommentId, page);
+    final commentReplies = await PixivRequest.instance.getCommentReplies(
+      commentStruct.data.oneCommentId,
+      page,
+      requestException: (e) {
+        LogUtil.instance.add(
+          type: LogType.NetworkException,
+          id: widget.illustId,
+          title: '获取评论回复失败',
+          url: '',
+          context: '在评论页面',
+          exception: e,
+        );
+      },
+      decodeException: (e, response) {
+        LogUtil.instance.add(
+          type: LogType.DeserializationException,
+          id: widget.illustId,
+          title: '获取评论回复反序列化异常',
+          url: '',
+          context: response,
+          exception: e,
+        );
+      },
+    );
     if (this.mounted && commentReplies != null) {
       if (!commentReplies.error) {
         if (commentReplies.body != null) {
@@ -130,7 +172,13 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
           });
         }
       } else {
-        print(commentReplies.message);
+        LogUtil.instance.add(
+          type: LogType.Info,
+          id: widget.illustId,
+          title: '获取评论回复失败',
+          url: '',
+          context: 'error:${commentReplies.message}',
+        );
       }
     } else {
       return;

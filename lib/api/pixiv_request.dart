@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:pixiv_xiaocao_android/api/entity/search_autocomplete/search_autocomplete.dart';
-import 'package:pixiv_xiaocao_android/config.dart';
+import 'package:pixiv_xiaocao_android/config/config_util.dart';
 
 import 'entity/bookmark_add/bookmark_add.dart';
 import 'entity/bookmarks/bookmarks.dart';
@@ -31,50 +31,48 @@ class PixivRequest {
 
   late final Dio _httpClient;
 
-  void updateHeaders() {
-    _httpClient.options.headers = {
-      'x-user-id': Config.userId,
-      'Cookie': Config.cookie,
-      'Referer': Config.referer,
-      'User-Agent': Config.userAgent,
-      'x-csrf-token': Config.token,
-      'Host': 'www.pixiv.net'
-    };
+  void updateHeaders() async {
+    List<MapEntry<String, dynamic>> headers = [];
+    headers.add(MapEntry('Referer', ConfigUtil.referer));
+    headers.add(MapEntry('User-Agent', ConfigUtil.userAgent));
+    headers.add(MapEntry('Host', 'www.pixiv.net'));
+    if (ConfigUtil.instance.config.userId != 0) {
+      headers.add(MapEntry('x-user-id', ConfigUtil.instance.config.userId));
+    }
+    if (ConfigUtil.instance.config.cookie.isNotEmpty) {
+      headers.add(MapEntry('Cookie', ConfigUtil.instance.config.cookie));
+    }
+    if (ConfigUtil.instance.config.token.isNotEmpty) {
+      headers.add(MapEntry('x-csrf-token', ConfigUtil.instance.config.token));
+    }
+    _httpClient.options.headers = {}..addEntries(headers);
   }
 
   PixivRequest() {
     _httpClient = Dio(BaseOptions(
-        connectTimeout: 1000 * 15,
-        receiveTimeout: 1000 * 15,
-        sendTimeout: 1000 * 15))
+        connectTimeout: 1000 * 5,
+        receiveTimeout: 1000 * 5,
+        sendTimeout: 1000 * 5))
       ..options.validateStatus = (int? status) {
         return true;
       }
       // ..interceptors.add(LogInterceptor(responseBody: true, requestBody: true))
-      ..options.baseUrl = 'https://210.140.131.199'
-      ..options.headers = {
-        'x-user-id': Config.userId,
-        'Cookie': Config.cookie,
-        'Referer': Config.referer,
-        'User-Agent': Config.userAgent,
-        'x-csrf-token': Config.token,
-        'Host': 'www.pixiv.net'
-      };
+      ..options.baseUrl = 'https://210.140.131.199';
+    updateHeaders();
 
     (_httpClient.httpClientAdapter as DefaultHttpClientAdapter)
         .onHttpClientCreate = (client) {
-      HttpClient httpClient = new HttpClient();
-      httpClient.badCertificateCallback =
+      client.badCertificateCallback =
           (X509Certificate cert, String host, int port) {
         return true;
       };
-      return httpClient;
+      return client;
     };
   }
 
   Future<Following?> getFollowing(int userId, int offset, int limit,
       {void Function(Exception e, String response)? decodeException,
-      void Function(DioError e)? requestException}) async {
+      void Function(Exception e)? requestException}) async {
     Following? followingData;
 
     try {
@@ -93,7 +91,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -106,7 +104,7 @@ class PixivRequest {
     required String mode,
     required String type,
     void Function(Exception e, String response)? decodeException,
-    void Function(DioError e)? requestException,
+    void Function(Exception e)? requestException,
   }) async {
     Ranking? rankingData;
     try {
@@ -124,7 +122,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -134,7 +132,7 @@ class PixivRequest {
   /// 查询用户信息
   Future<UserInfo?> queryUserInfo(int userId,
       {void Function(Exception e, String response)? decodeException,
-      void Function(DioError e)? requestException}) async {
+      void Function(Exception e)? requestException}) async {
     UserInfo? userInfoData;
     try {
       var response = await _httpClient.get<String>('/touch/ajax/user/details',
@@ -146,7 +144,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -180,7 +178,7 @@ class PixivRequest {
   Future<IllustComment?> getIllustComments(
     int workId,
     int page, {
-    void Function(DioError e)? requestException,
+    void Function(Exception e)? requestException,
     void Function(Exception e, String response)? decodeException,
   }) async {
     IllustComment? illustCommentData;
@@ -198,7 +196,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -209,7 +207,7 @@ class PixivRequest {
   Future<IllustComment?> getCommentReplies(
     int commentId,
     int page, {
-    void Function(DioError e)? requestException,
+    void Function(Exception e)? requestException,
     void Function(Exception e, String response)? decodeException,
   }) async {
     IllustComment? illustCommentData;
@@ -230,7 +228,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -242,7 +240,7 @@ class PixivRequest {
     int illustId,
     int limit, {
     void Function(Exception e, String response)? decodeException,
-    void Function(DioError e)? requestException,
+    void Function(Exception e)? requestException,
   }) async {
     IllustRelated? illustRelatedData;
 
@@ -264,7 +262,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -276,7 +274,7 @@ class PixivRequest {
     int page, {
     required bool r18,
     void Function(Exception e, String response)? decodeException,
-    void Function(DioError e)? requestException,
+    void Function(Exception e)? requestException,
   }) async {
     FollowIllusts? followIllustsData;
 
@@ -297,7 +295,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -307,7 +305,7 @@ class PixivRequest {
   /// 获取用户所有作品的编号
   Future<ProfileAll?> getUserAllWork(int userId,
       {void Function(Exception e, String response)? decodeException,
-      void Function(DioError e)? requestException}) async {
+      void Function(Exception e)? requestException}) async {
     ProfileAll? profileAllData;
 
     try {
@@ -322,7 +320,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -332,12 +330,12 @@ class PixivRequest {
   /// 查询用户作品
   Future<UserWorks?> queryWorksById(List<int> workIdList, bool isFirstPage,
       {void Function(Exception e, String response)? decodeException,
-      void Function(DioError e)? requestException}) async {
+      void Function(Exception e)? requestException}) async {
     UserWorks? userWorksData;
 
     try {
       var response = await _httpClient.get<String>(
-          '/ajax/user/${Config.userId}/profile/illusts?',
+          '/ajax/user/${ConfigUtil.instance.config.userId}/profile/illusts?',
           queryParameters: {
             'ids[]': workIdList,
             'lang': 'zh',
@@ -353,7 +351,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -363,7 +361,7 @@ class PixivRequest {
   /// 查询用户收藏的图
   Future<UserBookmarks?> queryUserBookmarks(int userId, int offset, int limit,
       {void Function(Exception e, String response)? decodeException,
-      void Function(DioError e)? requestException}) async {
+      void Function(Exception e)? requestException}) async {
     UserBookmarks? userBookmarksData;
 
     try {
@@ -384,7 +382,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -395,7 +393,7 @@ class PixivRequest {
   Future<Recommender?> getRecommender(int quantity,
       {bool? r18,
       void Function(Exception e, String response)? decodeException,
-      void Function(DioError e)? requestException}) async {
+      void Function(Exception e)? requestException}) async {
     Recommender? recommenderData;
 
     try {
@@ -419,7 +417,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
     return recommenderData;
@@ -428,7 +426,7 @@ class PixivRequest {
   /// 获取书签(List)
   Future<Bookmarks?> getBookmarks(int userId, int page,
       {void Function(Exception e, String response)? decodeException,
-      void Function(DioError e)? requestException}) async {
+      void Function(Exception e)? requestException}) async {
     Bookmarks? bookmarksData;
 
     try {
@@ -447,7 +445,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
     return bookmarksData;
@@ -460,8 +458,8 @@ class PixivRequest {
         receiveTimeout: 1000 * 10,
         sendTimeout: 1000 * 10))
       ..options.headers = {
-        'Referer': Config.referer,
-        'User-Agent': Config.userAgent
+        'Referer': ConfigUtil.referer,
+        'User-Agent': ConfigUtil.userAgent
       };
 
     await httpClient.download(url, savePath,
@@ -474,7 +472,7 @@ class PixivRequest {
       {required String comment,
       required List<String> tags,
       void Function(Exception e, String response)? decodeException,
-      void Function(DioError e)? requestException}) async {
+      void Function(Exception e)? requestException}) async {
     BookmarkAdd? bookmarkAddData;
 
     try {
@@ -495,7 +493,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -504,7 +502,7 @@ class PixivRequest {
 
   ///删除书签
   Future<bool> bookmarkDelete(int bookmarkId,
-      {void Function(DioError e)? requestException}) async {
+      {void Function(Exception e)? requestException}) async {
     bool success = false;
 
     try {
@@ -519,14 +517,14 @@ class PixivRequest {
           success = false;
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
     return success;
   }
 
   Future<bool> followUserAdd(int userId,
-      {void Function(DioError e)? requestException}) async {
+      {void Function(Exception e)? requestException}) async {
     bool success = false;
 
     try {
@@ -542,14 +540,14 @@ class PixivRequest {
       if (response.data != null) {
         success = response.data! == '[]';
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
     return success;
   }
 
   Future<bool> followUserDelete(int userId,
-      {void Function(DioError e)? requestException}) async {
+      {void Function(Exception e)? requestException}) async {
     bool success = false;
 
     try {
@@ -564,7 +562,7 @@ class PixivRequest {
           success = false;
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
     return success;
@@ -572,8 +570,8 @@ class PixivRequest {
 
   Future<SearchSuggestion?> getSearchSuggestion({
     String mode = 'all',
-    void Function(DioError e)? requestException,
-    void Function(Exception e)? decodeException,
+    void Function(Exception e)? requestException,
+    void Function(Exception e,String response)? decodeException,
   }) async {
     SearchSuggestion? searchSuggestionData;
 
@@ -586,10 +584,10 @@ class PixivRequest {
           searchSuggestionData =
               SearchSuggestion.fromJson(jsonDecode(response.data!));
         } on Exception catch (e) {
-          decodeException?.call(e);
+          decodeException?.call(e,response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -598,7 +596,7 @@ class PixivRequest {
 
   Future<SearchAutocomplete?> getSearchAutocomplete(
     String keyword, {
-    void Function(DioError e)? requestException,
+    void Function(Exception e)? requestException,
     void Function(Exception e, String response)? decodeException,
   }) async {
     SearchAutocomplete? searchAutocompleteData;
@@ -616,7 +614,7 @@ class PixivRequest {
           decodeException?.call(e, response.data!);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 
@@ -631,7 +629,7 @@ class PixivRequest {
     required String searchMode,
     String startDate = '',
     String endDate = '',
-    void Function(DioError e)? requestException,
+    void Function(Exception e)? requestException,
     void Function(Exception e)? decodeException,
   }) async {
     Search? searchData;
@@ -657,7 +655,7 @@ class PixivRequest {
           decodeException?.call(e);
         }
       }
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       requestException?.call(e);
     }
 

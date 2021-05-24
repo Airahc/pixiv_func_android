@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2021. by 小草, All rights reserved
+ */
+
 package top.xiaocao.pixiv_xiaocao
 
 import android.content.ContentValues

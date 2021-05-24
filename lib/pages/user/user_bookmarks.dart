@@ -6,10 +6,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:pixiv_xiaocao_android/api/entity/user_bookmarks/user_bookmarks_body.dart';
+import 'package:pixiv_xiaocao_android/api/entity/user_bookmarks/work.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
-import 'package:pixiv_xiaocao_android/pages/illust/illust.dart';
+import 'package:pixiv_xiaocao_android/log/log_entity.dart';
+import 'package:pixiv_xiaocao_android/log/log_util.dart';
+import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
 class UserBookmarksContent extends StatefulWidget {
@@ -26,7 +28,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
   @override
   bool get wantKeepAlive => true;
 
-  UserBookmarksBody? _userBookmarksData;
+  List<Work> _works = <Work>[];
 
   final _scrollController = ScrollController();
 
@@ -39,8 +41,6 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
 
   bool _initialize = false;
 
-
-
   @override
   void initState() {
     _loadData(reload: false, init: true);
@@ -48,7 +48,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
@@ -69,7 +69,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
     if (this.mounted) {
       setState(() {
         if (reload) {
-          _userBookmarksData = null;
+          _works.clear();
           _currentPage = 1;
           _hasNext = true;
         }
@@ -86,6 +86,26 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
       widget.userId,
       (_currentPage - 1) * _pageQuantity,
       _pageQuantity,
+      requestException: (e){
+        LogUtil.instance.add(
+          type: LogType.NetworkException,
+          id: widget.userId,
+          title: '查询用户已收藏作品失败',
+          url: '',
+          context: '在用户界面',
+          exception: e,
+        );
+      },
+      decodeException: (e,response){
+        LogUtil.instance.add(
+          type: LogType.DeserializationException,
+          id: widget.userId,
+          title: '查询用户已收藏作品反序列化异常',
+          url: '',
+          context: response,
+          exception: e,
+        );
+      },
     );
 
     if (this.mounted) {
@@ -93,11 +113,17 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
         if (!userBookmarks.error) {
           if (userBookmarks.body != null) {
             _hasNext =
-                userBookmarks.body!.total > (_currentPage - 1) * _pageQuantity;
+                userBookmarks.body!.total > _currentPage++ * _pageQuantity;
+            _works.addAll(userBookmarks.body!.works);
           }
-          _userBookmarksData = userBookmarks.body;
         } else {
-          print(userBookmarks.message);
+          LogUtil.instance.add(
+            type: LogType.Info,
+            id: widget.userId,
+            title: '查询用户已收藏作品失败',
+            url: '',
+            context: 'error:${userBookmarks.message}',
+          );
         }
       }
     } else {
@@ -118,15 +144,15 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
     return StaggeredGridView.countBuilder(
       shrinkWrap: true,
       crossAxisCount: 2,
-      itemCount: _userBookmarksData!.works.length,
+      itemCount: _works.length,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
       mainAxisSpacing: 6,
       crossAxisSpacing: 6,
       physics: NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int index) {
-        return _userBookmarksData!.works[index].isMasked
+        return _works[index].isMasked
             ? Card(
-                child: ImageViewFromUrl(_userBookmarksData!.works[index].url),
+                child: ImageViewFromUrl(_works[index].url),
               )
             : Card(
                 child: Container(
@@ -134,7 +160,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
                   child: Column(
                     children: [
                       ImageViewFromUrl(
-                        _userBookmarksData!.works[index].url,
+                        _works[index].url,
                         fit: BoxFit.cover,
                         imageBuilder: (Widget imageWidget) {
                           return Stack(
@@ -143,17 +169,16 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
                               GestureDetector(
                                 onTap: () {
                                   Util.gotoPage(
-                                      context,
-                                      IllustPage(
-                                          _userBookmarksData!.works[index].id));
+                                    context,
+                                    IllustPage(_works[index].id),
+                                  );
                                 },
                                 child: imageWidget,
                               ),
                               Positioned(
                                 left: 2,
                                 top: 2,
-                                child: _userBookmarksData!.works[index].tags
-                                        .contains('R-18')
+                                child: _works[index].tags.contains('R-18')
                                     ? Card(
                                         color: Colors.pinkAccent,
                                         child: Text('R-18'),
@@ -168,7 +193,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
                                   child: Padding(
                                     padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
                                     child: Text(
-                                      '${_userBookmarksData!.works[index].pageCount}',
+                                      '${_works[index].pageCount}',
                                       style: TextStyle(fontSize: 20),
                                     ),
                                   ),
@@ -183,11 +208,10 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
                         child: ListTile(
                           contentPadding: EdgeInsets.all(0),
                           title: Text(
-                            '${_userBookmarksData!.works[index].title}',
+                            '${_works[index].title}',
                             style: TextStyle(fontSize: 14),
                           ),
-                          subtitle: Text(
-                              '${_userBookmarksData!.works[index].userName}',
+                          subtitle: Text('${_works[index].userName}',
                               style: TextStyle(fontSize: 10)),
                         ),
                       ),
@@ -201,7 +225,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
 
   Widget _buildBody() {
     late Widget component;
-    if (_userBookmarksData != null) {
+    if (_works.isNotEmpty) {
       final List<Widget> list = [];
       list.add(_buildWorksGridView());
       if (_loading) {
@@ -216,7 +240,6 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
             child: ListTile(
               title: Text('加载更多'),
               onTap: () {
-                _currentPage++;
                 _loadData(reload: false);
               },
             ),

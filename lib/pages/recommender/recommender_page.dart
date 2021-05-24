@@ -1,10 +1,13 @@
 /*
  * Copyright (C) 2021. by 小草, All rights reserved
  * 项目名称 : pixiv_xiaocao_android
- * 文件名称 : user_works.dart
+ * 文件名称 : recommender_page.dart
  */
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:pixiv_xiaocao_android/api/entity/user_works/bookmark_data.dart';
 import 'package:pixiv_xiaocao_android/api/entity/user_works/work.dart';
@@ -14,37 +17,93 @@ import 'package:pixiv_xiaocao_android/config/config_util.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
+import 'package:pixiv_xiaocao_android/pages/left_drawer/left_drawer.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
-enum UserWorkType { illust, manga }
-
-class UserWorksContent extends StatefulWidget {
-  final UserWorkType type;
-  final int userId;
-
-  UserWorksContent({required this.type, required this.userId, Key? key})
-      : super(key: key);
-
+class RecommenderPage extends StatefulWidget {
   @override
-  UserWorksContentState createState() => UserWorksContentState();
+  _RecommenderPageState createState() => _RecommenderPageState();
 }
 
-class UserWorksContentState extends State<UserWorksContent>
-    with AutomaticKeepAliveClientMixin {
+class _RecommenderPageState extends State<RecommenderPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController = TabController(length: 3, vsync: this);
+
+  int _currentIndex = 0;
+
+  List<GlobalKey<_ContentState>> _globalKeys = [
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey()
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: LeftDrawer(),
+      appBar: AppBar(
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              splashRadius: 20,
+              icon: Icon(
+                Icons.menu,
+                color: Colors.white.withAlpha(220),
+              ),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
+        title: TabBar(
+          controller: _tabController,
+          tabs: [
+            Text('全部'),
+            Text('全年龄'),
+            Text('R-18'),
+          ],
+          onTap: (int index) {
+            if (_currentIndex != index && _tabController.index == index) {
+              _currentIndex = index;
+            } else {
+              _globalKeys[index].currentState?.scrollToTop();
+            }
+          },
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _Content(isR18: null, key: _globalKeys[0]),
+          _Content(isR18: false, key: _globalKeys[1]),
+          _Content(isR18: true, key: _globalKeys[2]),
+        ],
+      ),
+    );
+  }
+}
+
+class _Content extends StatefulWidget {
+  final bool? isR18;
+
+  _Content({required this.isR18, Key? key}) : super(key: key);
+
+  @override
+  _ContentState createState() => _ContentState();
+}
+
+class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
-  List<int> _ids = <int>[];
+  ScrollController _scrollController = ScrollController();
 
   List<Work> _works = <Work>[];
 
-  final _scrollController = ScrollController();
+  final TextEditingController _pageViewQuantityController =
+      TextEditingController(text: '100');
 
-  static const int _pageQuantity = 30;
-
-  int _currentPage = 1;
-
-  bool _hasNext = true;
   bool _loading = false;
 
   bool _initialize = false;
@@ -58,6 +117,7 @@ class UserWorksContentState extends State<UserWorksContent>
   @override
   void dispose() {
     _scrollController.dispose();
+    _pageViewQuantityController.dispose();
     super.dispose();
   }
 
@@ -77,10 +137,7 @@ class UserWorksContentState extends State<UserWorksContent>
     if (this.mounted) {
       setState(() {
         if (reload) {
-          _ids.clear();
           _works.clear();
-          _currentPage = 1;
-          _hasNext = true;
         }
         if (init) {
           _initialize = false;
@@ -91,53 +148,79 @@ class UserWorksContentState extends State<UserWorksContent>
       return;
     }
 
-    final userAllWork = await PixivRequest.instance.getUserAllWork(
-      widget.userId,
+    var recommender = await PixivRequest.instance.getRecommender(
+      int.parse(_pageViewQuantityController.text),
+      r18: widget.isR18,
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
           id: ConfigUtil.instance.config.userId,
-          title: '获取用户作品失败',
+          title: '获取推荐作品失败',
           url: '',
-          context: '在用户界面',
+          context: '在推荐作品页面',
           exception: e,
         );
       },
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
-          id: widget.userId,
-          title: '获取用户作品失败反序列化异常',
+          id: ConfigUtil.instance.config.userId,
+          title: '获取推荐作品反序列化异常',
           url: '',
           context: response,
           exception: e,
         );
       },
+
     );
 
     if (this.mounted) {
-      if (userAllWork != null) {
-        if (!userAllWork.error) {
-          if (userAllWork.body != null) {
-            _hasNext = _ids.length > _pageQuantity;
-            switch (widget.type) {
-              case UserWorkType.illust:
-                _ids.addAll(userAllWork.body!.illusts);
-                break;
-              case UserWorkType.manga:
-                _ids.addAll(userAllWork.body!.manga);
-                break;
+      if (recommender != null && recommender.recommendations.isNotEmpty) {
+
+        var works = await PixivRequest.instance.queryWorksById(
+          recommender.recommendations,
+          false,
+          requestException: (e) {
+            LogUtil.instance.add(
+              type: LogType.NetworkException,
+              id: ConfigUtil.instance.config.userId,
+              title: '查询作品失败',
+              url: '',
+              context: '在推荐作品页面',
+              exception: e,
+            );
+          },
+          decodeException: (e, response) {
+            LogUtil.instance.add(
+              type: LogType.DeserializationException,
+              id: ConfigUtil.instance.config.userId,
+              title: '查询作品反序列化异常',
+              url: '',
+              context: response,
+              exception: e,
+            );
+          },
+        );
+        if (this.mounted) {
+          if (works != null) {
+            if (!works.error) {
+              if (works.body != null) {
+                setState(() {
+                  _works.addAll(works.body!.works.values);
+                });
+              }
+            } else {
+              LogUtil.instance.add(
+                type: LogType.Info,
+                id: ConfigUtil.instance.config.userId,
+                title: '查询作品信息失败',
+                url: '',
+                context: 'error:${works.message}',
+              );
             }
-            await _loadWorkData();
           }
         } else {
-          LogUtil.instance.add(
-            type: LogType.Info,
-            id: widget.userId,
-            title: '获取用户作品失败',
-            url: '',
-            context: 'error:${userAllWork.message}',
-          );
+          return;
         }
       }
     } else {
@@ -146,93 +229,22 @@ class UserWorksContentState extends State<UserWorksContent>
 
     if (this.mounted) {
       setState(() {
+        _loading = false;
         if (init) {
           _initialize = true;
         }
-        _loading = false;
-      });
-    }
-  }
-
-  Future _loadWorkData() async {
-    if (this.mounted) {
-      setState(() {
-        _loading = true;
-      });
-    } else {
-      return;
-    }
-    final startOffset = (_currentPage - 1) * _pageQuantity;
-
-    final endOffset = _ids.length >= startOffset + _pageQuantity
-        ? startOffset + _pageQuantity
-        : _ids.length;
-
-    _hasNext = _ids.length >= startOffset + _pageQuantity;
-
-    final works = await PixivRequest.instance.queryWorksById(
-      _ids.getRange(startOffset, endOffset).toList(),
-      false,
-      requestException: (e) {
-        LogUtil.instance.add(
-          type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
-          title: '查询作品信息失败',
-          url: '',
-          context: '在用户界面',
-          exception: e,
-        );
-      },
-      decodeException: (e, response) {
-        LogUtil.instance.add(
-          type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.userId,
-          title: '查询作品信息失败反序列化异常',
-          url: '',
-          context: response,
-          exception: e,
-        );
-      },
-    );
-    if (this.mounted) {
-      if (works != null) {
-        if (!works.error) {
-          if (works.body != null) {
-            ++_currentPage;
-            setState(() {
-              _works.addAll(works.body!.works.values);
-            });
-          }
-        } else {
-          LogUtil.instance.add(
-            type: LogType.Info,
-            id: widget.userId,
-            title: '查询作品信息失败',
-            url: '',
-            context: 'error:${works.message}',
-          );
-        }
-      }
-    } else {
-      return;
-    }
-
-    if (this.mounted) {
-      setState(() {
-        _loading = false;
       });
     }
   }
 
   Widget _buildWorksGridView() {
     return StaggeredGridView.countBuilder(
-      shrinkWrap: true,
       crossAxisCount: 2,
+      controller: _scrollController,
       itemCount: _works.length,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
       mainAxisSpacing: 6,
       crossAxisSpacing: 6,
-      physics: NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int index) {
         return Card(
           child: Container(
@@ -289,10 +301,7 @@ class UserWorksContentState extends State<UserWorksContent>
                             color: Colors.white12,
                             child: Padding(
                               padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                              child: Text(
-                                '${_works[index].pageCount}',
-                                style: TextStyle(fontSize: 20),
-                              ),
+                              child: Text('${_works[index].pageCount}'),
                             ),
                           ),
                         ),
@@ -309,12 +318,9 @@ class UserWorksContentState extends State<UserWorksContent>
                       style: TextStyle(fontSize: 14),
                     ),
                     subtitle: Text(
-                        Util.dateTimeToString(
-                          DateTime.parse(
-                            (_works[index].updateDate),
-                          ),
-                        ),
-                        style: TextStyle(fontSize: 10)),
+                      '${_works[index].userName}',
+                      style: TextStyle(fontSize: 10),
+                    ),
                     trailing: Util.buildBookmarkButton(
                       context,
                       illustId: _works[index].id,
@@ -345,62 +351,36 @@ class UserWorksContentState extends State<UserWorksContent>
   Widget _buildBody() {
     late Widget component;
     if (_works.isNotEmpty) {
-      final List<Widget> list = [];
-      list.add(_buildWorksGridView());
-      if (_loading) {
-        list.add(SizedBox(height: 20));
-        list.add(Center(
-          child: CircularProgressIndicator(),
-        ));
-        list.add(SizedBox(height: 20));
-      } else {
-        if (_hasNext) {
-          list.add(Card(
-            child: ListTile(
-              title: Text('加载更多'),
-              onTap: () {
-                _loadWorkData();
-              },
-            ),
-          ));
-        } else {
-          list.add(Card(child: ListTile(title: Text('没有更多数据啦'))));
-        }
-      }
-
-      component = SingleChildScrollView(
-        controller: _scrollController,
-        physics: AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: list,
-        ),
-      );
+      component = _buildWorksGridView();
     } else {
       if (_loading) {
-        if (!_initialize) {
+        if (_initialize) {
+          component = Container();
+        } else {
           component = Container(
             child: Center(
               child: CircularProgressIndicator(),
             ),
           );
+        }
+      } else {
+        if (_initialize) {
+          component = ListView.builder(
+            itemCount: 1,
+            itemBuilder: (BuildContext context, int index) {
+              return ListTile(
+                title: Center(
+                  child: Text('没有任何数据'),
+                ),
+              );
+            },
+            physics: const AlwaysScrollableScrollPhysics(),
+          );
         } else {
           component = Container();
         }
-      } else {
-        component = ListView.builder(
-          itemCount: 1,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Center(
-                child: Text('没有任何数据'),
-              ),
-            );
-          },
-          physics: const AlwaysScrollableScrollPhysics(),
-        );
       }
     }
-
     return component;
   }
 
@@ -408,8 +388,8 @@ class UserWorksContentState extends State<UserWorksContent>
   Widget build(BuildContext context) {
     super.build(context);
     return RefreshIndicator(
-      child: _buildBody(),
       onRefresh: _loadData,
+      child: _buildBody(),
       backgroundColor: Colors.white,
     );
   }

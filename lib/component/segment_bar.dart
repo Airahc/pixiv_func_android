@@ -6,11 +6,11 @@
 
 import 'package:flutter/material.dart';
 
-class SegmentBarView extends StatelessWidget {
+class SegmentBarView<T> extends StatelessWidget {
   final List<String> items;
-  final List<String> values;
-  final void Function(String) onSelected;
-  final String selectedValue;
+  final List<T> values;
+  final void Function(T) onSelected;
+  final T selectedValue;
 
   SegmentBarView({
     required this.items,
@@ -41,7 +41,7 @@ class SegmentBarView extends StatelessWidget {
     return list;
   }
 
-  Widget _buildItem(String item, String value) {
+  Widget _buildItem(String item, T value) {
     if (selectedValue == value) {
       return Container(
         height: 34,

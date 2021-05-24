@@ -1,13 +1,12 @@
 /*
  * Copyright (C) 2021. by 小草, All rights reserved
  * 项目名称 : pixiv_xiaocao_android
- * 文件名称 : user_works.dart
+ * 文件名称 : bookmarked_page.dart
  */
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:pixiv_xiaocao_android/api/entity/user_works/bookmark_data.dart';
-import 'package:pixiv_xiaocao_android/api/entity/user_works/work.dart';
+import 'package:pixiv_xiaocao_android/api/entity/bookmarks/bookmark.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
@@ -16,31 +15,15 @@ import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
-enum UserWorkType { illust, manga }
-
-class UserWorksContent extends StatefulWidget {
-  final UserWorkType type;
-  final int userId;
-
-  UserWorksContent({required this.type, required this.userId, Key? key})
-      : super(key: key);
-
+class BookmarkedPage extends StatefulWidget {
   @override
-  UserWorksContentState createState() => UserWorksContentState();
+  _BookmarkedPageState createState() => _BookmarkedPageState();
 }
 
-class UserWorksContentState extends State<UserWorksContent>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
+class _BookmarkedPageState extends State<BookmarkedPage> {
+  List<Bookmark> _bookmarks = <Bookmark>[];
 
-  List<int> _ids = <int>[];
-
-  List<Work> _works = <Work>[];
-
-  final _scrollController = ScrollController();
-
-  static const int _pageQuantity = 30;
+  ScrollController _scrollController = ScrollController();
 
   int _currentPage = 1;
 
@@ -55,32 +38,12 @@ class UserWorksContentState extends State<UserWorksContent>
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void scrollToTop() {
-    if (_scrollController.hasClients) {
-      if (_scrollController.offset != 0) {
-        _scrollController.animateTo(
-          0,
-          duration: Duration(milliseconds: 500),
-          curve: Curves.easeInQuad,
-        );
-      }
-    }
-  }
-
   Future _loadData({bool reload = true, bool init = false}) async {
     if (this.mounted) {
       setState(() {
         if (reload) {
-          _ids.clear();
-          _works.clear();
+          _bookmarks.clear();
           _currentPage = 1;
-          _hasNext = true;
         }
         if (init) {
           _initialize = false;
@@ -91,57 +54,47 @@ class UserWorksContentState extends State<UserWorksContent>
       return;
     }
 
-    final userAllWork = await PixivRequest.instance.getUserAllWork(
-      widget.userId,
+    final bookmarks = await PixivRequest.instance.getBookmarks(
+      ConfigUtil.instance.config.userId,
+      _currentPage,
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
           id: ConfigUtil.instance.config.userId,
-          title: '获取用户作品失败',
+          title: '获取已收藏书签失败',
           url: '',
-          context: '在用户界面',
+          context: '在已收藏书签界面',
           exception: e,
         );
       },
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
-          id: widget.userId,
-          title: '获取用户作品失败反序列化异常',
+          id: ConfigUtil.instance.config.userId,
+          title: '获取已收藏书签反序列化异常',
           url: '',
           context: response,
           exception: e,
         );
       },
     );
-
     if (this.mounted) {
-      if (userAllWork != null) {
-        if (!userAllWork.error) {
-          if (userAllWork.body != null) {
-            _hasNext = _ids.length > _pageQuantity;
-            switch (widget.type) {
-              case UserWorkType.illust:
-                _ids.addAll(userAllWork.body!.illusts);
-                break;
-              case UserWorkType.manga:
-                _ids.addAll(userAllWork.body!.manga);
-                break;
-            }
-            await _loadWorkData();
-          }
+      if (bookmarks != null) {
+        if (!bookmarks.error) {
+          setState(() {
+            _hasNext = bookmarks.body!.lastPage != ++_currentPage;
+            _bookmarks.addAll(bookmarks.body!.bookmarks);
+          });
         } else {
           LogUtil.instance.add(
             type: LogType.Info,
-            id: widget.userId,
-            title: '获取用户作品失败',
+            id: ConfigUtil.instance.config.userId,
+            title: '获取已收藏书签失败',
             url: '',
-            context: 'error:${userAllWork.message}',
+            context: 'error:${bookmarks.message}',
           );
         }
       }
-    } else {
-      return;
     }
 
     if (this.mounted) {
@@ -154,81 +107,11 @@ class UserWorksContentState extends State<UserWorksContent>
     }
   }
 
-  Future _loadWorkData() async {
-    if (this.mounted) {
-      setState(() {
-        _loading = true;
-      });
-    } else {
-      return;
-    }
-    final startOffset = (_currentPage - 1) * _pageQuantity;
-
-    final endOffset = _ids.length >= startOffset + _pageQuantity
-        ? startOffset + _pageQuantity
-        : _ids.length;
-
-    _hasNext = _ids.length >= startOffset + _pageQuantity;
-
-    final works = await PixivRequest.instance.queryWorksById(
-      _ids.getRange(startOffset, endOffset).toList(),
-      false,
-      requestException: (e) {
-        LogUtil.instance.add(
-          type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
-          title: '查询作品信息失败',
-          url: '',
-          context: '在用户界面',
-          exception: e,
-        );
-      },
-      decodeException: (e, response) {
-        LogUtil.instance.add(
-          type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.userId,
-          title: '查询作品信息失败反序列化异常',
-          url: '',
-          context: response,
-          exception: e,
-        );
-      },
-    );
-    if (this.mounted) {
-      if (works != null) {
-        if (!works.error) {
-          if (works.body != null) {
-            ++_currentPage;
-            setState(() {
-              _works.addAll(works.body!.works.values);
-            });
-          }
-        } else {
-          LogUtil.instance.add(
-            type: LogType.Info,
-            id: widget.userId,
-            title: '查询作品信息失败',
-            url: '',
-            context: 'error:${works.message}',
-          );
-        }
-      }
-    } else {
-      return;
-    }
-
-    if (this.mounted) {
-      setState(() {
-        _loading = false;
-      });
-    }
-  }
-
   Widget _buildWorksGridView() {
     return StaggeredGridView.countBuilder(
       shrinkWrap: true,
       crossAxisCount: 2,
-      itemCount: _works.length,
+      itemCount: _bookmarks.length,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
       mainAxisSpacing: 6,
       crossAxisSpacing: 6,
@@ -240,7 +123,7 @@ class UserWorksContentState extends State<UserWorksContent>
             child: Column(
               children: [
                 ImageViewFromUrl(
-                  _works[index].url,
+                  _bookmarks[index].urlS,
                   fit: BoxFit.cover,
                   imageBuilder: (Widget imageWidget) {
                     return Stack(
@@ -251,19 +134,18 @@ class UserWorksContentState extends State<UserWorksContent>
                             Util.gotoPage(
                               context,
                               IllustPage(
-                                _works[index].id,
+                                _bookmarks[index].id,
                                 onBookmarkAdd: (bookmarkId) {
                                   if (this.mounted) {
                                     setState(() {
-                                      _works[index].bookmarkData =
-                                          BookmarkData(bookmarkId, false);
+                                      _bookmarks[index].bookmarkId = bookmarkId;
                                     });
                                   }
                                 },
                                 onBookmarkDelete: () {
                                   if (this.mounted) {
                                     setState(() {
-                                      _works[index].bookmarkData = null;
+                                      _bookmarks[index].bookmarkId = null;
                                     });
                                   }
                                 },
@@ -275,7 +157,7 @@ class UserWorksContentState extends State<UserWorksContent>
                         Positioned(
                           left: 2,
                           top: 2,
-                          child: _works[index].tags.contains('R-18')
+                          child: _bookmarks[index].tags.contains('R-18')
                               ? Card(
                                   color: Colors.pinkAccent,
                                   child: Text('R-18'),
@@ -289,10 +171,7 @@ class UserWorksContentState extends State<UserWorksContent>
                             color: Colors.white12,
                             child: Padding(
                               padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                              child: Text(
-                                '${_works[index].pageCount}',
-                                style: TextStyle(fontSize: 20),
-                              ),
+                              child: Text('${_bookmarks[index].pageCount}'),
                             ),
                           ),
                         ),
@@ -305,28 +184,25 @@ class UserWorksContentState extends State<UserWorksContent>
                   child: ListTile(
                     contentPadding: EdgeInsets.all(0),
                     title: Text(
-                      '${_works[index].title}',
+                      '${_bookmarks[index].title}',
                       style: TextStyle(fontSize: 14),
                     ),
                     subtitle: Text(
-                        Util.dateTimeToString(
-                          DateTime.parse(
-                            (_works[index].updateDate),
-                          ),
-                        ),
-                        style: TextStyle(fontSize: 10)),
+                      '${_bookmarks[index].authorDetails.userName}',
+                      style: TextStyle(fontSize: 10),
+                    ),
+                    // leading: AvatarViewFromUrl,
                     trailing: Util.buildBookmarkButton(
                       context,
-                      illustId: _works[index].id,
-                      bookmarkId: _works[index].bookmarkData?.id,
+                      illustId: _bookmarks[index].id,
+                      bookmarkId: _bookmarks[index].bookmarkId,
                       updateCallback: (int? bookmarkId) {
                         if (this.mounted) {
                           setState(() {
                             if (bookmarkId == null) {
-                              _works[index].bookmarkData = null;
+                              _bookmarks[index].bookmarkId = null;
                             } else {
-                              _works[index].bookmarkData =
-                                  BookmarkData(bookmarkId, false);
+                              _bookmarks[index].bookmarkId = bookmarkId;
                             }
                           });
                         }
@@ -344,33 +220,34 @@ class UserWorksContentState extends State<UserWorksContent>
 
   Widget _buildBody() {
     late Widget component;
-    if (_works.isNotEmpty) {
+    if (_bookmarks.isNotEmpty) {
       final List<Widget> list = [];
       list.add(_buildWorksGridView());
-      if (_loading) {
-        list.add(SizedBox(height: 20));
-        list.add(Center(
-          child: CircularProgressIndicator(),
-        ));
-        list.add(SizedBox(height: 20));
-      } else {
-        if (_hasNext) {
-          list.add(Card(
-            child: ListTile(
-              title: Text('加载更多'),
-              onTap: () {
-                _loadWorkData();
-              },
-            ),
+
+      if (_bookmarks.isNotEmpty) {
+        if (_loading) {
+          list.add(SizedBox(height: 20));
+          list.add(Center(
+            child: CircularProgressIndicator(),
           ));
+          list.add(SizedBox(height: 20));
         } else {
-          list.add(Card(child: ListTile(title: Text('没有更多数据啦'))));
+          if (_hasNext) {
+            list.add(Card(
+              child: ListTile(
+                title: Text('加载更多'),
+                onTap: () {
+                  _loadData(reload: false);
+                },
+              ),
+            ));
+          } else {
+            list.add(Card(child: ListTile(title: Text('没有更多数据啦'))));
+          }
         }
       }
-
       component = SingleChildScrollView(
         controller: _scrollController,
-        physics: AlwaysScrollableScrollPhysics(),
         child: Column(
           children: list,
         ),
@@ -406,11 +283,15 @@ class UserWorksContentState extends State<UserWorksContent>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return RefreshIndicator(
-      child: _buildBody(),
-      onRefresh: _loadData,
-      backgroundColor: Colors.white,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('已收藏的书签'),
+      ),
+      body: RefreshIndicator(
+        onRefresh: _loadData,
+        child: _buildBody(),
+        backgroundColor: Colors.white,
+      ),
     );
   }
 }

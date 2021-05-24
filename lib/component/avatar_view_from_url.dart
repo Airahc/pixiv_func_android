@@ -6,9 +6,10 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pixiv_xiaocao_android/config.dart';
+import 'package:pixiv_xiaocao_android/config/config_util.dart';
 
 class AvatarViewFromUrl extends StatelessWidget {
+
   final String url;
 
   final double? radius;
@@ -23,7 +24,7 @@ class AvatarViewFromUrl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = Config.enableImageProxy
+    final imageUrl = ConfigUtil.instance.config.enableImageProxy
         ? url.replaceFirst("i.pximg.net", "i.pixiv.cat")
         : url;
     return CircleAvatar(
@@ -32,7 +33,7 @@ class AvatarViewFromUrl extends StatelessWidget {
       maxRadius: maxRadius,
       backgroundImage: CachedNetworkImageProvider(
         imageUrl,
-        headers: {'Referer': Config.referer},
+        headers: {'Referer': ConfigUtil.referer},
       ),
     );
   }

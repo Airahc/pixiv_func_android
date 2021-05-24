@@ -12,12 +12,15 @@ import 'package:oktoast/oktoast.dart';
 import 'package:pixiv_xiaocao_android/android_tabs.dart';
 import 'package:pixiv_xiaocao_android/platform_util.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:provider/provider.dart';
+
 
 Future main() async {
   HttpOverrides.global = MyHttpOverrides();
+  WidgetsFlutterBinding.ensureInitialized();
+  Provider.debugCheckInvalidValueType = null;
 
   runApp(AndroidApp());
-  Util.checkPermissionStatus();
 }
 
 late DateTime _lastPopTime;

@@ -4,50 +4,108 @@
  * 文件名称 : util.dart
  */
 
-import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:pixiv_xiaocao_android/api/entity/user_works/work.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
-import 'package:pixiv_xiaocao_android/config.dart';
+import 'package:pixiv_xiaocao_android/config/config_util.dart';
+import 'package:pixiv_xiaocao_android/log/log_entity.dart';
+import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/platform_util.dart';
 
+import 'component/bookmark_add_dialog_content.dart';
+
 class Util {
+  static final storageStatus = Permission.storage.status;
 
-  static void updateConfig<T>(String name, T value) {
-    final configFile =
-        File('/storage/emulated/0/pixiv_xiaocao_android/Config.json');
+  static void saveImage(int id, String url, String title) async {
+    final imageName = url.substring(url.lastIndexOf('/') + 1);
 
-    ///不存在先创建一个
-    if (!configFile.existsSync()) {
-      configFile.createSync(recursive: true);
-      configFile.writeAsStringSync({}.toString());
-    }
-    var content = configFile.readAsStringSync();
+    if (!await PlatformUtil.imageIsExist(imageName)) {
+      final imageUrl = ConfigUtil.instance.config.enableImageProxy
+          ? url.replaceFirst("i.pximg.net", "i.pixiv.cat")
+          : url;
+      final httpClient = Dio()
+        ..options.responseType = ResponseType.bytes
+        ..options.sendTimeout = 1000 * 15
+        ..options.receiveTimeout = 1000 * 15
+        ..options.connectTimeout = 1000 * 10
+        ..options.headers = {
+          'Referer': 'https://pixiv.net/',
+          'User-Agent': ConfigUtil.userAgent
+        };
 
-    var config = jsonDecode(content);
-    config[name] = value;
-    configFile.writeAsStringSync(jsonEncode(config));
-  }
-
-  static T getConfig<T>(String name, {required T defaultValue}) {
-    final configFile =
-        File('/storage/emulated/0/pixiv_xiaocao_android/Config.json');
-    if (configFile.existsSync()) {
-      var config = jsonDecode(configFile.readAsStringSync());
-      var value = config[name];
-      return value != null && value is T ? value : defaultValue;
+      httpClient.get<Uint8List>(imageUrl).then(
+        (response) async {
+          if (response.data != null) {
+            if (!await PlatformUtil.imageIsExist(imageName)) {
+              if (await PlatformUtil.saveImage(response.data!, imageName)) {
+                toastIconAndText(Icons.save_alt_outlined, '图片保存成功');
+                LogUtil.instance.add(
+                  type: LogType.Info,
+                  id: id,
+                  title: title,
+                  url: url,
+                  context: '图片保存成功',
+                );
+              } else {
+                toastIconAndText(Icons.save_alt_outlined, '图片保存失败');
+                LogUtil.instance.add(
+                  type: LogType.SaveFileFail,
+                  id: id,
+                  title: title,
+                  url: url,
+                  context: '图片保存失败',
+                );
+              }
+            } else {
+              toastIconAndText(Icons.error_outlined, '图片已经存在');
+              LogUtil.instance.add(
+                type: LogType.Info,
+                id: id,
+                title: title,
+                url: url,
+                context: '图片已经存在',
+              );
+            }
+          } else {
+            toastIconAndText(Icons.error_outlined, '图片下载失败');
+            LogUtil.instance.add(
+              type: LogType.DownloadFail,
+              id: id,
+              title: title,
+              url: url,
+              context: '图片下载失败',
+            );
+          }
+        },
+      ).catchError(
+        (e) {
+          toastIconAndText(Icons.error_outlined, '图片下载失败');
+          LogUtil.instance.add(
+              type: LogType.DownloadFail,
+              id: id,
+              title: title,
+              url: url,
+              context: '图片下载失败',
+              exception: e);
+        },
+      );
     } else {
-      return defaultValue;
+      toastIconAndText(Icons.error_outlined, '图片已经存在');
+      LogUtil.instance.add(
+        type: LogType.Info,
+        id: id,
+        title: title,
+        url: url,
+        context: '图片已经存在',
+      );
     }
   }
 
@@ -57,8 +115,13 @@ class Util {
     ));
   }
 
-  static void copyToClipboard(String data) {
-    Clipboard.setData(ClipboardData(text: data));
+  static Future<void> copyToClipboard(String data) async {
+    await Clipboard.setData(ClipboardData(text: data));
+  }
+
+  static Future<String?> readClipboard() async {
+    final clipboard = await Clipboard.getData(Clipboard.kTextPlain);
+    return clipboard?.text;
   }
 
   static void showSnackBar(BuildContext context, Widget content) {
@@ -121,101 +184,72 @@ class Util {
     );
   }
 
-  static String timestampToDateTimeString(int timestamp) {
-    final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+  static String dateTimeToString(DateTime dateTime) {
     return '${dateTime.year}年${dateTime.month}月${dateTime.day}日 ${dateTime.hour}:${dateTime.minute}:${dateTime.second}';
   }
 
-  static String dateTimeToString(String dateTimeString) {
-    final dateTime = DateTime.parse(dateTimeString);
-    return '${dateTime.year}年${dateTime.month}月${dateTime.day}日';
-  }
 
-  static void saveImage(int illustId, String url, int userId) async {
-    final imageUrl = Config.enableImageProxy
-        ? url.replaceFirst("i.pximg.net", "i.pixiv.cat")
-        : url;
-
-    final imageName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-    if (!await PlatformUtil.imageIsExist(imageName)) {
-      final httpClient = Dio()
-        ..options.headers = {'Referer': 'https://pixiv.net'}
-        ..options.responseType = ResponseType.bytes;
-      (httpClient.httpClientAdapter as DefaultHttpClientAdapter)
-          .onHttpClientCreate = (client) {
-        HttpClient httpClient = new HttpClient();
-        httpClient.badCertificateCallback =
-            (X509Certificate cert, String host, int port) {
-          return true;
-        };
-        return httpClient;
-      };
-
-      httpClient.get<Uint8List>(imageUrl).then(
-        (response) async {
-          if (response.data != null) {
-            if (await PlatformUtil.saveImage(response.data!, imageName)) {
-              toastIconAndText(Icons.save_alt, '保存成功');
-            } else {
-              toastIconAndText(Icons.save_alt, '保存失败');
-            }
-          }
-        },
-      ).catchError((error) {
-        toastIconAndText(Icons.error_outlined, '下载失败');
-      });
-    } else {
-      toastIconAndText(Icons.announcement_outlined, '已经存在');
-    }
-  }
-
-  static void saveIllust(int illustId) {
-    PixivRequest.instance.queryIllustInfo(illustId).then((data) {
-      var illustInfo = data;
-
-      if (illustInfo?.body != null) {
-        late int userId;
-        try {
-          userId = illustInfo!.body!.authorDetails.userId;
-        } catch (e) {
-          throw '获取用户id异常';
-        }
-
-        if (illustInfo.body!.illustDetails.mangaA != null) {
-          //插画不是只有一个
-          illustInfo.body!.illustDetails.mangaA!.forEach((illust) {
-            saveImage(illustId, illust.urlBig, userId);
-          });
-        } else {
-          //插画只有一个
-          saveImage(illustId, illustInfo.body!.illustDetails.urlBig!, userId);
-        }
-      }
-    }).catchError((error) {
-      print(error);
-    });
-  }
-
-  static void saveUserAllIllust(List<Work> works) {
-    works.forEach((work) {
-      saveIllust(work.id);
-    });
-  }
-
-  static void checkPermissionStatus() async {
-    final status = Permission.storage.status;
-    if (await status.isDenied) {
-      if (await Permission.storage.request().isGranted) {
-        print('被授予权限');
-      }
-    } else if (await status.isGranted) {
-      print('有权限');
-    }
-  }
 
   static Size getScreenSize(BuildContext context) {
     return MediaQuery.of(context).size;
   }
 
   static Size get windowSize => MediaQueryData.fromWindow(window).size;
+
+  static Widget buildBookmarkButton(
+    BuildContext context, {
+    required int illustId,
+    required int? bookmarkId,
+    required void Function(int? bookmarkId) updateCallback,
+  }) {
+    return IconButton(
+      splashRadius: 20,
+      onPressed: () async {
+        if (bookmarkId != null) {
+          var success = await PixivRequest.instance.bookmarkDelete(bookmarkId);
+          if (success) {
+            updateCallback.call(null);
+          } else {
+            LogUtil.instance.add(
+              type: LogType.Info,
+              id: ConfigUtil.instance.config.userId,
+              title: '删除书签失败',
+              url: '',
+              context: '只是单纯的没成功',
+            );
+          }
+        } else {
+          showDialog<Null>(
+            context: context,
+            builder: (context) {
+              return BookmarkAddDialogContent(
+                illustId,
+                (bool success, int? bookmarkId) {
+                  if (success) {
+                    if (bookmarkId != null) {
+                      updateCallback.call(bookmarkId);
+                    }
+                  } else {
+                    LogUtil.instance.add(
+                      type: LogType.Info,
+                      id: ConfigUtil.instance.config.userId,
+                      title: '添加书签失败',
+                      url: '',
+                      context: '只是单纯的没成功',
+                    );
+                  }
+                },
+              );
+            },
+          );
+        }
+      },
+      icon: Icon(
+        bookmarkId != null
+            ? Icons.favorite_sharp
+            : Icons.favorite_outline_sharp,
+        color: bookmarkId != null ? Colors.pinkAccent : Colors.white70,
+      ),
+    );
+  }
 }

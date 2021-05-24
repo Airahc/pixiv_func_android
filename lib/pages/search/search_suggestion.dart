@@ -10,8 +10,11 @@ import 'package:pixiv_xiaocao_android/api/entity/search_suggestion/tag_translati
 import 'package:pixiv_xiaocao_android/api/entity/search_suggestion/thumbnail/thumbnail.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
-import 'package:pixiv_xiaocao_android/pages/illust/illust.dart';
-import 'package:pixiv_xiaocao_android/pages/search/search_content.dart';
+import 'package:pixiv_xiaocao_android/config/config_util.dart';
+import 'package:pixiv_xiaocao_android/log/log_entity.dart';
+import 'package:pixiv_xiaocao_android/log/log_util.dart';
+import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
+import 'package:pixiv_xiaocao_android/pages/search/search_content_page.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_settings.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
@@ -21,8 +24,7 @@ class SearchSuggestionContent extends StatefulWidget {
   SearchSuggestionContent(this.mode, {Key? key}) : super(key: key);
 
   @override
-  SearchSuggestionContentState createState() =>
-      SearchSuggestionContentState();
+  SearchSuggestionContentState createState() => SearchSuggestionContentState();
 }
 
 class SearchSuggestionContentState extends State<SearchSuggestionContent>
@@ -31,7 +33,7 @@ class SearchSuggestionContentState extends State<SearchSuggestionContent>
   bool get wantKeepAlive => true;
   SearchSuggestionBody? _searchSuggestionData;
 
-  final  _scrollController = ScrollController();
+  final _scrollController = ScrollController();
 
   bool _loading = false;
   bool _initialize = false;
@@ -41,13 +43,14 @@ class SearchSuggestionContentState extends State<SearchSuggestionContent>
     _loadData(reload: false, init: true);
     super.initState();
   }
+
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
 
-  void scrollToTop(){
+  void scrollToTop() {
     if (_scrollController.hasClients) {
       if (_scrollController.offset != 0) {
         _scrollController.animateTo(
@@ -77,10 +80,24 @@ class SearchSuggestionContentState extends State<SearchSuggestionContent>
     final searchSuggestion = await PixivRequest.instance.getSearchSuggestion(
       mode: widget.mode,
       requestException: (e) {
-        print(e);
+        LogUtil.instance.add(
+          type: LogType.NetworkException,
+          id: ConfigUtil.instance.config.userId,
+          title: '获取搜索推荐失败',
+          url: '',
+          context: '在搜索页面',
+          exception: e,
+        );
       },
-      decodeException: (e) {
-        print(e);
+      decodeException: (e, response) {
+        LogUtil.instance.add(
+          type: LogType.DeserializationException,
+          id: ConfigUtil.instance.config.userId,
+          title: '获取搜索推荐反序列化异常',
+          url: '',
+          context: response,
+          exception: e,
+        );
       },
     );
 
@@ -88,7 +105,13 @@ class SearchSuggestionContentState extends State<SearchSuggestionContent>
       if (searchSuggestion != null) {
         _searchSuggestionData = searchSuggestion.body;
         if (searchSuggestion.error) {
-          print('获取搜索推荐失败');
+          LogUtil.instance.add(
+            type: LogType.Info,
+            id: ConfigUtil.instance.config.userId,
+            title: '获取搜索推荐失败',
+            url: '',
+            context: '只是单纯的没成功',
+          );
         }
       }
     }
@@ -139,7 +162,10 @@ class SearchSuggestionContentState extends State<SearchSuggestionContent>
         images.add(Card(
           child: GestureDetector(
             onTap: () {
-              Util.gotoPage(context, IllustPage(id));
+              Util.gotoPage(
+                context,
+                IllustPage(id),
+              );
             },
             child: Column(
               children: [
@@ -264,7 +290,7 @@ class SearchSuggestionContentState extends State<SearchSuggestionContent>
       );
     } else {
       if (_loading) {
-        if(_initialize){
+        if (_initialize) {
           component = Container();
         } else {
           component = Container(

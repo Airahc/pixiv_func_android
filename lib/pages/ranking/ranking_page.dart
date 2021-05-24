@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2021. by 小草, All rights reserved
  * 项目名称 : pixiv_xiaocao_android
- * 文件名称 : user_works.dart
+ * 文件名称 : ranking_page.dart
  */
 
 import 'package:flutter/material.dart';
@@ -14,35 +14,21 @@ import 'package:pixiv_xiaocao_android/config/config_util.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
+import 'package:pixiv_xiaocao_android/pages/left_drawer/left_drawer.dart';
+import 'package:pixiv_xiaocao_android/pages/ranking/ranking_settings.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
-enum UserWorkType { illust, manga }
-
-class UserWorksContent extends StatefulWidget {
-  final UserWorkType type;
-  final int userId;
-
-  UserWorksContent({required this.type, required this.userId, Key? key})
-      : super(key: key);
-
+class RankingPage extends StatefulWidget {
   @override
-  UserWorksContentState createState() => UserWorksContentState();
+  _RankingPageState createState() => _RankingPageState();
 }
 
-class UserWorksContentState extends State<UserWorksContent>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  List<int> _ids = <int>[];
-
+class _RankingPageState extends State<RankingPage> {
   List<Work> _works = <Work>[];
 
-  final _scrollController = ScrollController();
-
-  static const int _pageQuantity = 30;
-
   int _currentPage = 1;
+
+  final _scrollController = ScrollController();
 
   bool _hasNext = true;
   bool _loading = false;
@@ -61,7 +47,7 @@ class UserWorksContentState extends State<UserWorksContent>
     super.dispose();
   }
 
-  void scrollToTop() {
+  void _scrollToTop() {
     if (_scrollController.hasClients) {
       if (_scrollController.offset != 0) {
         _scrollController.animateTo(
@@ -74,69 +60,109 @@ class UserWorksContentState extends State<UserWorksContent>
   }
 
   Future _loadData({bool reload = true, bool init = false}) async {
-    if (this.mounted) {
-      setState(() {
-        if (reload) {
-          _ids.clear();
-          _works.clear();
-          _currentPage = 1;
-          _hasNext = true;
-        }
-        if (init) {
-          _initialize = false;
-        }
-        _loading = true;
-      });
-    } else {
-      return;
-    }
+    setState(() {
+      if (reload) {
+        _works.clear();
+        _currentPage = 1;
+        _hasNext = true;
+      }
 
-    final userAllWork = await PixivRequest.instance.getUserAllWork(
-      widget.userId,
+      if (init) {
+        _initialize = false;
+      }
+      _loading = true;
+    });
+
+    var rankingData = await PixivRequest.instance.getRanking(
+      _currentPage,
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
           id: ConfigUtil.instance.config.userId,
-          title: '获取用户作品失败',
+          title: '获取排行榜失败',
           url: '',
-          context: '在用户界面',
+          context: '在排行榜页面',
           exception: e,
         );
       },
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
-          id: widget.userId,
-          title: '获取用户作品失败反序列化异常',
+          id: ConfigUtil.instance.config.userId,
+          title: '获取排行榜反序列化异常',
           url: '',
           context: response,
           exception: e,
         );
       },
+      mode: RankingSettings.isR18
+          ? RankingSettings.modeR18Selected
+          : RankingSettings.modeSelected,
+      type: RankingSettings.typeSelected,
     );
 
     if (this.mounted) {
-      if (userAllWork != null) {
-        if (!userAllWork.error) {
-          if (userAllWork.body != null) {
-            _hasNext = _ids.length > _pageQuantity;
-            switch (widget.type) {
-              case UserWorkType.illust:
-                _ids.addAll(userAllWork.body!.illusts);
-                break;
-              case UserWorkType.manga:
-                _ids.addAll(userAllWork.body!.manga);
-                break;
+      if (rankingData != null) {
+        if (!rankingData.error) {
+          var worksData = await PixivRequest.instance.queryWorksById(
+            rankingData.body!.ranking.map((item) => item.illustId).toList(),
+            false,
+            requestException: (e){
+              LogUtil.instance.add(
+                type: LogType.NetworkException,
+                id: ConfigUtil.instance.config.userId,
+                title: '查询作品信息失败',
+                url: '',
+                context: '在排行榜页面',
+                exception: e,
+              );
+            },
+            decodeException: (e, response) {
+              LogUtil.instance.add(
+                type: LogType.DeserializationException,
+                id: ConfigUtil.instance.config.userId,
+                title: '查询作品信息反序列化异常',
+                url: '',
+                context: response,
+                exception: e,
+              );
+            },
+          );
+
+          if (this.mounted) {
+            if (worksData != null) {
+              if (!worksData.error) {
+                if (worksData.body != null) {
+                  if (worksData.body!.works.isNotEmpty) {
+                    _hasNext = true;
+                    ++_currentPage;
+                    setState(() {
+                      _works.addAll(worksData.body!.works.values);
+                    });
+                  } else {
+                    _hasNext = false;
+                  }
+                }
+              } else {
+                LogUtil.instance.add(
+                  type: LogType.Info,
+                  id: ConfigUtil.instance.config.userId,
+                  title: '获取作品信息失败',
+                  url: '',
+                  context: 'error:${worksData.message}',
+                );
+              }
             }
-            await _loadWorkData();
+          } else {
+            return;
           }
         } else {
           LogUtil.instance.add(
             type: LogType.Info,
-            id: widget.userId,
-            title: '获取用户作品失败',
+            id: ConfigUtil.instance.config.userId,
+            title: '获取排行榜失败',
             url: '',
-            context: 'error:${userAllWork.message}',
+            context: 'error:${rankingData.message}',
           );
         }
       }
@@ -144,84 +170,12 @@ class UserWorksContentState extends State<UserWorksContent>
       return;
     }
 
-    if (this.mounted) {
-      setState(() {
-        if (init) {
-          _initialize = true;
-        }
-        _loading = false;
-      });
-    }
-  }
-
-  Future _loadWorkData() async {
-    if (this.mounted) {
-      setState(() {
-        _loading = true;
-      });
-    } else {
-      return;
-    }
-    final startOffset = (_currentPage - 1) * _pageQuantity;
-
-    final endOffset = _ids.length >= startOffset + _pageQuantity
-        ? startOffset + _pageQuantity
-        : _ids.length;
-
-    _hasNext = _ids.length >= startOffset + _pageQuantity;
-
-    final works = await PixivRequest.instance.queryWorksById(
-      _ids.getRange(startOffset, endOffset).toList(),
-      false,
-      requestException: (e) {
-        LogUtil.instance.add(
-          type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
-          title: '查询作品信息失败',
-          url: '',
-          context: '在用户界面',
-          exception: e,
-        );
-      },
-      decodeException: (e, response) {
-        LogUtil.instance.add(
-          type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.userId,
-          title: '查询作品信息失败反序列化异常',
-          url: '',
-          context: response,
-          exception: e,
-        );
-      },
-    );
-    if (this.mounted) {
-      if (works != null) {
-        if (!works.error) {
-          if (works.body != null) {
-            ++_currentPage;
-            setState(() {
-              _works.addAll(works.body!.works.values);
-            });
-          }
-        } else {
-          LogUtil.instance.add(
-            type: LogType.Info,
-            id: widget.userId,
-            title: '查询作品信息失败',
-            url: '',
-            context: 'error:${works.message}',
-          );
-        }
+    setState(() {
+      if (init) {
+        _initialize = true;
       }
-    } else {
-      return;
-    }
-
-    if (this.mounted) {
-      setState(() {
-        _loading = false;
-      });
-    }
+      _loading = false;
+    });
   }
 
   Widget _buildWorksGridView() {
@@ -308,12 +262,7 @@ class UserWorksContentState extends State<UserWorksContent>
                       '${_works[index].title}',
                       style: TextStyle(fontSize: 14),
                     ),
-                    subtitle: Text(
-                        Util.dateTimeToString(
-                          DateTime.parse(
-                            (_works[index].updateDate),
-                          ),
-                        ),
+                    subtitle: Text('${_works[index].userName}',
                         style: TextStyle(fontSize: 10)),
                     trailing: Util.buildBookmarkButton(
                       context,
@@ -359,7 +308,7 @@ class UserWorksContentState extends State<UserWorksContent>
             child: ListTile(
               title: Text('加载更多'),
               onTap: () {
-                _loadWorkData();
+                _loadData(reload: false);
               },
             ),
           ));
@@ -376,16 +325,12 @@ class UserWorksContentState extends State<UserWorksContent>
         ),
       );
     } else {
-      if (_loading) {
-        if (!_initialize) {
-          component = Container(
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        } else {
-          component = Container();
-        }
+      if (_loading && !_initialize) {
+        component = Container(
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
       } else {
         component = ListView.builder(
           itemCount: 1,
@@ -406,11 +351,53 @@ class UserWorksContentState extends State<UserWorksContent>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return RefreshIndicator(
-      child: _buildBody(),
-      onRefresh: _loadData,
-      backgroundColor: Colors.white,
+    return Scaffold(
+      drawer: LeftDrawer(),
+      appBar: AppBar(
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              splashRadius: 20,
+              icon: Icon(
+                Icons.menu,
+                color: Colors.white.withAlpha(220),
+              ),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
+        actions: [
+          IconButton(
+            splashRadius: 20,
+            tooltip: '滚动到顶部',
+            icon: Icon(Icons.arrow_upward_outlined),
+            onPressed: _scrollToTop,
+          ),
+          Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                splashRadius: 20,
+                icon: Icon(
+                  Icons.settings,
+                  color: Colors.white.withAlpha(220),
+                ),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+              );
+            },
+          )
+        ],
+        title: Text('排行榜'),
+      ),
+      endDrawer: RankingSettings(),
+      body: RefreshIndicator(
+        onRefresh: _loadData,
+        child: _buildBody(),
+        backgroundColor: Colors.white,
+      ),
     );
   }
 }

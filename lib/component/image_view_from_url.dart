@@ -7,7 +7,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pixiv_xiaocao_android/config.dart';
+import 'package:pixiv_xiaocao_android/config/config_util.dart';
 
 class ImageViewFromUrl extends StatelessWidget {
   final String url;
@@ -36,10 +36,10 @@ class ImageViewFromUrl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = Config.enableImageProxy
+    final imageUrl = ConfigUtil.instance.config.enableImageProxy
         ? url.replaceFirst("i.pximg.net", "i.pixiv.cat")
         : url;
-    // print(imageUrl);
+
     return ExtendedImage(
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
@@ -61,7 +61,7 @@ class ImageViewFromUrl extends StatelessWidget {
       },
       image: CachedNetworkImageProvider(
         imageUrl,
-        headers: {'Referer': Config.referer},
+        headers: {'Referer': ConfigUtil.referer},
       ),
       color: color,
       colorBlendMode: colorBlendMode,

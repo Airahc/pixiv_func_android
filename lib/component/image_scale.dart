@@ -7,7 +7,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pixiv_xiaocao_android/config.dart';
+import 'package:pixiv_xiaocao_android/config/config_util.dart';
 
 class ImageScale extends StatefulWidget {
   final List<String> urls;
@@ -39,13 +39,13 @@ class _ImageScaleState extends State<ImageScale> {
           });
         },
         children: widget.urls.map((url) {
-          final imageUrl = Config.enableImageProxy
+          final imageUrl = ConfigUtil.instance.config.enableImageProxy
               ? url.replaceFirst("i.pximg.net", "i.pixiv.cat")
               : url;
           return ExtendedImage(
             image: CachedNetworkImageProvider(
               imageUrl,
-              headers: {'Referer': Config.referer},
+              headers: {'Referer': ConfigUtil.referer},
             ),
             mode: ExtendedImageMode.gesture,
             loadStateChanged: (ExtendedImageState state) {

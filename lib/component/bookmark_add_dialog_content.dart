@@ -6,6 +6,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
+import 'package:pixiv_xiaocao_android/log/log_entity.dart';
+import 'package:pixiv_xiaocao_android/log/log_util.dart';
 
 class BookmarkAddDialogContent extends StatefulWidget {
   final int illustId;
@@ -30,19 +32,53 @@ class _BookmarkAddDialogContentState extends State<BookmarkAddDialogContent> {
   // String _time(DateTime dateTime) {
   //   return '${dateTime.year}年${dateTime.month}月${dateTime.day}日 ${dateTime.hour}:${dateTime.minute}:${dateTime.second}';
   // }
-
+/*
+*
+         LogUtil.instance.add(
+          type: LogType.Info,
+          id:widget.illustId,
+          title: '插画信息',
+          url: '',
+          context: 'error:${illustInfo.message}',
+        );
+         */
   Future onAdd() async {
-    final result = await PixivRequest.instance.bookmarkAdd(widget.illustId,
-        comment: comment, tags: tags, decodeException: (e, response) {
-      print(e);
-    }, requestException: (e) {
-      print(e);
-    });
+    final result = await PixivRequest.instance.bookmarkAdd(
+      widget.illustId,
+      comment: comment,
+      tags: tags,
+      requestException: (e) {
+        LogUtil.instance.add(
+          type: LogType.NetworkException,
+          id: widget.illustId,
+          title: '添加书签失败',
+          url: '',
+          context: '在添加书签对话框',
+          exception: e,
+        );
+      },
+      decodeException: (e, response) {
+        LogUtil.instance.add(
+          type: LogType.DeserializationException,
+          id: widget.illustId,
+          title: '添加书签反序列化异常',
+          url: '',
+          context: response,
+          exception: e,
+        );
+      },
+    );
     if (this.mounted) {
       if (result != null) {
         widget.resultCallback(result.body != null, result.body?.lastBookmarkId);
         if (result.error) {
-          print('error:${result.message}');
+          LogUtil.instance.add(
+            type: LogType.Info,
+            id:widget.illustId,
+            title: '添加书签失败',
+            url: '',
+            context: 'error:${result.message}',
+          );
         }
       }
     }
@@ -58,8 +94,8 @@ class _BookmarkAddDialogContentState extends State<BookmarkAddDialogContent> {
             },
             child: Text('取消')),
         OutlinedButton(
-          onPressed: () async {
-            await onAdd();
+          onPressed: () {
+            onAdd();
             Navigator.of(context).pop();
           },
           child: Text('添加'),

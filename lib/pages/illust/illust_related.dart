@@ -9,7 +9,9 @@ import 'package:pixiv_xiaocao_android/api/entity/illust_related/illust.dart';
 import 'package:pixiv_xiaocao_android/api/entity/illust_related/illust_related_body.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
-import 'package:pixiv_xiaocao_android/pages/illust/illust.dart';
+import 'package:pixiv_xiaocao_android/log/log_entity.dart';
+import 'package:pixiv_xiaocao_android/log/log_util.dart';
+import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
 class IllustRelatedContent extends StatefulWidget {
@@ -49,16 +51,36 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
       widget.illustId,
       60,
       requestException: (e) {
-        print(e);
+        LogUtil.instance.add(
+          type: LogType.NetworkException,
+          id: widget.illustId,
+          title: '获取插画相关推荐失败',
+          url: '',
+          context: '在插画界面',
+          exception: e,
+        );
       },
       decodeException: (e, response) {
-        print(e);
+        LogUtil.instance.add(
+          type: LogType.DeserializationException,
+          id: widget.illustId,
+          title: '获取插画相关推荐反序列化异常',
+          url: '',
+          context: response,
+          exception: e,
+        );
       },
     );
 
     if (this.mounted && illustRelated != null) {
       if (illustRelated.error) {
-        print(illustRelated.message);
+        LogUtil.instance.add(
+          type: LogType.Info,
+          id:widget.illustId,
+          title: '获取插画相关推荐失败',
+          url: '',
+          context: 'error:${illustRelated.message}',
+        );
       }
       setState(() {
         _illustRelatedData = illustRelated.body;
@@ -88,7 +110,10 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
               children: [
                 GestureDetector(
                     onTap: () {
-                      Util.gotoPage(context, IllustPage(illust.id));
+                      Util.gotoPage(
+                        context,
+                        IllustPage(illust.id),
+                      );
                     },
                     child: imageWidget),
                 Positioned(

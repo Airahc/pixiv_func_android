@@ -8,7 +8,11 @@ part of 'recommender.dart';
 
 Recommender _$RecommenderFromJson(Map<String, dynamic> json) {
   return Recommender(
-    (json['recommendations'] as List<dynamic>).map((e) => int.parse(e as String)).toList(),
+    json['recommendations'] is List
+        ? (json['recommendations'] as List<dynamic>)
+            .map((e) => int.parse(e as String))
+            .toList()
+        : [],
   );
 }
 

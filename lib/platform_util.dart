@@ -15,6 +15,7 @@ class PlatformUtil {
   static const String _eventBackgroundRun = "backgroundRun";
   static const String _eventSaveImage = "saveImage";
   static const String _eventImageIsExist = "imageIsExist";
+  static const String _eventGetDataPath = "eventGetDataPath";
 
   static final _channel = MethodChannel(_ChannelName);
 
@@ -46,5 +47,12 @@ class PlatformUtil {
     );
 
     return success == true;
+  }
+
+  static Future<String?> getDataPath() async {
+    String? result = '';
+    result = await _channel.invokeMethod<String>(_eventGetDataPath);
+
+    return result == '' ? null : result;
   }
 }

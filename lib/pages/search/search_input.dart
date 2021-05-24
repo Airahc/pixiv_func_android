@@ -9,10 +9,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pixiv_xiaocao_android/api/entity/search_autocomplete/search_autocomplete_body.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
-import 'package:pixiv_xiaocao_android/pages/illust/illust.dart';
-import 'package:pixiv_xiaocao_android/pages/search/search_content.dart';
+import 'package:pixiv_xiaocao_android/config/config_util.dart';
+import 'package:pixiv_xiaocao_android/log/log_entity.dart';
+import 'package:pixiv_xiaocao_android/log/log_util.dart';
+import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
+import 'package:pixiv_xiaocao_android/pages/search/search_content_page.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_settings.dart';
-import 'package:pixiv_xiaocao_android/pages/user/user.dart';
+import 'package:pixiv_xiaocao_android/pages/user/user_page.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
 class SearchInputPage extends StatefulWidget {
@@ -44,11 +47,25 @@ class _SearchInputPageState extends State<SearchInputPage> {
     final searchAutocomplete =
         await PixivRequest.instance.getSearchAutocomplete(
       _keywordInput.text,
-      decodeException: (e, response) {
-        print(e);
-      },
       requestException: (e) {
-        print(e);
+        LogUtil.instance.add(
+          type: LogType.NetworkException,
+          id: ConfigUtil.instance.config.userId,
+          title: '获取搜索推荐失败',
+          url: '',
+          context: '在搜索输入页面',
+          exception: e,
+        );
+      },
+      decodeException: (e, response) {
+        LogUtil.instance.add(
+          type: LogType.NetworkException,
+          id: ConfigUtil.instance.config.userId,
+          title: '获取搜索推荐反序列化异常',
+          url: '',
+          context: response,
+          exception: e,
+        );
       },
     );
     if (searchAutocomplete != null) {
@@ -56,7 +73,13 @@ class _SearchInputPageState extends State<SearchInputPage> {
         _searchAutocompleteData = searchAutocomplete.body;
       });
       if (searchAutocomplete.error) {
-        print(searchAutocomplete.message);
+        LogUtil.instance.add(
+          type: LogType.Info,
+          id: ConfigUtil.instance.config.userId,
+          title: '获取搜索推荐失败',
+          url: '',
+          context: 'error:${searchAutocomplete.message}',
+        );
       }
     }
   }
@@ -67,7 +90,10 @@ class _SearchInputPageState extends State<SearchInputPage> {
     if (inputNumber != null) {
       list.add(ListTile(
         onTap: () {
-          Util.gotoPage(context, IllustPage(inputNumber));
+          Util.gotoPage(
+            context,
+            IllustPage(inputNumber),
+          );
         },
         title: Text('$inputNumber'),
         subtitle: Text('插画ID'),

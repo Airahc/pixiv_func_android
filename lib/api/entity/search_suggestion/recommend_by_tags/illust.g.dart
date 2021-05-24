@@ -9,7 +9,9 @@ part of 'illust.dart';
 Illust _$IllustFromJson(Map<String, dynamic> json) {
   return Illust(
     json['tag'] as String,
-    (json['ids'] as List<dynamic>).map((e) => int.parse(e as String)).toList(),
+    (json['ids'] as List<dynamic>)
+        .map((e) => e is String ? int.parse(e) : e as int)
+        .toList(),
   );
 }
 

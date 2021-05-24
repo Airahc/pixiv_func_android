@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2021. by 小草, All rights reserved
+ */
+
 package top.xiaocao.pixiv_xiaocao
 
 import androidx.annotation.NonNull
@@ -17,6 +21,8 @@ class MainActivity : FlutterActivity() {
     private val eventSaveImage = "saveImage"
 
     private val eventImageIsExist = "imageIsExist"
+
+    private val eventGetDataPath = "eventGetDataPath"
 
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
@@ -45,6 +51,9 @@ class MainActivity : FlutterActivity() {
                 }
                 eventImageIsExist -> {
                     result.success(imageExist(fileName = methodCall.argument<String>("fileName")!!))
+                }
+                eventGetDataPath -> {
+                    result.success(dataPath())
                 }
                 else -> {
                     result.notImplemented()

@@ -93,7 +93,7 @@ class _RankingSettingsState extends State<RankingSettings> {
             SegmentBarView(
               items: RankingSettings.typeItems.map((e) => e.key).toList(),
               values: RankingSettings.typeItems.map((e) => e.value).toList(),
-              onSelected: (value) {
+              onSelected: (String value) {
                 setState(() {
                   RankingSettings.typeSelected = value;
                   if (RankingSettings.isR18) {
@@ -128,7 +128,7 @@ class _RankingSettingsState extends State<RankingSettings> {
                     values: RankingSettings.modeR18Items
                         .map((e) => e.value)
                         .toList(),
-                    onSelected: (value) {
+                    onSelected: (String value) {
                       setState(() {
                         RankingSettings.modeR18Selected = value;
                       });
@@ -147,7 +147,7 @@ class _RankingSettingsState extends State<RankingSettings> {
                     items: RankingSettings.modeItems.map((e) => e.key).toList(),
                     values:
                         RankingSettings.modeItems.map((e) => e.value).toList(),
-                    onSelected: (value) {
+                    onSelected: (String value) {
                       setState(() {
                         RankingSettings.modeSelected = value;
                       });

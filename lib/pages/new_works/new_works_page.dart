@@ -1,13 +1,12 @@
 /*
  * Copyright (C) 2021. by 小草, All rights reserved
  * 项目名称 : pixiv_xiaocao_android
- * 文件名称 : user_works.dart
+ * 文件名称 : new_works_page.dart
  */
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:pixiv_xiaocao_android/api/entity/user_works/bookmark_data.dart';
-import 'package:pixiv_xiaocao_android/api/entity/user_works/work.dart';
+import 'package:pixiv_xiaocao_android/api/entity/follow_illusts/illust.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
@@ -16,31 +15,73 @@ import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
-enum UserWorkType { illust, manga }
-
-class UserWorksContent extends StatefulWidget {
-  final UserWorkType type;
-  final int userId;
-
-  UserWorksContent({required this.type, required this.userId, Key? key})
-      : super(key: key);
-
+class NewWorksPage extends StatefulWidget {
   @override
-  UserWorksContentState createState() => UserWorksContentState();
+  _NewWorksPageState createState() => _NewWorksPageState();
 }
 
-class UserWorksContentState extends State<UserWorksContent>
+class _NewWorksPageState extends State<NewWorksPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController = TabController(length: 2, vsync: this);
+
+  int _currentIndex = 0;
+
+  List<GlobalKey<__ContentState>> _globalKeys = [
+    GlobalKey(),
+    GlobalKey(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('关注的用户的新作品'),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(30),
+          child: TabBar(
+            controller: _tabController,
+            tabs: [
+              Text('全部'),
+              Text('R-18'),
+            ],
+            onTap: (int index) {
+              if (_currentIndex != index && _tabController.index == index) {
+                _currentIndex = index;
+              } else {
+                _globalKeys[index].currentState?.scrollToTop();
+              }
+            },
+          ),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _Content(false, key: _globalKeys[0]),
+          _Content(true, key: _globalKeys[1]),
+        ],
+      ),
+    );
+  }
+}
+
+class _Content extends StatefulWidget {
+  final bool isR18;
+
+  _Content(this.isR18, {Key? key}) : super(key: key);
+
+  @override
+  __ContentState createState() => __ContentState();
+}
+
+class __ContentState extends State<_Content>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
-  List<int> _ids = <int>[];
+  List<Illust> _illusts = <Illust>[];
 
-  List<Work> _works = <Work>[];
-
-  final _scrollController = ScrollController();
-
-  static const int _pageQuantity = 30;
+  ScrollController _scrollController = ScrollController();
 
   int _currentPage = 1;
 
@@ -77,10 +118,8 @@ class UserWorksContentState extends State<UserWorksContent>
     if (this.mounted) {
       setState(() {
         if (reload) {
-          _ids.clear();
-          _works.clear();
+          _illusts.clear();
           _currentPage = 1;
-          _hasNext = true;
         }
         if (init) {
           _initialize = false;
@@ -91,23 +130,24 @@ class UserWorksContentState extends State<UserWorksContent>
       return;
     }
 
-    final userAllWork = await PixivRequest.instance.getUserAllWork(
-      widget.userId,
+    final followIllustsData = await PixivRequest.instance.getFollowIllusts(
+      _currentPage,
+      r18: widget.isR18,
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
           id: ConfigUtil.instance.config.userId,
-          title: '获取用户作品失败',
+          title: '获取已关注用户的新作品失败',
           url: '',
-          context: '在用户界面',
+          context: '在已关注用户的新作品页面',
           exception: e,
         );
       },
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
-          id: widget.userId,
-          title: '获取用户作品失败反序列化异常',
+          id: ConfigUtil.instance.config.userId,
+          title: '获取已关注用户的新作品反序列化异常',
           url: '',
           context: response,
           exception: e,
@@ -116,29 +156,11 @@ class UserWorksContentState extends State<UserWorksContent>
     );
 
     if (this.mounted) {
-      if (userAllWork != null) {
-        if (!userAllWork.error) {
-          if (userAllWork.body != null) {
-            _hasNext = _ids.length > _pageQuantity;
-            switch (widget.type) {
-              case UserWorkType.illust:
-                _ids.addAll(userAllWork.body!.illusts);
-                break;
-              case UserWorkType.manga:
-                _ids.addAll(userAllWork.body!.manga);
-                break;
-            }
-            await _loadWorkData();
-          }
-        } else {
-          LogUtil.instance.add(
-            type: LogType.Info,
-            id: widget.userId,
-            title: '获取用户作品失败',
-            url: '',
-            context: 'error:${userAllWork.message}',
-          );
-        }
+      if (followIllustsData != null && followIllustsData.body != null) {
+        setState(() {
+          _hasNext = followIllustsData.body!.lastPage != ++_currentPage;
+          _illusts.addAll(followIllustsData.body!.illusts);
+        });
       }
     } else {
       return;
@@ -154,81 +176,11 @@ class UserWorksContentState extends State<UserWorksContent>
     }
   }
 
-  Future _loadWorkData() async {
-    if (this.mounted) {
-      setState(() {
-        _loading = true;
-      });
-    } else {
-      return;
-    }
-    final startOffset = (_currentPage - 1) * _pageQuantity;
-
-    final endOffset = _ids.length >= startOffset + _pageQuantity
-        ? startOffset + _pageQuantity
-        : _ids.length;
-
-    _hasNext = _ids.length >= startOffset + _pageQuantity;
-
-    final works = await PixivRequest.instance.queryWorksById(
-      _ids.getRange(startOffset, endOffset).toList(),
-      false,
-      requestException: (e) {
-        LogUtil.instance.add(
-          type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
-          title: '查询作品信息失败',
-          url: '',
-          context: '在用户界面',
-          exception: e,
-        );
-      },
-      decodeException: (e, response) {
-        LogUtil.instance.add(
-          type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.userId,
-          title: '查询作品信息失败反序列化异常',
-          url: '',
-          context: response,
-          exception: e,
-        );
-      },
-    );
-    if (this.mounted) {
-      if (works != null) {
-        if (!works.error) {
-          if (works.body != null) {
-            ++_currentPage;
-            setState(() {
-              _works.addAll(works.body!.works.values);
-            });
-          }
-        } else {
-          LogUtil.instance.add(
-            type: LogType.Info,
-            id: widget.userId,
-            title: '查询作品信息失败',
-            url: '',
-            context: 'error:${works.message}',
-          );
-        }
-      }
-    } else {
-      return;
-    }
-
-    if (this.mounted) {
-      setState(() {
-        _loading = false;
-      });
-    }
-  }
-
   Widget _buildWorksGridView() {
     return StaggeredGridView.countBuilder(
       shrinkWrap: true,
       crossAxisCount: 2,
-      itemCount: _works.length,
+      itemCount: _illusts.length,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
       mainAxisSpacing: 6,
       crossAxisSpacing: 6,
@@ -240,7 +192,7 @@ class UserWorksContentState extends State<UserWorksContent>
             child: Column(
               children: [
                 ImageViewFromUrl(
-                  _works[index].url,
+                  _illusts[index].urlS,
                   fit: BoxFit.cover,
                   imageBuilder: (Widget imageWidget) {
                     return Stack(
@@ -251,19 +203,18 @@ class UserWorksContentState extends State<UserWorksContent>
                             Util.gotoPage(
                               context,
                               IllustPage(
-                                _works[index].id,
+                                _illusts[index].id,
                                 onBookmarkAdd: (bookmarkId) {
                                   if (this.mounted) {
                                     setState(() {
-                                      _works[index].bookmarkData =
-                                          BookmarkData(bookmarkId, false);
+                                      _illusts[index].bookmarkId = bookmarkId;
                                     });
                                   }
                                 },
                                 onBookmarkDelete: () {
                                   if (this.mounted) {
                                     setState(() {
-                                      _works[index].bookmarkData = null;
+                                      _illusts[index].bookmarkId = null;
                                     });
                                   }
                                 },
@@ -275,7 +226,7 @@ class UserWorksContentState extends State<UserWorksContent>
                         Positioned(
                           left: 2,
                           top: 2,
-                          child: _works[index].tags.contains('R-18')
+                          child: _illusts[index].tags.contains('R-18')
                               ? Card(
                                   color: Colors.pinkAccent,
                                   child: Text('R-18'),
@@ -290,7 +241,7 @@ class UserWorksContentState extends State<UserWorksContent>
                             child: Padding(
                               padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
                               child: Text(
-                                '${_works[index].pageCount}',
+                                '${_illusts[index].pageCount}',
                                 style: TextStyle(fontSize: 20),
                               ),
                             ),
@@ -305,28 +256,25 @@ class UserWorksContentState extends State<UserWorksContent>
                   child: ListTile(
                     contentPadding: EdgeInsets.all(0),
                     title: Text(
-                      '${_works[index].title}',
+                      '${_illusts[index].title}',
                       style: TextStyle(fontSize: 14),
                     ),
                     subtitle: Text(
-                        Util.dateTimeToString(
-                          DateTime.parse(
-                            (_works[index].updateDate),
-                          ),
-                        ),
-                        style: TextStyle(fontSize: 10)),
+                      '${_illusts[index].authorDetails.userName}',
+                      style: TextStyle(fontSize: 10),
+                    ),
+                    // leading: AvatarViewFromUrl,
                     trailing: Util.buildBookmarkButton(
                       context,
-                      illustId: _works[index].id,
-                      bookmarkId: _works[index].bookmarkData?.id,
+                      illustId: _illusts[index].id,
+                      bookmarkId: _illusts[index].bookmarkId,
                       updateCallback: (int? bookmarkId) {
                         if (this.mounted) {
                           setState(() {
                             if (bookmarkId == null) {
-                              _works[index].bookmarkData = null;
+                              _illusts[index].bookmarkId = null;
                             } else {
-                              _works[index].bookmarkData =
-                                  BookmarkData(bookmarkId, false);
+                              _illusts[index].bookmarkId = bookmarkId;
                             }
                           });
                         }
@@ -344,9 +292,10 @@ class UserWorksContentState extends State<UserWorksContent>
 
   Widget _buildBody() {
     late Widget component;
-    if (_works.isNotEmpty) {
+    if (_illusts.isNotEmpty) {
       final List<Widget> list = [];
       list.add(_buildWorksGridView());
+
       if (_loading) {
         list.add(SizedBox(height: 20));
         list.add(Center(
@@ -359,7 +308,8 @@ class UserWorksContentState extends State<UserWorksContent>
             child: ListTile(
               title: Text('加载更多'),
               onTap: () {
-                _loadWorkData();
+
+                _loadData(reload: false);
               },
             ),
           ));
@@ -370,7 +320,6 @@ class UserWorksContentState extends State<UserWorksContent>
 
       component = SingleChildScrollView(
         controller: _scrollController,
-        physics: AlwaysScrollableScrollPhysics(),
         child: Column(
           children: list,
         ),
@@ -400,7 +349,6 @@ class UserWorksContentState extends State<UserWorksContent>
         );
       }
     }
-
     return component;
   }
 
@@ -408,8 +356,8 @@ class UserWorksContentState extends State<UserWorksContent>
   Widget build(BuildContext context) {
     super.build(context);
     return RefreshIndicator(
-      child: _buildBody(),
       onRefresh: _loadData,
+      child: _buildBody(),
       backgroundColor: Colors.white,
     );
   }

@@ -84,7 +84,7 @@ class _SearchSettingsState extends State<SearchSettings> {
               items: SearchSettings.searchModeItems.map((e) => e.key).toList(),
               values:
                   SearchSettings.searchModeItems.map((e) => e.value).toList(),
-              onSelected: (value) {
+              onSelected: (String value) {
                 setState(() {
                   SearchSettings.searchModeSelected = value;
                 });
@@ -107,7 +107,7 @@ class _SearchSettingsState extends State<SearchSettings> {
             SegmentBarView(
               items: SearchSettings.workTypeItems.map((e) => e.key).toList(),
               values: SearchSettings.workTypeItems.map((e) => e.value).toList(),
-              onSelected: (value) {
+              onSelected: (String value) {
                 setState(() {
                   SearchSettings.workTypeSelected = value;
                 });
@@ -130,7 +130,7 @@ class _SearchSettingsState extends State<SearchSettings> {
             SegmentBarView(
               items: SearchSettings.ageLimitItems.map((e) => e.key).toList(),
               values: SearchSettings.ageLimitItems.map((e) => e.value).toList(),
-              onSelected: (value) {
+              onSelected: (String value) {
                 setState(() {
                   SearchSettings.ageLimitSelected = value;
                 });
