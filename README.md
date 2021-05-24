@@ -1,4 +1,4 @@
-# Pixiv桌面客户端
+# Pixiv安卓客户端
 
 ## 看色图用的  
 - 可以浏览推荐
@@ -11,8 +11,6 @@
 - 支持免代理直连(也可以开代理)
 
 前往 [Release](https://github.com/xiao-cao-x/pixiv-xiaocao-android/releases) 页面下载
-
-进入软件先允许存储权限 再去后台把软件关掉 再配置账号信息
 
 Cookie和Token的获取先去参考桌面版(获取完导入到手机可以一直用)
 
