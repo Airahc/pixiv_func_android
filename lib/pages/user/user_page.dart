@@ -72,7 +72,7 @@ class _UserPageState extends State<UserPage>
           id: widget.userId,
           title: '查询用户信息失败',
           url: '',
-          context: '在用户界面',
+          context: '在用户页面',
           exception: e,
         );
       },
@@ -150,7 +150,7 @@ class _UserPageState extends State<UserPage>
                           id: widget.userId,
                           title: '取消关注用户失败',
                           url: '',
-                          context: '在用户界面',
+                          context: '在用户页面',
                           exception: e,
                         );
                       },
@@ -166,7 +166,7 @@ class _UserPageState extends State<UserPage>
                           id: widget.userId,
                           title: '取消关注用户失败',
                           url: '',
-                          context: '只是单纯的没成功',
+                          context: '',
                         );
                       }
                     }
@@ -178,7 +178,7 @@ class _UserPageState extends State<UserPage>
                         id: widget.userId,
                         title: '关注用户失败',
                         url: '',
-                        context: '在用户界面',
+                        context: '在用户页面',
                         exception: e,
                       );
                     });
@@ -193,7 +193,7 @@ class _UserPageState extends State<UserPage>
                           id: widget.userId,
                           title: '关注用户失败',
                           url: '',
-                          context: '只是单纯的没成功',
+                          context: '',
                         );
                       }
                     }

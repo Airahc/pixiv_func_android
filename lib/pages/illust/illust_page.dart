@@ -6,6 +6,7 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:pixiv_xiaocao_android/api/entity/bookmark_add/bookmark_add.dart';
 import 'package:pixiv_xiaocao_android/api/entity/illust_info/illust_image.dart';
 import 'package:pixiv_xiaocao_android/api/entity/illust_info/illust_info_body.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
@@ -70,7 +71,7 @@ class _IllustPageState extends State<IllustPage> {
           id: widget.illustId,
           title: '查询插画信息失败',
           url: '',
-          context: '在插画界面',
+          context: '在插画页面',
           exception: e,
         );
       },
@@ -118,46 +119,6 @@ class _IllustPageState extends State<IllustPage> {
 
   String? get _getIllustComment {
     return _illustInfoData?.illustDetails.comment;
-  }
-
-  void _addBookmark(int illustId) {
-    showDialog<Null>(
-      context: context,
-      builder: (context) {
-        return BookmarkAddDialogContent(
-          illustId,
-          (bool success, int? bookmarkId) {
-            if (success) {
-              if (bookmarkId != null) {
-                if (this.mounted) {
-                  setState(() {
-                    _bookmarkId = bookmarkId;
-                  });
-                }
-
-                widget.onBookmarkAdd?.call(bookmarkId);
-              }
-            } else {
-              Util.toast('添加书签失败');
-            }
-          },
-        );
-      },
-    );
-  }
-
-  Future _deleteBookmark(int bookmarkId) async {
-    var success = await PixivRequest.instance.bookmarkDelete(bookmarkId);
-    if (success) {
-      if (this.mounted) {
-        setState(() {
-          _bookmarkId = null;
-        });
-      }
-      widget.onBookmarkDelete?.call();
-    } else {
-      Util.toast('删除书签失败');
-    }
   }
 
   List<Widget> _buildImageList(List<IllustImage> illustImages,
@@ -328,11 +289,76 @@ class _IllustPageState extends State<IllustPage> {
     }
     return FloatingActionButton(
       backgroundColor: Colors.white,
-      onPressed: () {
+      onPressed: () async {
         if (_bookmarkId != null) {
-          _deleteBookmark(_bookmarkId!);
+          final bookmarkDelete =
+              await PixivRequest.instance.bookmarkDelete(_bookmarkId!);
+          if (bookmarkDelete != null) {
+            if (!bookmarkDelete.error) {
+              if (bookmarkDelete.isSucceed) {
+                setState(() {
+                  _bookmarkId = null;
+                });
+                widget.onBookmarkDelete?.call();
+              } else {
+                LogUtil.instance.add(
+                  type: LogType.Info,
+                  id: widget.illustId,
+                  title: '删除书签失败',
+                  url: '',
+                  context: '',
+                );
+              }
+            } else {
+              LogUtil.instance.add(
+                type: LogType.Info,
+                id: widget.illustId,
+                title: '删除书签失败',
+                url: '',
+                context: 'error:${bookmarkDelete.message}',
+              );
+            }
+          }
         } else {
-          _addBookmark(widget.illustId);
+          showDialog<Null>(
+            context: context,
+            builder: (context) {
+              return BookmarkAddDialogContent(
+                widget.illustId,
+                (BookmarkAdd? bookmarkAdd) {
+                  if (bookmarkAdd != null) {
+                    if (!bookmarkAdd.error) {
+                      if (bookmarkAdd.isSucceed) {
+                        if (bookmarkAdd.lastBookmarkId != null) {
+                          setState(() {
+                            _bookmarkId = bookmarkAdd.lastBookmarkId;
+                          });
+                          widget.onBookmarkAdd
+                              ?.call(bookmarkAdd.lastBookmarkId!);
+                        }
+                      } else {
+                        LogUtil.instance.add(
+                          type: LogType.Info,
+                          id: widget.illustId,
+                          title: '添加书签失败',
+                          url: '',
+                          context: '',
+                        );
+                      }
+                    } else {
+                      LogUtil.instance.add(
+                        type: LogType.Info,
+                        id: widget.illustId,
+                        title: '添加书签失败',
+                        url: '',
+                        context: 'error:${bookmarkAdd.message}',
+                      );
+                    }
+                  }
+                },
+              );
+            },
+          );
         }
       },
       child: Icon(

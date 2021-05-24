@@ -77,7 +77,7 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
           id: widget.illustId,
           title: '获取评论失败',
           url: '',
-          context: '在评论界面',
+          context: '在评论页面',
         );
       },
       decodeException: (e, response) {

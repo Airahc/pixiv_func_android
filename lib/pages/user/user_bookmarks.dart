@@ -92,7 +92,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
           id: widget.userId,
           title: '查询用户已收藏作品失败',
           url: '',
-          context: '在用户界面',
+          context: '在用户页面',
           exception: e,
         );
       },

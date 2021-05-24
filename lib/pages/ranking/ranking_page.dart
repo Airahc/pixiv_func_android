@@ -6,8 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:pixiv_xiaocao_android/api/entity/user_works/bookmark_data.dart';
-import 'package:pixiv_xiaocao_android/api/entity/user_works/work.dart';
+import 'package:pixiv_xiaocao_android/api/entity/illust_many/illust.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
@@ -24,7 +23,7 @@ class RankingPage extends StatefulWidget {
 }
 
 class _RankingPageState extends State<RankingPage> {
-  List<Work> _works = <Work>[];
+  List<Illust> _illusts = <Illust>[];
 
   int _currentPage = 1;
 
@@ -62,7 +61,7 @@ class _RankingPageState extends State<RankingPage> {
   Future _loadData({bool reload = true, bool init = false}) async {
     setState(() {
       if (reload) {
-        _works.clear();
+        _illusts.clear();
         _currentPage = 1;
         _hasNext = true;
       }
@@ -104,9 +103,8 @@ class _RankingPageState extends State<RankingPage> {
     if (this.mounted) {
       if (rankingData != null) {
         if (!rankingData.error) {
-          var worksData = await PixivRequest.instance.queryWorksById(
+          var worksData = await PixivRequest.instance.queryIllustsById(
             rankingData.body!.ranking.map((item) => item.illustId).toList(),
-            false,
             requestException: (e){
               LogUtil.instance.add(
                 type: LogType.NetworkException,
@@ -133,11 +131,11 @@ class _RankingPageState extends State<RankingPage> {
             if (worksData != null) {
               if (!worksData.error) {
                 if (worksData.body != null) {
-                  if (worksData.body!.works.isNotEmpty) {
+                  if (worksData.body!.illustDetails.isNotEmpty) {
                     _hasNext = true;
                     ++_currentPage;
                     setState(() {
-                      _works.addAll(worksData.body!.works.values);
+                      _illusts.addAll(worksData.body!.illustDetails);
                     });
                   } else {
                     _hasNext = false;
@@ -182,7 +180,7 @@ class _RankingPageState extends State<RankingPage> {
     return StaggeredGridView.countBuilder(
       shrinkWrap: true,
       crossAxisCount: 2,
-      itemCount: _works.length,
+      itemCount: _illusts.length,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
       mainAxisSpacing: 6,
       crossAxisSpacing: 6,
@@ -194,7 +192,7 @@ class _RankingPageState extends State<RankingPage> {
             child: Column(
               children: [
                 ImageViewFromUrl(
-                  _works[index].url,
+                  _illusts[index].urlS,
                   fit: BoxFit.cover,
                   imageBuilder: (Widget imageWidget) {
                     return Stack(
@@ -205,19 +203,18 @@ class _RankingPageState extends State<RankingPage> {
                             Util.gotoPage(
                               context,
                               IllustPage(
-                                _works[index].id,
+                                _illusts[index].id,
                                 onBookmarkAdd: (bookmarkId) {
                                   if (this.mounted) {
                                     setState(() {
-                                      _works[index].bookmarkData =
-                                          BookmarkData(bookmarkId, false);
+                                      _illusts[index].bookmarkId = bookmarkId;
                                     });
                                   }
                                 },
                                 onBookmarkDelete: () {
                                   if (this.mounted) {
                                     setState(() {
-                                      _works[index].bookmarkData = null;
+                                      _illusts[index].bookmarkId = null;
                                     });
                                   }
                                 },
@@ -229,7 +226,7 @@ class _RankingPageState extends State<RankingPage> {
                         Positioned(
                           left: 2,
                           top: 2,
-                          child: _works[index].tags.contains('R-18')
+                          child: _illusts[index].tags.contains('R-18')
                               ? Card(
                                   color: Colors.pinkAccent,
                                   child: Text('R-18'),
@@ -244,7 +241,7 @@ class _RankingPageState extends State<RankingPage> {
                             child: Padding(
                               padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
                               child: Text(
-                                '${_works[index].pageCount}',
+                                '${_illusts[index].pageCount}',
                                 style: TextStyle(fontSize: 20),
                               ),
                             ),
@@ -259,24 +256,19 @@ class _RankingPageState extends State<RankingPage> {
                   child: ListTile(
                     contentPadding: EdgeInsets.all(0),
                     title: Text(
-                      '${_works[index].title}',
+                      '${_illusts[index].title}',
                       style: TextStyle(fontSize: 14),
                     ),
-                    subtitle: Text('${_works[index].userName}',
+                    subtitle: Text('${_illusts[index].authorDetails.userName}',
                         style: TextStyle(fontSize: 10)),
                     trailing: Util.buildBookmarkButton(
                       context,
-                      illustId: _works[index].id,
-                      bookmarkId: _works[index].bookmarkData?.id,
+                      illustId: _illusts[index].id,
+                      bookmarkId: _illusts[index].bookmarkId,
                       updateCallback: (int? bookmarkId) {
                         if (this.mounted) {
                           setState(() {
-                            if (bookmarkId == null) {
-                              _works[index].bookmarkData = null;
-                            } else {
-                              _works[index].bookmarkData =
-                                  BookmarkData(bookmarkId, false);
-                            }
+                            _illusts[index].bookmarkId = bookmarkId;
                           });
                         }
                       },
@@ -293,7 +285,7 @@ class _RankingPageState extends State<RankingPage> {
 
   Widget _buildBody() {
     late Widget component;
-    if (_works.isNotEmpty) {
+    if (_illusts.isNotEmpty) {
       final List<Widget> list = [];
       list.add(_buildWorksGridView());
       if (_loading) {

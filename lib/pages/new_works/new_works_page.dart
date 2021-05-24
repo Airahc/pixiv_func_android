@@ -271,11 +271,7 @@ class __ContentState extends State<_Content>
                       updateCallback: (int? bookmarkId) {
                         if (this.mounted) {
                           setState(() {
-                            if (bookmarkId == null) {
-                              _illusts[index].bookmarkId = null;
-                            } else {
-                              _illusts[index].bookmarkId = bookmarkId;
-                            }
+                            _illusts[index].bookmarkId = bookmarkId;
                           });
                         }
                       },

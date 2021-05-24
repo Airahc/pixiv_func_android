@@ -65,7 +65,7 @@ class _FollowedUsersPageState extends State<FollowedUsersPage> {
           id: ConfigUtil.instance.config.userId,
           title: '获取已关注用户失败',
           url: '',
-          context: '在已关注用户界面',
+          context: '在已关注用户页面',
           exception: e,
         );
       },

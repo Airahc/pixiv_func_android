@@ -110,7 +110,7 @@ class SearchSuggestionContentState extends State<SearchSuggestionContent>
             id: ConfigUtil.instance.config.userId,
             title: '获取搜索推荐失败',
             url: '',
-            context: '只是单纯的没成功',
+            context: '',
           );
         }
       }

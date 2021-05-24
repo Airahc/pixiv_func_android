@@ -9,8 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:pixiv_xiaocao_android/api/entity/user_works/bookmark_data.dart';
-import 'package:pixiv_xiaocao_android/api/entity/user_works/work.dart';
+import 'package:pixiv_xiaocao_android/api/entity/illust_many/illust.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
@@ -99,14 +98,19 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
 
   ScrollController _scrollController = ScrollController();
 
-  List<Work> _works = <Work>[];
+  List<int> _ids = <int>[];
 
-  final TextEditingController _pageViewQuantityController =
-      TextEditingController(text: '100');
+  List<Illust> _illusts = <Illust>[];
 
   bool _loading = false;
 
   bool _initialize = false;
+
+  static const int _pageQuantity = 30;
+
+  int _currentPage = 1;
+
+  bool _hasNext = true;
 
   @override
   void initState() {
@@ -117,7 +121,6 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
   @override
   void dispose() {
     _scrollController.dispose();
-    _pageViewQuantityController.dispose();
     super.dispose();
   }
 
@@ -137,7 +140,10 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
     if (this.mounted) {
       setState(() {
         if (reload) {
-          _works.clear();
+          _ids.clear();
+          _illusts.clear();
+          _currentPage = 1;
+          _hasNext = true;
         }
         if (init) {
           _initialize = false;
@@ -148,8 +154,7 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
       return;
     }
 
-    var recommender = await PixivRequest.instance.getRecommender(
-      int.parse(_pageViewQuantityController.text),
+    final recommender = await PixivRequest.instance.getRecommender(
       r18: widget.isR18,
       requestException: (e) {
         LogUtil.instance.add(
@@ -171,56 +176,98 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
           exception: e,
         );
       },
-
     );
 
     if (this.mounted) {
-      if (recommender != null && recommender.recommendations.isNotEmpty) {
+      if (recommender != null) {
+        if (!recommender.error) {
+          if (recommender.body != null) {
+            _hasNext = _ids.length > _pageQuantity;
 
-        var works = await PixivRequest.instance.queryWorksById(
-          recommender.recommendations,
-          false,
-          requestException: (e) {
-            LogUtil.instance.add(
-              type: LogType.NetworkException,
-              id: ConfigUtil.instance.config.userId,
-              title: '查询作品失败',
-              url: '',
-              context: '在推荐作品页面',
-              exception: e,
-            );
-          },
-          decodeException: (e, response) {
-            LogUtil.instance.add(
-              type: LogType.DeserializationException,
-              id: ConfigUtil.instance.config.userId,
-              title: '查询作品反序列化异常',
-              url: '',
-              context: response,
-              exception: e,
-            );
-          },
-        );
-        if (this.mounted) {
-          if (works != null) {
-            if (!works.error) {
-              if (works.body != null) {
-                setState(() {
-                  _works.addAll(works.body!.works.values);
-                });
-              }
-            } else {
-              LogUtil.instance.add(
-                type: LogType.Info,
-                id: ConfigUtil.instance.config.userId,
-                title: '查询作品信息失败',
-                url: '',
-                context: 'error:${works.message}',
-              );
-            }
+            _ids.addAll(recommender.body!.recommendedWorkIds);
+
+            await _loadIllustsData();
           }
         } else {
-          return;
+          LogUtil.instance.add(
+            type: LogType.Info,
+            id: ConfigUtil.instance.config.userId,
+            title: '获取推荐作品失败',
+            url: '',
+            context: 'error:${recommender.message}',
+          );
+        }
+      }
+    } else {
+      return;
+    }
+
+    if (this.mounted) {
+      setState(() {
+        if (init) {
+          _initialize = true;
+        }
+        _loading = false;
+      });
+    }
+  }
+
+  Future _loadIllustsData() async {
+    if (this.mounted) {
+      setState(() {
+        _loading = true;
+      });
+    } else {
+      return;
+    }
+    final startOffset = (_currentPage - 1) * _pageQuantity;
+
+    final endOffset = _ids.length >= startOffset + _pageQuantity
+        ? startOffset + _pageQuantity
+        : _ids.length;
+
+    _hasNext = _ids.length >= startOffset + _pageQuantity;
+
+    final works = await PixivRequest.instance.queryIllustsById(
+      _ids.getRange(startOffset, endOffset).toList(),
+      requestException: (e) {
+        LogUtil.instance.add(
+          type: LogType.NetworkException,
+          id: ConfigUtil.instance.config.userId,
+          title: '查询作品信息失败',
+          url: '',
+          context: '在排行榜页面',
+          exception: e,
+        );
+      },
+      decodeException: (e, response) {
+        LogUtil.instance.add(
+          type: LogType.DeserializationException,
+          id: ConfigUtil.instance.config.userId,
+          title: '查询作品信息反序列化异常',
+          url: '',
+          context: response,
+          exception: e,
+        );
+      },
+    );
+    if (this.mounted) {
+      if (works != null) {
+        if (!works.error) {
+          if (works.body != null) {
+            ++_currentPage;
+            setState(() {
+              _illusts.addAll(works.body!.illustDetails);
+            });
+          }
+        } else {
+          LogUtil.instance.add(
+            type: LogType.Info,
+            id: ConfigUtil.instance.config.userId,
+            title: '查询作品信息失败',
+            url: '',
+            context: 'error:${works.message}',
+          );
         }
       }
     } else {
@@ -230,21 +277,19 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
     if (this.mounted) {
       setState(() {
         _loading = false;
-        if (init) {
-          _initialize = true;
-        }
       });
     }
   }
 
   Widget _buildWorksGridView() {
     return StaggeredGridView.countBuilder(
+      shrinkWrap: true,
       crossAxisCount: 2,
-      controller: _scrollController,
-      itemCount: _works.length,
+      itemCount: _illusts.length,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
       mainAxisSpacing: 6,
       crossAxisSpacing: 6,
+      physics: NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int index) {
         return Card(
           child: Container(
@@ -252,7 +297,7 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
             child: Column(
               children: [
                 ImageViewFromUrl(
-                  _works[index].url,
+                  _illusts[index].urlS,
                   fit: BoxFit.cover,
                   imageBuilder: (Widget imageWidget) {
                     return Stack(
@@ -263,19 +308,18 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
                             Util.gotoPage(
                               context,
                               IllustPage(
-                                _works[index].id,
+                                _illusts[index].id,
                                 onBookmarkAdd: (bookmarkId) {
                                   if (this.mounted) {
                                     setState(() {
-                                      _works[index].bookmarkData =
-                                          BookmarkData(bookmarkId, false);
+                                      _illusts[index].bookmarkId = bookmarkId;
                                     });
                                   }
                                 },
                                 onBookmarkDelete: () {
                                   if (this.mounted) {
                                     setState(() {
-                                      _works[index].bookmarkData = null;
+                                      _illusts[index].bookmarkId = null;
                                     });
                                   }
                                 },
@@ -287,11 +331,11 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
                         Positioned(
                           left: 2,
                           top: 2,
-                          child: _works[index].tags.contains('R-18')
+                          child: _illusts[index].tags.contains('R-18')
                               ? Card(
-                                  color: Colors.pinkAccent,
-                                  child: Text('R-18'),
-                                )
+                            color: Colors.pinkAccent,
+                            child: Text('R-18'),
+                          )
                               : Container(),
                         ),
                         Positioned(
@@ -301,7 +345,10 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
                             color: Colors.white12,
                             child: Padding(
                               padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                              child: Text('${_works[index].pageCount}'),
+                              child: Text(
+                                '${_illusts[index].pageCount}',
+                                style: TextStyle(fontSize: 20),
+                              ),
                             ),
                           ),
                         ),
@@ -314,26 +361,22 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
                   child: ListTile(
                     contentPadding: EdgeInsets.all(0),
                     title: Text(
-                      '${_works[index].title}',
+                      '${_illusts[index].title}',
                       style: TextStyle(fontSize: 14),
                     ),
                     subtitle: Text(
-                      '${_works[index].userName}',
+                      '${_illusts[index].authorDetails.userName}',
                       style: TextStyle(fontSize: 10),
                     ),
+                    // leading: AvatarViewFromUrl,
                     trailing: Util.buildBookmarkButton(
                       context,
-                      illustId: _works[index].id,
-                      bookmarkId: _works[index].bookmarkData?.id,
+                      illustId: _illusts[index].id,
+                      bookmarkId: _illusts[index].bookmarkId,
                       updateCallback: (int? bookmarkId) {
                         if (this.mounted) {
                           setState(() {
-                            if (bookmarkId == null) {
-                              _works[index].bookmarkData = null;
-                            } else {
-                              _works[index].bookmarkData =
-                                  BookmarkData(bookmarkId, false);
-                            }
+                            _illusts[index].bookmarkId = bookmarkId;
                           });
                         }
                       },
@@ -350,35 +393,61 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
 
   Widget _buildBody() {
     late Widget component;
-    if (_works.isNotEmpty) {
-      component = _buildWorksGridView();
+    if (_illusts.isNotEmpty) {
+      final List<Widget> list = [];
+      list.add(_buildWorksGridView());
+
+      if (_loading) {
+        list.add(SizedBox(height: 20));
+        list.add(Center(
+          child: CircularProgressIndicator(),
+        ));
+        list.add(SizedBox(height: 20));
+      } else {
+        if (_hasNext) {
+          list.add(Card(
+            child: ListTile(
+              title: Text('加载更多'),
+              onTap: () {
+
+                _loadData(reload: false);
+              },
+            ),
+          ));
+        } else {
+          list.add(Card(child: ListTile(title: Text('没有更多数据啦'))));
+        }
+      }
+
+      component = SingleChildScrollView(
+        controller: _scrollController,
+        child: Column(
+          children: list,
+        ),
+      );
     } else {
       if (_loading) {
-        if (_initialize) {
-          component = Container();
-        } else {
+        if (!_initialize) {
           component = Container(
             child: Center(
               child: CircularProgressIndicator(),
             ),
           );
-        }
-      } else {
-        if (_initialize) {
-          component = ListView.builder(
-            itemCount: 1,
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                title: Center(
-                  child: Text('没有任何数据'),
-                ),
-              );
-            },
-            physics: const AlwaysScrollableScrollPhysics(),
-          );
         } else {
           component = Container();
         }
+      } else {
+        component = ListView.builder(
+          itemCount: 1,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              title: Center(
+                child: Text('没有任何数据'),
+              ),
+            );
+          },
+          physics: const AlwaysScrollableScrollPhysics(),
+        );
       }
     }
     return component;

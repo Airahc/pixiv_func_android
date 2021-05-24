@@ -63,7 +63,7 @@ class _BookmarkedPageState extends State<BookmarkedPage> {
           id: ConfigUtil.instance.config.userId,
           title: '获取已收藏书签失败',
           url: '',
-          context: '在已收藏书签界面',
+          context: '在已收藏书签页面',
           exception: e,
         );
       },
@@ -199,11 +199,7 @@ class _BookmarkedPageState extends State<BookmarkedPage> {
                       updateCallback: (int? bookmarkId) {
                         if (this.mounted) {
                           setState(() {
-                            if (bookmarkId == null) {
-                              _bookmarks[index].bookmarkId = null;
-                            } else {
-                              _bookmarks[index].bookmarkId = bookmarkId;
-                            }
+                            _bookmarks[index].bookmarkId = bookmarkId;
                           });
                         }
                       },

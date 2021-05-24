@@ -9,8 +9,6 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:pixiv_xiaocao_android/api/entity/search/illust.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
-import 'package:pixiv_xiaocao_android/log/log_entity.dart';
-import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_settings.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
@@ -209,31 +207,16 @@ class _SearchContentPageState extends State<SearchContentPage> {
                       style: TextStyle(fontSize: 10),
                     ),
                     // leading: AvatarViewFromUrl,
-                    trailing: IconButton(
-                      splashRadius: 20,
-                      icon: Icon(Icons.favorite_outline_sharp),
-                      onPressed: () {
-                        if (_illusts[index].bookmarkId != null) {
-                          PixivRequest.instance
-                              .bookmarkDelete(_illusts[index].bookmarkId!)
-                              .then((success) {
-                            if (success) {
-                              if (this.mounted) {
-                                setState(() {
-                                  _illusts[index].bookmarkId = null;
-                                });
-                              }
-                            } else {
-                              LogUtil.instance.add(
-                                type: LogType.Info,
-                                id: _illusts[index].id,
-                                title: '添加书签失败',
-                                url: '',
-                                context: '在搜索内容页面',
-                              );
-                            }
+                    trailing: Util.buildBookmarkButton(
+                      context,
+                      illustId: _illusts[index].id,
+                      bookmarkId: _illusts[index].bookmarkId,
+                      updateCallback: (int? bookmarkId) {
+                        if (this.mounted) {
+                          setState(() {
+                            _illusts[index].bookmarkId = bookmarkId;
                           });
-                        } else {}
+                        }
                       },
                     ),
                   ),

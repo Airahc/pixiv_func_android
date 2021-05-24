@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2021. by 小草, All rights reserved
  * 项目名称 : pixiv_xiaocao_android
- * 文件名称 : illust_related.dart
+ * 文件名称 : illust_many.dart
  */
 
 import 'package:flutter/material.dart';
@@ -56,7 +56,7 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
           id: widget.illustId,
           title: '获取插画相关推荐失败',
           url: '',
-          context: '在插画界面',
+          context: '在插画页面',
           exception: e,
         );
       },

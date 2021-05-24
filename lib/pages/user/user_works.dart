@@ -6,8 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:pixiv_xiaocao_android/api/entity/user_works/bookmark_data.dart';
-import 'package:pixiv_xiaocao_android/api/entity/user_works/work.dart';
+import 'package:pixiv_xiaocao_android/api/entity/illust_many/illust.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
@@ -36,7 +35,7 @@ class UserWorksContentState extends State<UserWorksContent>
 
   List<int> _ids = <int>[];
 
-  List<Work> _works = <Work>[];
+  List<Illust> _illusts = <Illust>[];
 
   final _scrollController = ScrollController();
 
@@ -78,7 +77,7 @@ class UserWorksContentState extends State<UserWorksContent>
       setState(() {
         if (reload) {
           _ids.clear();
-          _works.clear();
+          _illusts.clear();
           _currentPage = 1;
           _hasNext = true;
         }
@@ -99,7 +98,7 @@ class UserWorksContentState extends State<UserWorksContent>
           id: ConfigUtil.instance.config.userId,
           title: '获取用户作品失败',
           url: '',
-          context: '在用户界面',
+          context: '在用户页面',
           exception: e,
         );
       },
@@ -107,7 +106,7 @@ class UserWorksContentState extends State<UserWorksContent>
         LogUtil.instance.add(
           type: LogType.DeserializationException,
           id: widget.userId,
-          title: '获取用户作品失败反序列化异常',
+          title: '获取用户作品反序列化异常',
           url: '',
           context: response,
           exception: e,
@@ -128,7 +127,7 @@ class UserWorksContentState extends State<UserWorksContent>
                 _ids.addAll(userAllWork.body!.manga);
                 break;
             }
-            await _loadWorkData();
+            await _loadIllustsData();
           }
         } else {
           LogUtil.instance.add(
@@ -154,7 +153,7 @@ class UserWorksContentState extends State<UserWorksContent>
     }
   }
 
-  Future _loadWorkData() async {
+  Future _loadIllustsData() async {
     if (this.mounted) {
       setState(() {
         _loading = true;
@@ -170,16 +169,15 @@ class UserWorksContentState extends State<UserWorksContent>
 
     _hasNext = _ids.length >= startOffset + _pageQuantity;
 
-    final works = await PixivRequest.instance.queryWorksById(
+    final works = await PixivRequest.instance.queryIllustsById(
       _ids.getRange(startOffset, endOffset).toList(),
-      false,
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
           id: ConfigUtil.instance.config.userId,
           title: '查询作品信息失败',
           url: '',
-          context: '在用户界面',
+          context: '在用户页面',
           exception: e,
         );
       },
@@ -187,7 +185,7 @@ class UserWorksContentState extends State<UserWorksContent>
         LogUtil.instance.add(
           type: LogType.DeserializationException,
           id: ConfigUtil.instance.config.userId,
-          title: '查询作品信息失败反序列化异常',
+          title: '查询作品信息反序列化异常',
           url: '',
           context: response,
           exception: e,
@@ -200,7 +198,7 @@ class UserWorksContentState extends State<UserWorksContent>
           if (works.body != null) {
             ++_currentPage;
             setState(() {
-              _works.addAll(works.body!.works.values);
+              _illusts.addAll(works.body!.illustDetails);
             });
           }
         } else {
@@ -228,7 +226,7 @@ class UserWorksContentState extends State<UserWorksContent>
     return StaggeredGridView.countBuilder(
       shrinkWrap: true,
       crossAxisCount: 2,
-      itemCount: _works.length,
+      itemCount: _illusts.length,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
       mainAxisSpacing: 6,
       crossAxisSpacing: 6,
@@ -240,7 +238,7 @@ class UserWorksContentState extends State<UserWorksContent>
             child: Column(
               children: [
                 ImageViewFromUrl(
-                  _works[index].url,
+                  _illusts[index].urlS,
                   fit: BoxFit.cover,
                   imageBuilder: (Widget imageWidget) {
                     return Stack(
@@ -251,19 +249,18 @@ class UserWorksContentState extends State<UserWorksContent>
                             Util.gotoPage(
                               context,
                               IllustPage(
-                                _works[index].id,
+                                _illusts[index].id,
                                 onBookmarkAdd: (bookmarkId) {
                                   if (this.mounted) {
                                     setState(() {
-                                      _works[index].bookmarkData =
-                                          BookmarkData(bookmarkId, false);
+                                      _illusts[index].bookmarkId = bookmarkId;
                                     });
                                   }
                                 },
                                 onBookmarkDelete: () {
                                   if (this.mounted) {
                                     setState(() {
-                                      _works[index].bookmarkData = null;
+                                      _illusts[index].bookmarkId = null;
                                     });
                                   }
                                 },
@@ -275,7 +272,7 @@ class UserWorksContentState extends State<UserWorksContent>
                         Positioned(
                           left: 2,
                           top: 2,
-                          child: _works[index].tags.contains('R-18')
+                          child: _illusts[index].tags.contains('R-18')
                               ? Card(
                                   color: Colors.pinkAccent,
                                   child: Text('R-18'),
@@ -290,7 +287,7 @@ class UserWorksContentState extends State<UserWorksContent>
                             child: Padding(
                               padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
                               child: Text(
-                                '${_works[index].pageCount}',
+                                '${_illusts[index].pageCount}',
                                 style: TextStyle(fontSize: 20),
                               ),
                             ),
@@ -305,29 +302,24 @@ class UserWorksContentState extends State<UserWorksContent>
                   child: ListTile(
                     contentPadding: EdgeInsets.all(0),
                     title: Text(
-                      '${_works[index].title}',
+                      '${_illusts[index].title}',
                       style: TextStyle(fontSize: 14),
                     ),
                     subtitle: Text(
                         Util.dateTimeToString(
-                          DateTime.parse(
-                            (_works[index].updateDate),
+                          DateTime.fromMillisecondsSinceEpoch(
+                            _illusts[index].uploadTimestamp * 1000,
                           ),
                         ),
                         style: TextStyle(fontSize: 10)),
                     trailing: Util.buildBookmarkButton(
                       context,
-                      illustId: _works[index].id,
-                      bookmarkId: _works[index].bookmarkData?.id,
+                      illustId: _illusts[index].id,
+                      bookmarkId: _illusts[index].bookmarkId,
                       updateCallback: (int? bookmarkId) {
                         if (this.mounted) {
                           setState(() {
-                            if (bookmarkId == null) {
-                              _works[index].bookmarkData = null;
-                            } else {
-                              _works[index].bookmarkData =
-                                  BookmarkData(bookmarkId, false);
-                            }
+                            _illusts[index].bookmarkId = bookmarkId;
                           });
                         }
                       },
@@ -344,7 +336,7 @@ class UserWorksContentState extends State<UserWorksContent>
 
   Widget _buildBody() {
     late Widget component;
-    if (_works.isNotEmpty) {
+    if (_illusts.isNotEmpty) {
       final List<Widget> list = [];
       list.add(_buildWorksGridView());
       if (_loading) {
@@ -359,7 +351,7 @@ class UserWorksContentState extends State<UserWorksContent>
             child: ListTile(
               title: Text('加载更多'),
               onTap: () {
-                _loadWorkData();
+                _loadIllustsData();
               },
             ),
           ));

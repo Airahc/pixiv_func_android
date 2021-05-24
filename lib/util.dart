@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pixiv_xiaocao_android/api/entity/bookmark_add/bookmark_add.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
@@ -188,8 +189,6 @@ class Util {
     return '${dateTime.year}年${dateTime.month}月${dateTime.day}日 ${dateTime.hour}:${dateTime.minute}:${dateTime.second}';
   }
 
-
-
   static Size getScreenSize(BuildContext context) {
     return MediaQuery.of(context).size;
   }
@@ -206,17 +205,32 @@ class Util {
       splashRadius: 20,
       onPressed: () async {
         if (bookmarkId != null) {
-          var success = await PixivRequest.instance.bookmarkDelete(bookmarkId);
-          if (success) {
-            updateCallback.call(null);
-          } else {
-            LogUtil.instance.add(
-              type: LogType.Info,
-              id: ConfigUtil.instance.config.userId,
-              title: '删除书签失败',
-              url: '',
-              context: '只是单纯的没成功',
-            );
+          final bookmarkDelete =
+              await PixivRequest.instance.bookmarkDelete(bookmarkId);
+          if (bookmarkDelete != null) {
+            if (!bookmarkDelete.error) {
+              if (bookmarkDelete.isSucceed) {
+                updateCallback.call(null);
+              } else {
+                Util.toast('删除书签失败');
+                LogUtil.instance.add(
+                  type: LogType.Info,
+                  id: illustId,
+                  title: '删除书签失败',
+                  url: '',
+                  context: '',
+                );
+              }
+            } else {
+              Util.toast(bookmarkDelete.message);
+              LogUtil.instance.add(
+                type: LogType.Info,
+                id: illustId,
+                title: '删除书签失败',
+                url: '',
+                context: 'error:${bookmarkDelete.message}',
+              );
+            }
           }
         } else {
           showDialog<Null>(
@@ -224,20 +238,33 @@ class Util {
             builder: (context) {
               return BookmarkAddDialogContent(
                 illustId,
-                (bool success, int? bookmarkId) {
-                  if (success) {
-                    if (bookmarkId != null) {
-                      updateCallback.call(bookmarkId);
+                (BookmarkAdd? bookmarkAdd) {
+                  if (bookmarkAdd != null) {
+                    if (!bookmarkAdd.error) {
+                      if (bookmarkAdd.isSucceed) {
+                        updateCallback.call(bookmarkAdd.lastBookmarkId);
+                      } else {
+                        Util.toast('添加书签失败');
+                        LogUtil.instance.add(
+                          type: LogType.Info,
+                          id: illustId,
+                          title: '添加书签失败',
+                          url: '',
+                          context: '',
+                        );
+                      }
+                    } else {
+                      Util.toast(bookmarkAdd.message);
+                      LogUtil.instance.add(
+                        type: LogType.Info,
+                        id: illustId,
+                        title: '添加书签失败',
+                        url: '',
+                        context: 'error:${bookmarkAdd.message}',
+                      );
                     }
-                  } else {
-                    LogUtil.instance.add(
-                      type: LogType.Info,
-                      id: ConfigUtil.instance.config.userId,
-                      title: '添加书签失败',
-                      url: '',
-                      context: '只是单纯的没成功',
-                    );
                   }
+
                 },
               );
             },

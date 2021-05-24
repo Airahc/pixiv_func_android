@@ -79,7 +79,7 @@ class _LeftDrawerState extends State<LeftDrawer> {
                     id: -1,
                     title: '获取剪切板内容失败',
                     url: '',
-                    context: '只是单纯的没成功',
+                    context: '',
                   );
                 }
               },
