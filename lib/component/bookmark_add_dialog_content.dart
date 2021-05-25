@@ -5,6 +5,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:pixiv_xiaocao_android/api/entity/bookmark_add/bookmark_add.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
@@ -12,7 +13,7 @@ import 'package:pixiv_xiaocao_android/log/log_util.dart';
 class BookmarkAddDialogContent extends StatefulWidget {
   final int illustId;
 
-  final void Function(bool success, int? bookmarkId) resultCallback;
+  final void Function(BookmarkAdd? bookmarkAdd) resultCallback;
 
   BookmarkAddDialogContent(
     this.illustId,
@@ -29,21 +30,8 @@ class _BookmarkAddDialogContentState extends State<BookmarkAddDialogContent> {
   var tagInputController = TextEditingController();
   String comment = '';
 
-  // String _time(DateTime dateTime) {
-  //   return '${dateTime.year}年${dateTime.month}月${dateTime.day}日 ${dateTime.hour}:${dateTime.minute}:${dateTime.second}';
-  // }
-/*
-*
-         LogUtil.instance.add(
-          type: LogType.Info,
-          id:widget.illustId,
-          title: '插画信息',
-          url: '',
-          context: 'error:${illustInfo.message}',
-        );
-         */
   Future onAdd() async {
-    final result = await PixivRequest.instance.bookmarkAdd(
+    final bookmarkAdd = await PixivRequest.instance.bookmarkAdd(
       widget.illustId,
       comment: comment,
       tags: tags,
@@ -68,20 +56,7 @@ class _BookmarkAddDialogContentState extends State<BookmarkAddDialogContent> {
         );
       },
     );
-    if (this.mounted) {
-      if (result != null) {
-        widget.resultCallback(result.body != null, result.body?.lastBookmarkId);
-        if (result.error) {
-          LogUtil.instance.add(
-            type: LogType.Info,
-            id:widget.illustId,
-            title: '添加书签失败',
-            url: '',
-            context: 'error:${result.message}',
-          );
-        }
-      }
-    }
+    widget.resultCallback.call(bookmarkAdd);
   }
 
   @override

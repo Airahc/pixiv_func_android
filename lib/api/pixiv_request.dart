@@ -3,10 +3,12 @@ import 'dart:io';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:pixiv_xiaocao_android/api/entity/illust_many/illust_many.dart';
 import 'package:pixiv_xiaocao_android/api/entity/search_autocomplete/search_autocomplete.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
 
 import 'entity/bookmark_add/bookmark_add.dart';
+import 'entity/bookmark_delete/bookmark_delete.dart';
 import 'entity/bookmarks/bookmarks.dart';
 import 'entity/follow_illusts/follow_illusts.dart';
 import 'entity/following/following.dart';
@@ -20,7 +22,6 @@ import 'entity/search/search.dart';
 import 'entity/search_suggestion/search_suggestion.dart';
 import 'entity/user_bookmarks/user_bookmarks.dart';
 import 'entity/user_info/user_info.dart';
-import 'entity/user_works/user_works.dart';
 
 class PixivRequest {
   static final _instance = PixivRequest();
@@ -327,26 +328,23 @@ class PixivRequest {
     return profileAllData;
   }
 
-  /// 查询用户作品
-  Future<UserWorks?> queryWorksById(List<int> workIdList, bool isFirstPage,
+  /// 查询作品信息
+  Future<IllustMany?> queryIllustsById(List<int> ids,
       {void Function(Exception e, String response)? decodeException,
       void Function(Exception e)? requestException}) async {
-    UserWorks? userWorksData;
+    IllustMany? illustMany;
 
     try {
-      var response = await _httpClient.get<String>(
-          '/ajax/user/${ConfigUtil.instance.config.userId}/profile/illusts?',
-          queryParameters: {
-            'ids[]': workIdList,
-            'lang': 'zh',
-            'work_category': 'illust',
-            'is_first_page': isFirstPage ? 1 : 0
-          });
+      var response = await _httpClient
+          .get<String>('/touch/ajax/illust/details/many', queryParameters: {
+        'illust_ids[]': ids,
+        'lang': 'zh',
+      });
 
       if (response.data != null) {
         try {
           var map = jsonDecode(response.data!);
-          userWorksData = UserWorks.fromJson(map);
+          illustMany = IllustMany.fromJson(map);
         } on Exception catch (e) {
           decodeException?.call(e, response.data!);
         }
@@ -355,7 +353,7 @@ class PixivRequest {
       requestException?.call(e);
     }
 
-    return userWorksData;
+    return illustMany;
   }
 
   /// 查询用户收藏的图
@@ -390,7 +388,7 @@ class PixivRequest {
   }
 
   /// 获取推荐
-  Future<Recommender?> getRecommender(int quantity,
+  Future<Recommender?> getRecommender(
       {bool? r18,
       void Function(Exception e, String response)? decodeException,
       void Function(Exception e)? requestException}) async {
@@ -398,16 +396,13 @@ class PixivRequest {
 
     try {
       var response = await _httpClient
-          .get<String>('/rpc/recommender.php', queryParameters: {
-        'type': 'illust',
-        'sample_illusts': 'auto',
-        'num_recommendations': quantity,
-        'page': 'discovery',
+          .get<String>('/touch/ajax/recommender/illust', queryParameters: {
         'mode': r18 == null
             ? 'all'
             : r18
                 ? 'r18'
-                : 'safe'
+                : 'safe',
+        'lang': 'zh',
       });
 
       if (response.data != null) {
@@ -476,14 +471,18 @@ class PixivRequest {
     BookmarkAdd? bookmarkAddData;
 
     try {
-      var response =
-          await _httpClient.post<String>('/ajax/illusts/bookmarks/add',
-              data: jsonEncode({
-                'illust_id': '$illustId', //pixiv要的string类型
-                'restrict': 0,
-                'comment': comment,
-                'tags': tags
-              }));
+      var response = await _httpClient.post<String>(
+        '/touch/ajax_api/ajax_api.php',
+        data: FormData.fromMap(
+          {
+            'mode': 'add_bookmark_illust',
+            'restrict': 0,
+            'tag': tags,
+            'id': illustId,
+            'comment': comment,
+          },
+        ),
+      );
 
       if (response.data != null) {
         try {
@@ -501,26 +500,36 @@ class PixivRequest {
   }
 
   ///删除书签
-  Future<bool> bookmarkDelete(int bookmarkId,
-      {void Function(Exception e)? requestException}) async {
-    bool success = false;
+  Future<BookmarkDelete?> bookmarkDelete(int bookmarkId,
+      {
+        void Function(Exception e, String response)? decodeException,
+        void Function(Exception e)? requestException}) async {
+    BookmarkDelete? bookmarkDeleteData;
 
     try {
-      var response = await _httpClient.post<String>('/rpc/index.php',
-          data: FormData.fromMap(
-              {'mode': 'delete_illust_bookmark', 'bookmark_id': bookmarkId}));
+      var response = await _httpClient.post<String>(
+        '/touch/ajax_api/ajax_api.php',
+        data: FormData.fromMap(
+          {
+            'mode': 'delete_bookmark_illust',
+            'id': bookmarkId,
+          },
+        ),
+      );
+
       if (response.data != null) {
-        var body = jsonDecode(response.data!);
-        if (body['error'] is bool) {
-          success = !body['error'];
-        } else {
-          success = false;
+        try {
+          var map = jsonDecode(response.data!);
+          bookmarkDeleteData = BookmarkDelete.fromJson(map);
+        } on Exception catch (e) {
+          decodeException?.call(e, response.data!);
         }
       }
     } on Exception catch (e) {
       requestException?.call(e);
     }
-    return success;
+
+    return bookmarkDeleteData;
   }
 
   Future<bool> followUserAdd(int userId,
@@ -571,7 +580,7 @@ class PixivRequest {
   Future<SearchSuggestion?> getSearchSuggestion({
     String mode = 'all',
     void Function(Exception e)? requestException,
-    void Function(Exception e,String response)? decodeException,
+    void Function(Exception e, String response)? decodeException,
   }) async {
     SearchSuggestion? searchSuggestionData;
 
@@ -584,7 +593,7 @@ class PixivRequest {
           searchSuggestionData =
               SearchSuggestion.fromJson(jsonDecode(response.data!));
         } on Exception catch (e) {
-          decodeException?.call(e,response.data!);
+          decodeException?.call(e, response.data!);
         }
       }
     } on Exception catch (e) {

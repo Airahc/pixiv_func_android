@@ -8,15 +8,17 @@ part of 'recommender.dart';
 
 Recommender _$RecommenderFromJson(Map<String, dynamic> json) {
   return Recommender(
-    json['recommendations'] is List
-        ? (json['recommendations'] as List<dynamic>)
-            .map((e) => int.parse(e as String))
-            .toList()
-        : [],
+    json['error'] as bool,
+    json['message'] as String,
+    json['body'] == null
+        ? null
+        : RecommenderBody.fromJson(json['body'] as Map<String, dynamic>),
   );
 }
 
 Map<String, dynamic> _$RecommenderToJson(Recommender instance) =>
     <String, dynamic>{
-      'recommendations': instance.recommendations,
+      'error': instance.error,
+      'message': instance.message,
+      'body': instance.body?.toJson(),
     };
