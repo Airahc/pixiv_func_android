@@ -111,7 +111,7 @@ class Util {
   }
 
   static void gotoPage(BuildContext context, Widget page) {
-    Navigator.of(context).push(CupertinoPageRoute(
+    Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => page,
     ));
   }

@@ -140,16 +140,17 @@ class _IllustPageState extends State<IllustPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-                '宽:${illustImages[i].illustImageWidth} 高:${illustImages[i].illustImageHeight}'),
+              '宽:${illustImages[i].illustImageWidth} 高:${illustImages[i].illustImageHeight}',
+            ),
             IconButton(
+              splashRadius: 20,
               onPressed: () {
                 Util.saveImage(
                   _illustInfoData!.illustDetails.id,
-                  _illustInfoData!.illustDetails.url,
+                  imageOriginalUrls[i],
                   _illustInfoData!.illustDetails.title,
                 );
               },
-              splashRadius: 20,
               icon: Icon(Icons.save_alt),
             )
           ],

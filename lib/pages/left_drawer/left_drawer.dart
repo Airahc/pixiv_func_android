@@ -15,10 +15,10 @@ import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/about/about_page.dart';
 import 'package:pixiv_xiaocao_android/pages/bookmarked/bookmarked_page.dart';
-import 'package:pixiv_xiaocao_android/pages/config/account_config/account_config_page.dart';
-import 'package:pixiv_xiaocao_android/pages/config/network_config/network_config_page.dart';
 import 'package:pixiv_xiaocao_android/pages/followed_users/followed_users_page.dart';
+import 'package:pixiv_xiaocao_android/pages/login/login_page.dart';
 import 'package:pixiv_xiaocao_android/pages/new_works/new_works_page.dart';
+import 'package:pixiv_xiaocao_android/pages/settings/settings_page.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
 class LeftDrawer extends StatefulWidget {
@@ -45,23 +45,14 @@ class _LeftDrawerState extends State<LeftDrawer> {
     return Drawer(
       child: Container(
         padding: EdgeInsets.fromLTRB(0, 50, 0, 20),
-        child: Column(
+        child: ListView(
           children: [
             ListTile(
               onTap: () {
-                Util.gotoPage(context, AccountConfigPage());
+                Util.gotoPage(context, SettingsPage());
               },
               title: Text(
-                '账号配置',
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
-            ListTile(
-              onTap: () {
-                Util.gotoPage(context, NetworkConfigPage());
-              },
-              title: Text(
-                '网络配置',
+                '设置',
                 style: TextStyle(fontSize: 20),
               ),
             ),
