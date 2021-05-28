@@ -86,7 +86,7 @@ class _FollowedUsersPageState extends State<FollowedUsersPage> {
         if (!following.error) {
           if (following.body != null) {
             setState(() {
-              _hasNext = following.body!.total > ++_currentPage * _pageQuantity;
+              _hasNext = following.body!.total > _currentPage++ * _pageQuantity;
               _users.addAll(following.body!.users);
             });
           }

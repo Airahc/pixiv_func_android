@@ -14,7 +14,6 @@ import 'package:pixiv_xiaocao_android/platform_util.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 import 'package:provider/provider.dart';
 
-
 Future main() async {
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,15 +40,25 @@ class AndroidApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: [
-          const Locale.fromSubtags(
-              languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'),
+          const Locale.fromSubtags(languageCode: 'zh', countryCode: 'CN'),
         ],
         theme: ThemeData(
-          brightness: Brightness.dark,
-          accentColor: Color.fromARGB(0xff, 0xfb, 0x72, 0x99),
-          toggleableActiveColor: Colors.pinkAccent,
-          // primaryColor: Color.fromARGB(0xff, 0xfb, 0x72, 0x99),
-        ),
+            accentColor: Colors.pinkAccent,
+            colorScheme: ColorScheme(
+              primary: const Color(0xffea638c),
+              primaryVariant: Colors.deepOrangeAccent,
+              secondary: const Color(0xffea638c),
+              secondaryVariant: const Color(0xffea638c),
+              surface: const Color(0xff30343f),
+              background: const Color(0xff30343f),
+              error: Colors.red,
+              onPrimary: const Color(0xff1b2021),
+              onSecondary: const Color(0xff1b2021),
+              onSurface: const Color(0xffffd9da),
+              onBackground: const Color(0xffffd9da),
+              onError: const Color(0xff1b2021),
+              brightness: Brightness.dark,
+            )),
         home: WillPopScope(
           child: AndroidTabs(),
           onWillPop: () async {

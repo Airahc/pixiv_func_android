@@ -3,7 +3,6 @@
  * 项目名称 : pixiv_xiaocao_android
  * 文件名称 : util.dart
  */
-
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -11,16 +10,17 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:html/parser.dart' show parse;
+import 'package:image_picker/image_picker.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pixiv_xiaocao_android/api/entity/bookmark_add/bookmark_add.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
+import 'package:pixiv_xiaocao_android/component/bookmark_add_dialog_content.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/platform_util.dart';
-
-import 'component/bookmark_add_dialog_content.dart';
 
 class Util {
   static final storageStatus = Permission.storage.status;
@@ -111,7 +111,7 @@ class Util {
   }
 
   static void gotoPage(BuildContext context, Widget page) {
-    Navigator.of(context).push(CupertinoPageRoute(
+    Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => page,
     ));
   }
@@ -264,7 +264,6 @@ class Util {
                       );
                     }
                   }
-
                 },
               );
             },
@@ -278,5 +277,55 @@ class Util {
         color: bookmarkId != null ? Colors.pinkAccent : Colors.white70,
       ),
     );
+  }
+
+  static Future<List<int>> searchIdsByImage() async {
+    final ids = <int>[];
+
+    final pickedFile =
+        await ImagePicker().getImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      final imageBytes = await pickedFile.readAsBytes();
+
+      final httpClient = Dio()
+        ..options.responseType = ResponseType.bytes
+        ..options.sendTimeout = 1000 * 15
+        ..options.receiveTimeout = 1000 * 15
+        ..options.connectTimeout = 1000 * 10;
+
+      try {
+        ///不知道这玩意有没有上限
+        final fromData = FormData()..files.add(
+              MapEntry(
+                'file',
+                MultipartFile.fromBytes(imageBytes, filename: 'img.jpg'),
+              ),
+            );
+        final response = await httpClient.post(
+          'https://saucenao.com/search.php',
+          data: fromData,
+        );
+
+        final document = parse(response.data!);
+        //<strong>Pixiv ID: </strong><a href="https://www.pixiv.net/member_illust.php?mode=medium&illust_id=76434553"
+        final aTag = document.querySelectorAll('a');
+        aTag.forEach((element) {
+          final href = element.attributes['href'];
+          if (href != null &&
+              href.startsWith('https://www.pixiv.net/') &&
+              href.contains('illust_id')) {
+            final id = Uri.parse(href).queryParameters['illust_id'];
+            if (id is String) {
+              ids.add(int.parse(id));
+            }
+          }
+        });
+      } on Exception catch (_) {
+        print(_);
+      }
+      httpClient.close();
+    }
+
+    return ids;
   }
 }

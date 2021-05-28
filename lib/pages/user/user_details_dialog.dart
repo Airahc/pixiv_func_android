@@ -58,7 +58,7 @@ class _UserDetailsDialogState extends State<UserDetailsDialog> {
 
   List<Widget> _createUserInfoList() {
     var list = <Widget>[];
-
+    list.add(SizedBox(height: 20));
     list.add(AvatarViewFromUrl(widget.userDetails.profileImg.main));
     list.add(SizedBox(height: 20));
     list.add(Card(

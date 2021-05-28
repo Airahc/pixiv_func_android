@@ -4,12 +4,21 @@
  * 文件名称 : search_page.dart
  */
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:pixiv_xiaocao_android/api/entity/search_suggestion/search_suggestion_body.dart';
+import 'package:pixiv_xiaocao_android/api/entity/search_suggestion/tag_translation/tag_translation.dart';
+import 'package:pixiv_xiaocao_android/api/entity/search_suggestion/thumbnail/thumbnail.dart';
+import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
+import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
+import 'package:pixiv_xiaocao_android/config/config_util.dart';
+import 'package:pixiv_xiaocao_android/log/log_entity.dart';
+import 'package:pixiv_xiaocao_android/log/log_util.dart';
+import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/pages/left_drawer/left_drawer.dart';
+import 'package:pixiv_xiaocao_android/pages/search/search_content_page.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_input.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_settings.dart';
-import 'package:pixiv_xiaocao_android/pages/search/search_suggestion.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
 class SearchPage extends StatefulWidget {
@@ -17,23 +26,319 @@ class SearchPage extends StatefulWidget {
   _SearchPageState createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController = TabController(length: 3, vsync: this);
+class _SearchPageState extends State<SearchPage> {
+  SearchSuggestionBody? _searchSuggestionData;
 
-  int _currentIndex = 0;
+  final _scrollController = ScrollController();
+
+  bool _loading = false;
+  bool _initialize = false;
 
   @override
-  void dispose(){
-    _tabController.dispose();
+  void initState() {
+    _loadData(reload: false, init: true);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
     super.dispose();
   }
 
-  List<GlobalKey<SearchSuggestionContentState>> _globalKeys = [
-    GlobalKey(),
-    GlobalKey(),
-    GlobalKey()
-  ];
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      if (_scrollController.offset != 0) {
+        _scrollController.animateTo(
+          0,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInQuad,
+        );
+      }
+    }
+  }
+
+  Future _loadData({bool reload = true, bool init = false}) async {
+    if (this.mounted) {
+      setState(() {
+        if (reload) {
+          _searchSuggestionData = null;
+        }
+        if (init) {
+          _initialize = false;
+        }
+        _loading = true;
+      });
+    } else {
+      return;
+    }
+
+    final searchSuggestion = await PixivRequest.instance.getSearchSuggestion(
+      mode: 'all',
+      requestException: (e) {
+        LogUtil.instance.add(
+          type: LogType.NetworkException,
+          id: ConfigUtil.instance.config.userId,
+          title: '获取搜索推荐失败',
+          url: '',
+          context: '在搜索页面',
+          exception: e,
+        );
+      },
+      decodeException: (e, response) {
+        LogUtil.instance.add(
+          type: LogType.DeserializationException,
+          id: ConfigUtil.instance.config.userId,
+          title: '获取搜索推荐反序列化异常',
+          url: '',
+          context: response,
+          exception: e,
+        );
+      },
+    );
+
+    if (this.mounted) {
+      if (searchSuggestion != null) {
+        _searchSuggestionData = searchSuggestion.body;
+        if (searchSuggestion.error) {
+          LogUtil.instance.add(
+            type: LogType.Info,
+            id: ConfigUtil.instance.config.userId,
+            title: '获取搜索推荐失败',
+            url: '',
+            context: '',
+          );
+        }
+      }
+    }
+
+    if (this.mounted) {
+      setState(() {
+        if (init) {
+          _initialize = true;
+        }
+        _loading = false;
+      });
+    }
+  }
+
+  Thumbnail? _findThumbnail(int id) {
+    return _searchSuggestionData?.thumbnails
+        .firstWhere((thumbnail) => thumbnail.id == id);
+  }
+
+  TagTranslation? _findTagTranslation(String tag) {
+    return _searchSuggestionData?.tagTranslation[tag];
+  }
+
+  Widget _recommendByTags() {
+    var list = <Widget>[];
+
+    _searchSuggestionData?.recommendByTags.illust.forEach((item) {
+      var tagTranslation = _findTagTranslation(item.tag);
+
+      String tag;
+      if (tagTranslation?.zh != null && tagTranslation!.zh!.isNotEmpty) {
+        tag = '#${tagTranslation.zh!}';
+      } else if (tagTranslation?.en != null && tagTranslation!.en!.isNotEmpty) {
+        tag = '#${tagTranslation.en!}';
+      } else {
+        tag = item.tag;
+      }
+
+      list.add(SizedBox(height: 10));
+      list.add(Text(
+        '$tag的推荐作品',
+        style: TextStyle(fontSize: 22),
+      ));
+      list.add(SizedBox(height: 10));
+      list.add(StaggeredGridView.countBuilder(
+        shrinkWrap: true,
+        crossAxisCount: 2,
+        itemCount: item.ids.length,
+        staggeredTileBuilder: (index) => StaggeredTile.fit(1),
+        physics: NeverScrollableScrollPhysics(),
+        itemBuilder: (BuildContext context, int index) {
+          final id = item.ids[index];
+          final thumbnail = _findThumbnail(id);
+          return Card(
+            child: GestureDetector(
+              onTap: () {
+                Util.gotoPage(
+                  context,
+                  IllustPage(id),
+                );
+              },
+              child: Column(
+                children: [
+                  ImageViewFromUrl(thumbnail!.url),
+                  SizedBox(height: 5),
+                  Text('${thumbnail.title}'),
+                  SizedBox(height: 5),
+                ],
+              ),
+            ),
+          );
+        },
+      ));
+    });
+
+    return Column(
+      children: list,
+    );
+  }
+
+  Widget _popularTags() {
+    return StaggeredGridView.countBuilder(
+      shrinkWrap: true,
+      crossAxisCount: 3,
+      itemCount: _searchSuggestionData?.popularTags.illust.length,
+      staggeredTileBuilder: (index) => StaggeredTile.fit(1),
+      physics: NeverScrollableScrollPhysics(),
+      itemBuilder: (BuildContext context, int index) {
+        final illust = _searchSuggestionData!.popularTags.illust[index];
+        final thumbnail = _findThumbnail(illust.ids.first);
+
+        return Card(
+          child: Container(
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return Container(
+                  width: constraints.maxWidth,
+                  height: constraints.maxWidth,
+                  child: ImageViewFromUrl(
+                    thumbnail!.url,
+                    color: Colors.white54,
+                    colorBlendMode: BlendMode.modulate,
+                    imageBuilder: (Widget imageWidget) {
+                      return Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              SearchSettings.includeKeywords.clear();
+                              SearchSettings.notIncludeKeywords.clear();
+                              Util.gotoPage(
+                                  context, SearchContentPage(illust.tag));
+                            },
+                            child: imageWidget,
+                          ),
+                          Text(illust.tag),
+                        ],
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _recommendTags() {
+    return StaggeredGridView.countBuilder(
+      shrinkWrap: true,
+      crossAxisCount: 3,
+      itemCount: _searchSuggestionData?.recommendTags.illust.length,
+      staggeredTileBuilder: (index) => StaggeredTile.fit(1),
+      physics: NeverScrollableScrollPhysics(),
+      itemBuilder: (BuildContext context, int index) {
+        final illust = _searchSuggestionData!.recommendTags.illust[index];
+        final thumbnail = _findThumbnail(illust.ids.first);
+
+        return Card(
+          child: Container(
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return Container(
+                  width: constraints.maxWidth,
+                  height: constraints.maxWidth,
+                  child: ImageViewFromUrl(
+                    thumbnail!.url,
+                    color: Colors.white54,
+                    colorBlendMode: BlendMode.modulate,
+                    imageBuilder: (Widget imageWidget) {
+                      return Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              SearchSettings.includeKeywords.clear();
+                              SearchSettings.notIncludeKeywords.clear();
+                              Util.gotoPage(
+                                  context, SearchContentPage(illust.tag));
+                            },
+                            child: imageWidget,
+                          ),
+                          Text(illust.tag)
+                        ],
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBody() {
+    late Widget component;
+    if (_searchSuggestionData != null) {
+      component = SingleChildScrollView(
+        controller: _scrollController,
+        child: Container(
+          child: Column(
+            children: [
+              SizedBox(height: 10),
+              Text('推荐标签', style: TextStyle(fontSize: 25)),
+              SizedBox(height: 10),
+              _recommendTags(),
+              SizedBox(height: 10),
+              Text('热门标签', style: TextStyle(fontSize: 25)),
+              _popularTags(),
+              SizedBox(height: 10),
+              _recommendByTags(),
+            ],
+          ),
+        ),
+      );
+    } else {
+      if (_loading) {
+        if (_initialize) {
+          component = Container();
+        } else {
+          component = Container(
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+      } else {
+        if (_initialize) {
+          component = ListView.builder(
+            itemCount: 1,
+            itemBuilder: (BuildContext context, int index) {
+              return ListTile(
+                title: Center(
+                  child: Text('没有任何数据'),
+                ),
+              );
+            },
+            physics: const AlwaysScrollableScrollPhysics(),
+          );
+        } else {
+          component = Container();
+        }
+      }
+    }
+
+    return component;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,13 +355,18 @@ class _SearchPageState extends State<SearchPage>
                 color: Colors.white.withAlpha(220),
               ),
               onPressed: () {
-
                 Scaffold.of(context).openDrawer();
               },
             );
           },
         ),
         actions: [
+          IconButton(
+            splashRadius: 20,
+            tooltip: '滚动到顶部',
+            icon: Icon(Icons.arrow_upward_outlined),
+            onPressed: _scrollToTop,
+          ),
           Builder(
             builder: (BuildContext context) {
               return IconButton(
@@ -73,24 +383,6 @@ class _SearchPageState extends State<SearchPage>
           )
         ],
         title: Text('搜索'),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(30),
-          child: TabBar(
-            controller: _tabController,
-            tabs: [
-              Text('全部'),
-              Text('全年龄'),
-              Text('R-18'),
-            ],
-            onTap: (int index) {
-              if (_currentIndex != index && _tabController.index == index) {
-                _currentIndex = index;
-              } else {
-                _globalKeys[index].currentState?.scrollToTop();
-              }
-            },
-          ),
-        ),
       ),
       floatingActionButton: Builder(
         builder: (BuildContext context) {
@@ -108,14 +400,12 @@ class _SearchPageState extends State<SearchPage>
         },
       ),
       endDrawer: SearchSettings(),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          SearchSuggestionContent('all', key: _globalKeys[0]),
-          SearchSuggestionContent('safe', key: _globalKeys[1]),
-          SearchSuggestionContent('r18', key: _globalKeys[2]),
-        ],
+      body: RefreshIndicator(
+        onRefresh: _loadData,
+        child: _buildBody(),
+        backgroundColor: Colors.white,
       ),
     );
+
   }
 }

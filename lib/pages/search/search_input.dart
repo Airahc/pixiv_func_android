@@ -13,6 +13,7 @@ import 'package:pixiv_xiaocao_android/config/config_util.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
+import 'package:pixiv_xiaocao_android/pages/search/search_by_image_page.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_content_page.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_settings.dart';
 import 'package:pixiv_xiaocao_android/pages/user/user_page.dart';
@@ -186,6 +187,27 @@ class _SearchInputPageState extends State<SearchInputPage> {
             },
           )
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.black.withAlpha(200),
+        child: Icon(
+          Icons.image_search_sharp,
+          color: Colors.white,
+        ),
+        onPressed: () async {
+          final ids = await Util.searchIdsByImage();
+          if (ids.isNotEmpty) {
+            Util.gotoPage(context, SearchByImagePage(ids));
+          } else {
+            LogUtil.instance.add(
+              type: LogType.Info,
+              id: 0,
+              title: '搜索图片失败',
+              url: '',
+              context: '在搜索输入页面',
+            );
+          }
+        },
       ),
       endDrawer: SearchSettings(),
       body: _buildBody(),

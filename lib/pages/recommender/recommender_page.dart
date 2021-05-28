@@ -281,14 +281,12 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
     }
   }
 
-  Widget _buildWorksGridView() {
+  Widget _buildIllustsPreview() {
     return StaggeredGridView.countBuilder(
       shrinkWrap: true,
       crossAxisCount: 2,
       itemCount: _illusts.length,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
-      mainAxisSpacing: 6,
-      crossAxisSpacing: 6,
       physics: NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int index) {
         return Card(
@@ -296,66 +294,72 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
             padding: EdgeInsets.all(5),
             child: Column(
               children: [
-                ImageViewFromUrl(
-                  _illusts[index].urlS,
-                  fit: BoxFit.cover,
-                  imageBuilder: (Widget imageWidget) {
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Util.gotoPage(
-                              context,
-                              IllustPage(
-                                _illusts[index].id,
-                                onBookmarkAdd: (bookmarkId) {
-                                  if (this.mounted) {
-                                    setState(() {
-                                      _illusts[index].bookmarkId = bookmarkId;
-                                    });
-                                  }
-                                },
-                                onBookmarkDelete: () {
-                                  if (this.mounted) {
-                                    setState(() {
-                                      _illusts[index].bookmarkId = null;
-                                    });
-                                  }
-                                },
-                              ),
-                            );
-                          },
-                          child: imageWidget,
-                        ),
-                        Positioned(
-                          left: 2,
-                          top: 2,
-                          child: _illusts[index].tags.contains('R-18')
-                              ? Card(
-                            color: Colors.pinkAccent,
-                            child: Text('R-18'),
-                          )
-                              : Container(),
-                        ),
-                        Positioned(
-                          top: 2,
-                          right: 2,
-                          child: Card(
-                            color: Colors.white12,
-                            child: Padding(
-                              padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                              child: Text(
-                                '${_illusts[index].pageCount}',
-                                style: TextStyle(fontSize: 20),
+                LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+                  return Container(
+                    width: constraints.maxWidth,
+                    height: constraints.maxWidth,
+                    child: ImageViewFromUrl(
+                      _illusts[index].urlS,
+                      fit: BoxFit.fill,
+                      imageBuilder: (Widget imageWidget) {
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Util.gotoPage(
+                                  context,
+                                  IllustPage(
+                                    _illusts[index].id,
+                                    onBookmarkAdd: (bookmarkId) {
+                                      if (this.mounted) {
+                                        setState(() {
+                                          _illusts[index].bookmarkId = bookmarkId;
+                                        });
+                                      }
+                                    },
+                                    onBookmarkDelete: () {
+                                      if (this.mounted) {
+                                        setState(() {
+                                          _illusts[index].bookmarkId = null;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                );
+                              },
+                              child: imageWidget,
+                            ),
+                            Positioned(
+                              left: 2,
+                              top: 2,
+                              child: _illusts[index].tags.contains('R-18')
+                                  ? Card(
+                                color: Colors.pinkAccent,
+                                child: Text('R-18'),
+                              )
+                                  : Container(),
+                            ),
+                            Positioned(
+                              top: 2,
+                              right: 2,
+                              child: Card(
+                                color: Colors.white12,
+                                child: Padding(
+                                  padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                  child: Text(
+                                    '${_illusts[index].pageCount}',
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                          ],
+                        );
+                      },
+                    ),
+                  );
+                },),
                 Container(
                   alignment: Alignment.topLeft,
                   child: ListTile(
@@ -395,7 +399,7 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
     late Widget component;
     if (_illusts.isNotEmpty) {
       final List<Widget> list = [];
-      list.add(_buildWorksGridView());
+      list.add(_buildIllustsPreview());
 
       if (_loading) {
         list.add(SizedBox(height: 20));

@@ -140,7 +140,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
     }
   }
 
-  Widget _buildWorksGridView() {
+  Widget _buildIllustsPreview() {
     return StaggeredGridView.countBuilder(
       shrinkWrap: true,
       crossAxisCount: 2,
@@ -152,57 +152,70 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
       itemBuilder: (BuildContext context, int index) {
         return _works[index].isMasked
             ? Card(
-                child: ImageViewFromUrl(_works[index].url),
+                child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+                  return Container(
+                    width: constraints.maxWidth,
+                    height: constraints.maxWidth,
+                    child: ImageViewFromUrl(_works[index].url),
+                  );
+                },
+                ),
               )
             : Card(
                 child: Container(
                   padding: EdgeInsets.all(5),
                   child: Column(
                     children: [
-                      ImageViewFromUrl(
-                        _works[index].url,
-                        fit: BoxFit.cover,
-                        imageBuilder: (Widget imageWidget) {
-                          return Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Util.gotoPage(
-                                    context,
-                                    IllustPage(_works[index].id),
-                                  );
-                                },
-                                child: imageWidget,
-                              ),
-                              Positioned(
-                                left: 2,
-                                top: 2,
-                                child: _works[index].tags.contains('R-18')
-                                    ? Card(
-                                        color: Colors.pinkAccent,
-                                        child: Text('R-18'),
-                                      )
-                                    : Container(),
-                              ),
-                              Positioned(
-                                top: 2,
-                                right: 2,
-                                child: Card(
-                                  color: Colors.white12,
-                                  child: Padding(
-                                    padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                    child: Text(
-                                      '${_works[index].pageCount}',
-                                      style: TextStyle(fontSize: 20),
+                      LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+                        return Container(
+                          width: constraints.maxWidth,
+                          height: constraints.maxWidth,
+                          child: ImageViewFromUrl(
+                            _works[index].url,
+                            fit: BoxFit.cover,
+                            imageBuilder: (Widget imageWidget) {
+                              return Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Util.gotoPage(
+                                        context,
+                                        IllustPage(_works[index].id),
+                                      );
+                                    },
+                                    child: imageWidget,
+                                  ),
+                                  Positioned(
+                                    left: 2,
+                                    top: 2,
+                                    child: _works[index].tags.contains('R-18')
+                                        ? Card(
+                                      color: Colors.pinkAccent,
+                                      child: Text('R-18'),
+                                    )
+                                        : Container(),
+                                  ),
+                                  Positioned(
+                                    top: 2,
+                                    right: 2,
+                                    child: Card(
+                                      color: Colors.white12,
+                                      child: Padding(
+                                        padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                        child: Text(
+                                          '${_works[index].pageCount}',
+                                          style: TextStyle(fontSize: 20),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                                ],
+                              );
+                            },
+                          ),
+                        );
+                      },),
                       Container(
                         alignment: Alignment.topLeft,
                         child: ListTile(
@@ -227,7 +240,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
     late Widget component;
     if (_works.isNotEmpty) {
       final List<Widget> list = [];
-      list.add(_buildWorksGridView());
+      list.add(_buildIllustsPreview());
       if (_loading) {
         list.add(SizedBox(height: 20));
         list.add(Center(

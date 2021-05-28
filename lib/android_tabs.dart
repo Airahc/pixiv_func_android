@@ -67,7 +67,7 @@ class _AndroidTabsState extends State<AndroidTabs> {
                   label: '排行榜',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.image_search_sharp),
+                  icon: Icon(Icons.search_outlined),
                   label: '搜索',
                 ),
                 BottomNavigationBarItem(

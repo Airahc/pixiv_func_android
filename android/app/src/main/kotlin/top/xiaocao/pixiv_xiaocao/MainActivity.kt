@@ -9,6 +9,7 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant.*
+import top.xiaocao.pixiv_xiaocao.login.LoginPlugin
 
 class MainActivity : FlutterActivity() {
 
@@ -60,8 +61,7 @@ class MainActivity : FlutterActivity() {
                 }
             }
         }
-
-
+        flutterEngine.plugins.add(LoginPlugin())
     }
 }
 
