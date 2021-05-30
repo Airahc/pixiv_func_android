@@ -295,12 +295,13 @@ class Util {
 
       try {
         ///不知道这玩意有没有上限
-        final fromData = FormData()..files.add(
-              MapEntry(
-                'file',
-                MultipartFile.fromBytes(imageBytes, filename: 'img.jpg'),
-              ),
-            );
+        final fromData = FormData()
+          ..files.add(
+            MapEntry(
+              'file',
+              MultipartFile.fromBytes(imageBytes, filename: 'img.jpg'),
+            ),
+          );
         final response = await httpClient.post(
           'https://saucenao.com/search.php',
           data: fromData,
@@ -320,8 +321,16 @@ class Util {
             }
           }
         });
-      } on Exception catch (_) {
-        print(_);
+      } on Exception catch (e) {
+        Util.toast('搜索图片失败');
+        LogUtil.instance.add(
+          type: LogType.NetworkException,
+          id: 0,
+          title: '搜索图片失败',
+          url: '',
+          context: '网络异常',
+          exception: e,
+        );
       }
       httpClient.close();
     }

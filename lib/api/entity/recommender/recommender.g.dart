@@ -10,7 +10,7 @@ Recommender _$RecommenderFromJson(Map<String, dynamic> json) {
   return Recommender(
     json['error'] as bool,
     json['message'] as String,
-    json['body'] == null
+    json['body'] is! Map
         ? null
         : RecommenderBody.fromJson(json['body'] as Map<String, dynamic>),
   );

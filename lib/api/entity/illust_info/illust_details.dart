@@ -23,7 +23,7 @@ class IllustDetails {
   List<DisplayTag> displayTags;
 
   @JsonKey(name: 'tags_editable')
-  bool tagsEditable;
+  bool? tagsEditable;
 
   ///书签用户数量
   @JsonKey(name: 'bookmark_user_total')

@@ -66,21 +66,24 @@ class LoginView(
         }
 
         webView.webViewClient = object : WebViewClient() {
+            var loginSuccess: Boolean = false
             override fun onPageFinished(view: WebView?, url: String?) {
-                url?.let { Log.i("LoginView", it) }
                 if (url == "https://www.pixiv.net/") {
                     view?.let { webView ->
-                        webView.evaluateJavascript(
-                            "JSON.parse(document.getElementById('init-config').getAttribute('content'))"
-                        ) {
-
-                            loginResultSender.send(
-                                mapOf(
-                                    "cookie" to cookieManager.getCookie("https://www.pixiv.net/"),
-                                    "initConfig" to it
+                        if (!loginSuccess) {
+                            webView.evaluateJavascript(
+                                "JSON.parse(document.getElementById('init-config').getAttribute('content'))"
+                            ) {
+                                loginSuccess = true
+                                loginResultSender.send(
+                                    mapOf(
+                                        "cookie" to cookieManager.getCookie("https://www.pixiv.net/"),
+                                        "initConfig" to it
+                                    )
                                 )
-                            )
+                            }
                         }
+
                     }
                 }
                 super.onPageFinished(view, url)

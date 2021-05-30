@@ -56,13 +56,13 @@ class _FollowedUsersPageState extends State<FollowedUsersPage> {
     }
 
     final following = await PixivRequest.instance.getFollowing(
-      ConfigUtil.instance.config.userId,
+      ConfigUtil.instance.config.currentAccount.userId,
       (_currentPage - 1) * _pageQuantity,
       _pageQuantity,
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取已关注用户失败',
           url: '',
           context: '在已关注用户页面',
@@ -72,7 +72,7 @@ class _FollowedUsersPageState extends State<FollowedUsersPage> {
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取已关注用户反序列化异常',
           url: '',
           context: response,
@@ -93,7 +93,7 @@ class _FollowedUsersPageState extends State<FollowedUsersPage> {
         } else {
           LogUtil.instance.add(
             type: LogType.Info,
-            id: ConfigUtil.instance.config.userId,
+            id: ConfigUtil.instance.config.currentAccount.userId,
             title: '获取已关注用户失败',
             url: '',
             context: 'error:${following.message}',

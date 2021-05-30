@@ -31,7 +31,6 @@ class LoginView extends StatelessWidget {
       "pixiv.xiaocao/login_result",
       StandardMessageCodec(),
     )..setMessageHandler((message) async {
-      print(message);
         try {
           final map = message as Map;
           resultCallback(LoginResult(map['cookie'], map['initConfig']));

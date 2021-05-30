@@ -33,20 +33,14 @@ class PixivRequest {
   late final Dio _httpClient;
 
   void updateHeaders() async {
-    List<MapEntry<String, dynamic>> headers = [];
-    headers.add(MapEntry('Referer', ConfigUtil.referer));
-    headers.add(MapEntry('User-Agent', ConfigUtil.userAgent));
-    headers.add(MapEntry('Host', 'www.pixiv.net'));
-    if (ConfigUtil.instance.config.userId != 0) {
-      headers.add(MapEntry('x-user-id', ConfigUtil.instance.config.userId));
-    }
-    if (ConfigUtil.instance.config.cookie.isNotEmpty) {
-      headers.add(MapEntry('Cookie', ConfigUtil.instance.config.cookie));
-    }
-    if (ConfigUtil.instance.config.token.isNotEmpty) {
-      headers.add(MapEntry('x-csrf-token', ConfigUtil.instance.config.token));
-    }
-    _httpClient.options.headers = {}..addEntries(headers);
+    _httpClient.options.headers = {
+      'Referer': ConfigUtil.referer,
+      'User-Agent': ConfigUtil.userAgent,
+      'Host': 'www.pixiv.net',
+      'Cookie': ConfigUtil.instance.config.currentAccount.cookie,
+      'x-user-id': ConfigUtil.instance.config.currentAccount.userId,
+      'x-csrf-token': ConfigUtil.instance.config.currentAccount.token,
+    };
   }
 
   PixivRequest() {
@@ -77,7 +71,7 @@ class PixivRequest {
     Following? followingData;
 
     try {
-      var response = await _httpClient
+      final response = await _httpClient
           .get<String>('/ajax/user/$userId/following', queryParameters: {
         'offset': offset,
         'limit': limit,
@@ -501,9 +495,8 @@ class PixivRequest {
 
   ///删除书签
   Future<BookmarkDelete?> bookmarkDelete(int bookmarkId,
-      {
-        void Function(Exception e, String response)? decodeException,
-        void Function(Exception e)? requestException}) async {
+      {void Function(Exception e, String response)? decodeException,
+      void Function(Exception e)? requestException}) async {
     BookmarkDelete? bookmarkDeleteData;
 
     try {

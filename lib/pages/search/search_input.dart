@@ -51,7 +51,7 @@ class _SearchInputPageState extends State<SearchInputPage> {
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取搜索推荐失败',
           url: '',
           context: '在搜索输入页面',
@@ -61,7 +61,7 @@ class _SearchInputPageState extends State<SearchInputPage> {
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取搜索推荐反序列化异常',
           url: '',
           context: response,
@@ -76,7 +76,7 @@ class _SearchInputPageState extends State<SearchInputPage> {
       if (searchAutocomplete.error) {
         LogUtil.instance.add(
           type: LogType.Info,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取搜索推荐失败',
           url: '',
           context: 'error:${searchAutocomplete.message}',

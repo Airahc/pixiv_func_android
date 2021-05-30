@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'cover_image.dart';
 import 'profile_img.dart';
 
 part 'user_details.g.dart';
@@ -65,8 +66,8 @@ class UserDetails{
   Map<String, Map<String, String>>? social;
   @JsonKey(name: 'user_comment_html')
   String userCommentHtml;
-  // @JsonKey(name: 'cover_image')
-  // late bool coverImage;
+  @JsonKey(name: 'cover_image')
+  late CoverImage? coverImage;
 
 
   UserDetails(
@@ -94,7 +95,8 @@ class UserDetails{
       this.isOfficial,
       this.follows,
       this.social,
-      this.userCommentHtml);
+      this.userCommentHtml,
+      this.coverImage);
 
   factory UserDetails.fromJson(Map<String, dynamic> json) => _$UserDetailsFromJson(json);
 

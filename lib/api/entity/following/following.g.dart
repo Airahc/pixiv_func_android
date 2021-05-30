@@ -10,7 +10,7 @@ Following _$FollowingFromJson(Map<String, dynamic> json) {
   return Following(
     json['error'] as bool,
     json['message'] as String,
-    json['body'] == null
+    json['body'] is!Map
         ? null
         : FollowingBody.fromJson(json['body'] as Map<String, dynamic>),
   );

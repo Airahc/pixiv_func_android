@@ -10,9 +10,9 @@ class UserInfoBody {
 
   UserInfoBody(this.userDetails);
 
-  factory UserInfoBody.fromJson(Map<String, dynamic> json) => _$BodyFromJson(json);
+  factory UserInfoBody.fromJson(Map<String, dynamic> json) => _$UserInfoBodyFromJson(json);
 
-  Map<String, dynamic> toJson() => _$BodyToJson(this);
+  Map<String, dynamic> toJson() => _$UserInfoBodyToJson(this);
 
 
 }

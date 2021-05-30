@@ -14,6 +14,7 @@ import 'package:pixiv_xiaocao_android/config/config_util.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/about/about_page.dart';
+import 'package:pixiv_xiaocao_android/pages/account/account_page.dart';
 import 'package:pixiv_xiaocao_android/pages/bookmarked/bookmarked_page.dart';
 import 'package:pixiv_xiaocao_android/pages/followed_users/followed_users_page.dart';
 import 'package:pixiv_xiaocao_android/pages/new_works/new_works_page.dart';
@@ -40,6 +41,15 @@ class _LeftDrawerState extends State<LeftDrawer> {
               },
               title: Text(
                 '设置',
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+            ListTile(
+              onTap: () {
+                Util.gotoPage(context, AccountPage());
+              },
+              title: Text(
+                '账号',
                 style: TextStyle(fontSize: 20),
               ),
             ),

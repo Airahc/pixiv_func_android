@@ -5,8 +5,7 @@
  */
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:pixiv_xiaocao_android/pages/settings/account_config/account_config_page.dart';
-import 'package:pixiv_xiaocao_android/pages/settings/network_config/network_config_page.dart';
+import 'package:pixiv_xiaocao_android/config/config_util.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -32,19 +31,42 @@ class _SettingsPageState extends State<SettingsPage> {
     return Column(
       children: [
         Card(
-          child: ListTile(
-            onTap: (){
-              Util.gotoPage(context, NetworkConfigPage());
-            },
-            title: Text('网络'),
-          ),
-        ),
-        Card(
-          child: ListTile(
-            onTap: (){
-              Util.gotoPage(context, AccountConfigPage());
-            },
-            title: Text('账号'),
+          child: Column(
+            children: [
+              SizedBox(height: 20),
+              Text(
+                '图片源',
+                style: TextStyle(fontSize: 22),
+              ),
+              SizedBox(height: 20),
+              RadioListTile(
+                value: false,
+                groupValue: ConfigUtil.instance.config.enableImageProxy,
+                title: Text('使用原始图片源(i.pximg.net)'),
+                selected: !ConfigUtil.instance.config.enableImageProxy,
+                onChanged: (bool? value) {
+                  if (value != null)
+                    setState(() {
+                      ConfigUtil.instance.config.enableImageProxy = value;
+                      ConfigUtil.instance.updateConfigFile();
+                    });
+                },
+              ),
+              SizedBox(height: 20),
+              RadioListTile(
+                value: true,
+                groupValue: ConfigUtil.instance.config.enableImageProxy,
+                title: Text('使用代理图片源(i.pixiv.cat)'),
+                selected: ConfigUtil.instance.config.enableImageProxy,
+                onChanged: (bool? value) {
+                  if (value != null)
+                    setState(() {
+                      ConfigUtil.instance.config.enableImageProxy = value;
+                      ConfigUtil.instance.updateConfigFile();
+                    });
+                },
+              ),
+            ],
           ),
         ),
         storagePermission != null

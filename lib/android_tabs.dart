@@ -35,7 +35,9 @@ class _AndroidTabsState extends State<AndroidTabs> {
 
   Future _initialize() async {
     if (await storageStatus.isGranted) {
-      await ConfigUtil.instance.loadConfigFile();
+
+        await ConfigUtil.instance.loadConfigFile();
+
     } else {
       if (await Permission.storage.request().isGranted) {
         await ConfigUtil.instance.loadConfigFile();

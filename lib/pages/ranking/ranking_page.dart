@@ -77,7 +77,7 @@ class _RankingPageState extends State<RankingPage> {
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取排行榜失败',
           url: '',
           context: '在排行榜页面',
@@ -87,7 +87,7 @@ class _RankingPageState extends State<RankingPage> {
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取排行榜反序列化异常',
           url: '',
           context: response,
@@ -108,7 +108,7 @@ class _RankingPageState extends State<RankingPage> {
             requestException: (e){
               LogUtil.instance.add(
                 type: LogType.NetworkException,
-                id: ConfigUtil.instance.config.userId,
+                id: ConfigUtil.instance.config.currentAccount.userId,
                 title: '查询作品信息失败',
                 url: '',
                 context: '在排行榜页面',
@@ -118,7 +118,7 @@ class _RankingPageState extends State<RankingPage> {
             decodeException: (e, response) {
               LogUtil.instance.add(
                 type: LogType.DeserializationException,
-                id: ConfigUtil.instance.config.userId,
+                id: ConfigUtil.instance.config.currentAccount.userId,
                 title: '查询作品信息反序列化异常',
                 url: '',
                 context: response,
@@ -144,7 +144,7 @@ class _RankingPageState extends State<RankingPage> {
               } else {
                 LogUtil.instance.add(
                   type: LogType.Info,
-                  id: ConfigUtil.instance.config.userId,
+                  id: ConfigUtil.instance.config.currentAccount.userId,
                   title: '获取作品信息失败',
                   url: '',
                   context: 'error:${worksData.message}',
@@ -157,7 +157,7 @@ class _RankingPageState extends State<RankingPage> {
         } else {
           LogUtil.instance.add(
             type: LogType.Info,
-            id: ConfigUtil.instance.config.userId,
+            id: ConfigUtil.instance.config.currentAccount.userId,
             title: '获取排行榜失败',
             url: '',
             context: 'error:${rankingData.message}',

@@ -78,7 +78,7 @@ class _SearchPageState extends State<SearchPage> {
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取搜索推荐失败',
           url: '',
           context: '在搜索页面',
@@ -88,7 +88,7 @@ class _SearchPageState extends State<SearchPage> {
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取搜索推荐反序列化异常',
           url: '',
           context: response,
@@ -103,7 +103,7 @@ class _SearchPageState extends State<SearchPage> {
         if (searchSuggestion.error) {
           LogUtil.instance.add(
             type: LogType.Info,
-            id: ConfigUtil.instance.config.userId,
+            id: ConfigUtil.instance.config.currentAccount.userId,
             title: '获取搜索推荐失败',
             url: '',
             context: '',
@@ -123,8 +123,14 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Thumbnail? _findThumbnail(int id) {
-    return _searchSuggestionData?.thumbnails
-        .firstWhere((thumbnail) => thumbnail.id == id);
+    Thumbnail? result;
+
+    _searchSuggestionData?.thumbnails.forEach((thumbnail) {
+      if (thumbnail.id == id) {
+        result = thumbnail;
+      }
+    });
+    return result;
   }
 
   TagTranslation? _findTagTranslation(String tag) {
@@ -189,17 +195,11 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _popularTags() {
-    return StaggeredGridView.countBuilder(
-      shrinkWrap: true,
-      crossAxisCount: 3,
-      itemCount: _searchSuggestionData?.popularTags.illust.length,
-      staggeredTileBuilder: (index) => StaggeredTile.fit(1),
-      physics: NeverScrollableScrollPhysics(),
-      itemBuilder: (BuildContext context, int index) {
-        final illust = _searchSuggestionData!.popularTags.illust[index];
-        final thumbnail = _findThumbnail(illust.ids.first);
-
-        return Card(
+    final list = <Widget>[];
+    _searchSuggestionData?.popularTags.illust.forEach((illust) {
+      final thumbnail = _findThumbnail(illust.ids.first);
+      if (thumbnail != null)
+        list.add(Card(
           child: Container(
             child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
@@ -207,7 +207,7 @@ class _SearchPageState extends State<SearchPage> {
                   width: constraints.maxWidth,
                   height: constraints.maxWidth,
                   child: ImageViewFromUrl(
-                    thumbnail!.url,
+                    thumbnail.url,
                     color: Colors.white54,
                     colorBlendMode: BlendMode.modulate,
                     imageBuilder: (Widget imageWidget) {
@@ -232,23 +232,26 @@ class _SearchPageState extends State<SearchPage> {
               },
             ),
           ),
-        );
+        ));
+    });
+    return StaggeredGridView.countBuilder(
+      shrinkWrap: true,
+      crossAxisCount: 3,
+      itemCount: list.length,
+      staggeredTileBuilder: (index) => StaggeredTile.fit(1),
+      physics: NeverScrollableScrollPhysics(),
+      itemBuilder: (BuildContext context, int index) {
+        return list[index];
       },
     );
   }
 
   Widget _recommendTags() {
-    return StaggeredGridView.countBuilder(
-      shrinkWrap: true,
-      crossAxisCount: 3,
-      itemCount: _searchSuggestionData?.recommendTags.illust.length,
-      staggeredTileBuilder: (index) => StaggeredTile.fit(1),
-      physics: NeverScrollableScrollPhysics(),
-      itemBuilder: (BuildContext context, int index) {
-        final illust = _searchSuggestionData!.recommendTags.illust[index];
-        final thumbnail = _findThumbnail(illust.ids.first);
-
-        return Card(
+    final list = <Widget>[];
+    _searchSuggestionData?.recommendTags.illust.forEach((illust) {
+      final thumbnail = _findThumbnail(illust.ids.first);
+      if (thumbnail != null)
+        list.add(Card(
           child: Container(
             child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
@@ -256,7 +259,7 @@ class _SearchPageState extends State<SearchPage> {
                   width: constraints.maxWidth,
                   height: constraints.maxWidth,
                   child: ImageViewFromUrl(
-                    thumbnail!.url,
+                    thumbnail.url,
                     color: Colors.white54,
                     colorBlendMode: BlendMode.modulate,
                     imageBuilder: (Widget imageWidget) {
@@ -272,7 +275,7 @@ class _SearchPageState extends State<SearchPage> {
                             },
                             child: imageWidget,
                           ),
-                          Text(illust.tag)
+                          Text(illust.tag),
                         ],
                       );
                     },
@@ -281,7 +284,16 @@ class _SearchPageState extends State<SearchPage> {
               },
             ),
           ),
-        );
+        ));
+    });
+    return StaggeredGridView.countBuilder(
+      shrinkWrap: true,
+      crossAxisCount: 3,
+      itemCount: list.length,
+      staggeredTileBuilder: (index) => StaggeredTile.fit(1),
+      physics: NeverScrollableScrollPhysics(),
+      itemBuilder: (BuildContext context, int index) {
+        return list[index];
       },
     );
   }
@@ -406,6 +418,5 @@ class _SearchPageState extends State<SearchPage> {
         backgroundColor: Colors.white,
       ),
     );
-
   }
 }

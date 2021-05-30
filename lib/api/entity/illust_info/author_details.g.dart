@@ -14,7 +14,7 @@ AuthorDetails _$AuthorDetailsFromJson(Map<String, dynamic> json) {
     json['user_name'] as String,
     json['user_premium'] as String,
     Map<String, String>.from(json['profile_img'] as Map),
-    json['is_followed'] as bool,
+    json['is_followed'] as bool?,
     json['accept_request'] as bool,
   );
 }

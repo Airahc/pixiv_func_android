@@ -19,7 +19,7 @@ IllustDetails _$IllustDetailsFromJson(Map<String, dynamic> json) {
     (json['display_tags'] as List<dynamic>)
         .map((e) => DisplayTag.fromJson(e as Map<String, dynamic>))
         .toList(),
-    json['tags_editable'] as bool,
+    json['tags_editable'] as bool?,
     json['bookmark_user_total'] as int,
     json['url_s'] as String?,
     json['url_ss'] as String?,

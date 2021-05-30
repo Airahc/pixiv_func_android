@@ -1,31 +1,43 @@
-/*
- * Copyright (C) 2021. by 小草, All rights reserved
- * 项目名称 : pixiv_xiaocao_android
- * 文件名称 : config_entity.g.dart
- */
+// GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'config_entity.dart';
 
-ConfigEntity _$ConfigFromJson(Map<String, dynamic> json) {
-  return ConfigEntity(
-    json['UserId'] != null ? json['UserId'] as int : 0,
-    json['Cookie'] != null ? json['Cookie'] as String : '',
-    json['Token'] != null ? json['Token'] as String : '',
-    json['ProxyIP'] != null ? json['ProxyIP'] as String : '127.0.0.1',
-    json['ProxyPort'] != null ? json['ProxyPort'] as int : 12345,
-    json['EnableProxy'] != null ? json['EnableProxy'] as bool : false,
-    json['EnableImageProxy'] != null ? json['EnableImageProxy'] as bool : true,
-    json['CreateUserFolder'] != null ? json['CreateUserFolder'] as bool : false,
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+AccountEntity _$AccountEntityFromJson(Map<String, dynamic> json) {
+  return AccountEntity(
+    json['userId'] is int ? json['userId'] as int : 0,
+    json['cookie'] is String ? json['cookie'] as String : '',
+    json['token'] is String ? json['token'] as String : '',
   );
 }
 
-Map<String, dynamic> _$ConfigToJson(ConfigEntity instance) => <String, dynamic>{
-      'UserId': instance.userId,
-      'Cookie': instance.cookie,
-      'Token': instance.token,
-      'ProxyIP': instance.proxyIP,
-      'ProxyPort': instance.proxyPort,
-      'EnableProxy': instance.enableProxy,
-      'EnableImageProxy': instance.enableImageProxy,
-      'CreateUserFolder': instance.createUserFolder,
+Map<String, dynamic> _$AccountEntityToJson(AccountEntity instance) =>
+    <String, dynamic>{
+      'userId': instance.userId,
+      'cookie': instance.cookie,
+      'token': instance.token,
+    };
+
+ConfigEntity _$ConfigEntityFromJson(Map<String, dynamic> json) {
+  return ConfigEntity(
+    json['accounts'] is List
+        ? (json['accounts'] as List<dynamic>)
+            .map((e) => AccountEntity.fromJson(e as Map<String, dynamic>))
+            .toList()
+        : [],
+    json['currentAccount'] is Map<String, dynamic>
+        ? AccountEntity.fromJson(json['currentAccount'] as Map<String, dynamic>)
+        : AccountEntity.empty(),
+    json['enableImageProxy'] is bool ? json['enableImageProxy'] as bool : true,
+  );
+}
+
+Map<String, dynamic> _$ConfigEntityToJson(ConfigEntity instance) =>
+    <String, dynamic>{
+      'accounts': instance.accounts.map((e) => e.toJson()).toList(),
+      'currentAccount': instance.currentAccount.toJson(),
+      'enableImageProxy': instance.enableImageProxy,
     };

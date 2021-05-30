@@ -136,7 +136,7 @@ class __ContentState extends State<_Content>
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取已关注用户的新作品失败',
           url: '',
           context: '在已关注用户的新作品页面',
@@ -146,7 +146,7 @@ class __ContentState extends State<_Content>
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取已关注用户的新作品反序列化异常',
           url: '',
           context: response,

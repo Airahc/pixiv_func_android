@@ -159,7 +159,7 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取推荐作品失败',
           url: '',
           context: '在推荐作品页面',
@@ -169,7 +169,7 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取推荐作品反序列化异常',
           url: '',
           context: response,
@@ -191,7 +191,7 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
         } else {
           LogUtil.instance.add(
             type: LogType.Info,
-            id: ConfigUtil.instance.config.userId,
+            id: ConfigUtil.instance.config.currentAccount.userId,
             title: '获取推荐作品失败',
             url: '',
             context: 'error:${recommender.message}',
@@ -233,7 +233,7 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '查询作品信息失败',
           url: '',
           context: '在排行榜页面',
@@ -243,7 +243,7 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '查询作品信息反序列化异常',
           url: '',
           context: response,
@@ -263,7 +263,7 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
         } else {
           LogUtil.instance.add(
             type: LogType.Info,
-            id: ConfigUtil.instance.config.userId,
+            id: ConfigUtil.instance.config.currentAccount.userId,
             title: '查询作品信息失败',
             url: '',
             context: 'error:${works.message}',

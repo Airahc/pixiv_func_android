@@ -9,28 +9,34 @@ import 'package:json_annotation/json_annotation.dart';
 part 'config_entity.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class ConfigEntity {
-  @JsonKey(name: 'UserId')
+class AccountEntity {
   int userId;
-  @JsonKey(name: 'Cookie')
   String cookie;
-  @JsonKey(name: 'Token')
   String token;
-  @JsonKey(name: 'ProxyIP')
-  String proxyIP;
-  @JsonKey(name: 'ProxyPort')
-  int proxyPort;
-  @JsonKey(name: 'EnableProxy')
-  bool enableProxy;
-  @JsonKey(name: 'EnableImageProxy')
+
+  AccountEntity(this.userId, this.cookie, this.token);
+
+  factory AccountEntity.fromJson(Map<String, dynamic> json) =>
+      _$AccountEntityFromJson(json);
+
+  factory AccountEntity.empty()=>AccountEntity(0, '', '');
+
+  Map<String, dynamic> toJson() => _$AccountEntityToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class ConfigEntity {
+  List<AccountEntity> accounts;
+  AccountEntity currentAccount;
   bool enableImageProxy;
-  @JsonKey(name: 'CreateUserFolder')
-  bool createUserFolder;
 
-  ConfigEntity(this.userId, this.cookie, this.token, this.proxyIP, this.proxyPort,
-      this.enableProxy, this.enableImageProxy, this.createUserFolder);
 
-  factory ConfigEntity.fromJson(Map<String, dynamic> json) => _$ConfigFromJson(json);
+  ConfigEntity(this.accounts, this.currentAccount, this.enableImageProxy);
 
-  Map<String, dynamic> toJson() => _$ConfigToJson(this);
+  factory ConfigEntity.fromJson(Map<String, dynamic> json) =>
+      _$ConfigEntityFromJson(json);
+
+  factory ConfigEntity.empty()=>ConfigEntity([], AccountEntity.empty(), true);
+
+  Map<String, dynamic> toJson() => _$ConfigEntityToJson(this);
 }

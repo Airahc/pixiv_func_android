@@ -19,7 +19,7 @@ class AuthorDetails {
   Map<String, String> profileImg;
   ///被自己关注
   @JsonKey(name: 'is_followed')
-  bool isFollowed;
+  bool? isFollowed;
   ///接单
   @JsonKey(name: 'accept_request')
   bool acceptRequest;

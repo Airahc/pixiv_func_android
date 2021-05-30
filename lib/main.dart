@@ -43,22 +43,24 @@ class AndroidApp extends StatelessWidget {
           const Locale.fromSubtags(languageCode: 'zh', countryCode: 'CN'),
         ],
         theme: ThemeData(
-            accentColor: Colors.pinkAccent,
-            colorScheme: ColorScheme(
-              primary: const Color(0xffea638c),
-              primaryVariant: Colors.deepOrangeAccent,
-              secondary: const Color(0xffea638c),
-              secondaryVariant: const Color(0xffea638c),
-              surface: const Color(0xff30343f),
-              background: const Color(0xff30343f),
-              error: Colors.red,
-              onPrimary: const Color(0xff1b2021),
-              onSecondary: const Color(0xff1b2021),
-              onSurface: const Color(0xffffd9da),
-              onBackground: const Color(0xffffd9da),
-              onError: const Color(0xff1b2021),
-              brightness: Brightness.dark,
-            )),
+          accentColor: Colors.pinkAccent,
+          toggleableActiveColor: const Color(0xffea638c),
+          colorScheme: ColorScheme(
+            primary: const Color(0xffea638c),
+            primaryVariant: Colors.deepOrangeAccent,
+            secondary: const Color(0xffea638c),
+            secondaryVariant: const Color(0xffea638c),
+            surface: const Color(0xff30343f),
+            background: const Color(0xff30343f),
+            error: Colors.red,
+            onPrimary: const Color(0xff1b2021),
+            onSecondary: const Color(0xff1b2021),
+            onSurface: const Color(0xffffd9da),
+            onBackground: const Color(0xffffd9da),
+            onError: const Color(0xff1b2021),
+            brightness: Brightness.dark,
+          ),
+        ),
         home: WillPopScope(
           child: AndroidTabs(),
           onWillPop: () async {
@@ -86,17 +88,11 @@ class AndroidApp extends StatelessWidget {
 }
 
 class MyHttpOverrides extends HttpOverrides {
-  static final Map<String, String> proxySettings = {};
-
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
       ..badCertificateCallback = (X509Certificate cert, String host, int port) {
         return true;
-      }
-      ..findProxy = (uri) {
-        return HttpClient.findProxyFromEnvironment(uri,
-            environment: proxySettings);
       };
   }
 }

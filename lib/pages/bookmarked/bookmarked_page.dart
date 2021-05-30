@@ -55,12 +55,12 @@ class _BookmarkedPageState extends State<BookmarkedPage> {
     }
 
     final bookmarks = await PixivRequest.instance.getBookmarks(
-      ConfigUtil.instance.config.userId,
+      ConfigUtil.instance.config.currentAccount.userId,
       _currentPage,
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取已收藏书签失败',
           url: '',
           context: '在已收藏书签页面',
@@ -70,7 +70,7 @@ class _BookmarkedPageState extends State<BookmarkedPage> {
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.userId,
+          id: ConfigUtil.instance.config.currentAccount.userId,
           title: '获取已收藏书签反序列化异常',
           url: '',
           context: response,
@@ -88,7 +88,7 @@ class _BookmarkedPageState extends State<BookmarkedPage> {
         } else {
           LogUtil.instance.add(
             type: LogType.Info,
-            id: ConfigUtil.instance.config.userId,
+            id: ConfigUtil.instance.config.currentAccount.userId,
             title: '获取已收藏书签失败',
             url: '',
             context: 'error:${bookmarks.message}',
