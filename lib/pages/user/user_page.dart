@@ -4,7 +4,8 @@
  * 文件名称 : user_page.dart
  */
 
-import 'package:flutter/material.dart';
+import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
+import 'package:flutter/material.dart' hide NestedScrollView ;
 import 'package:pixiv_xiaocao_android/api/entity/user_info/user_details.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/avatar_view_from_url.dart';
@@ -253,27 +254,64 @@ class _UserPageState extends State<UserPage>
   Widget build(BuildContext context) {
     return Scaffold(
       body: NestedScrollView(
-        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+        pinnedHeaderSliverHeightBuilder: () =>
+            MediaQuery.of(context).padding.top + kToolbarHeight,
+        innerScrollPositionKeyBuilder: () =>
+            Key('tabIndex${_tabController.index}'),
+        body: IndexedStack(
+          index: _currentIndex,
+          children: [
+            NestedScrollViewInnerScrollPositionKeyWidget(
+              Key('tabIndex0'),
+              UserWorksContent(
+                type: UserWorkType.illust,
+                userId: widget.userId,
+                key: _worksGlobalKeys[0],
+              ),
+            ),
+            NestedScrollViewInnerScrollPositionKeyWidget(
+              Key('tabIndex1'),
+              UserWorksContent(
+                type: UserWorkType.manga,
+                userId: widget.userId,
+                key: _worksGlobalKeys[1],
+              ),
+            ),
+            NestedScrollViewInnerScrollPositionKeyWidget(
+              Key('tabIndex2'),
+              UserBookmarksContent(
+                userId: widget.userId,
+                key: _bookmarksGlobalKey,
+              ),
+            ),
+          ],
+        ),
+        headerSliverBuilder: (BuildContext context, bool? innerBoxIsScrolled) {
           return [
-            SliverOverlapAbsorber(
-              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-              sliver: SliverAppBar(
-                pinned: true,
-                expandedHeight: 350,
-                forceElevated: innerBoxIsScrolled,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: _buildUserPreview(),
-                ),
-                actions: [
-                  IconButton(
-                    splashRadius: 20,
-                    icon: Icon(Icons.refresh_outlined),
-                    onPressed: _loadData,
-                  )
-                ],
-                bottom: PreferredSize(
+            SliverAppBar(
+              pinned: true,
+              elevation: 0,
+              expandedHeight: 280,
+              forceElevated: innerBoxIsScrolled ?? false,
+              flexibleSpace: FlexibleSpaceBar(
+                collapseMode: CollapseMode.pin,
+                background: _buildUserPreview(),
+              ),
+              actions: [
+                IconButton(
+                  splashRadius: 20,
+                  icon: Icon(Icons.refresh_outlined),
+                  onPressed: _loadData,
+                )
+              ],
+            ),
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: SliverPersistentHeaderDelegateImpl(
+                child: PreferredSize(
                   child: TabBar(
                     controller: _tabController,
+                    indicatorSize: TabBarIndicatorSize.label,
                     tabs: [
                       Text('插画'),
                       Text('漫画'),
@@ -292,32 +330,40 @@ class _UserPageState extends State<UserPage>
                       }
                     },
                   ),
-                  preferredSize: Size.fromHeight(30),
+                  preferredSize: Size.fromHeight(24),
                 ),
               ),
-            )
+            ),
           ];
         },
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            UserWorksContent(
-              type: UserWorkType.illust,
-              userId: widget.userId,
-              key: _worksGlobalKeys[0],
-            ),
-            UserWorksContent(
-              type: UserWorkType.manga,
-              userId: widget.userId,
-              key: _worksGlobalKeys[1],
-            ),
-            UserBookmarksContent(
-              userId: widget.userId,
-              key: _bookmarksGlobalKey,
-            ),
-          ],
-        ),
       ),
     );
+  }
+}
+
+class SliverPersistentHeaderDelegateImpl
+    extends SliverPersistentHeaderDelegate {
+  final PreferredSize child;
+
+  SliverPersistentHeaderDelegateImpl({required this.child});
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      child: child,
+      color: Theme.of(context).cardColor,
+    );
+  }
+
+  @override
+  double get maxExtent => child.preferredSize.height;
+
+  @override
+  double get minExtent => child.preferredSize.height;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegateImpl oldDelegate) {
+    return child != oldDelegate.child;
   }
 }

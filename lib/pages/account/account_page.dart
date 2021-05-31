@@ -34,18 +34,41 @@ class _AccountPageState extends State<AccountPage> {
                     LoginPage(
                       (String cookie, String token, int id) {
                         if (id != 0) {
-                          setState(
-                            () {
-                              final account = AccountEntity(id, cookie, token);
-                              if (ConfigUtil.instance.config.accounts.isEmpty) {
-                                ConfigUtil.instance.config.currentAccount =
-                                    account;
-                                PixivRequest.instance.updateHeaders();
-                              }
+                          setState(() {
+                            final account = AccountEntity(id, cookie, token);
+                            //没有任何账号
+                            if (ConfigUtil.instance.config.accounts.isEmpty) {
+                              //直接加进去 并设为当前选中
                               ConfigUtil.instance.config.accounts.add(account);
-                              ConfigUtil.instance.updateConfigFile();
-                            },
-                          );
+                              ConfigUtil.instance.config.currentAccount =
+                                  account;
+                              PixivRequest.instance.updateHeaders();
+                            } else {
+                              //新登录的账号id是不是已经存在
+                              final index = ConfigUtil.instance.config.accounts
+                                  .indexWhere(
+                                      (e) => e.userId == account.userId);
+                              if (index == -1) {
+                                //不存在 直接加进去
+                                ConfigUtil.instance.config.accounts
+                                    .add(account);
+                              } else {
+                                //存在 更新
+                                ConfigUtil.instance.config.accounts[index] =
+                                    account;
+                                //新登录的账号的id是不是当前选择的账号的id
+                                if (account.userId ==
+                                    ConfigUtil.instance.config.currentAccount
+                                        .userId) {
+                                  //是就更新
+                                  ConfigUtil.instance.config.currentAccount =
+                                      account;
+                                  PixivRequest.instance.updateHeaders();
+                                }
+                              }
+                            }
+                            ConfigUtil.instance.updateConfigFile();
+                          });
                         } else {
                           LogUtil.instance.add(
                             type: LogType.Info,
@@ -69,11 +92,15 @@ class _AccountPageState extends State<AccountPage> {
                       return EditAccountDialog(
                         originalData: AccountEntity.empty(),
                         resultCallback: (AccountEntity newData) {
-                          setState(() {
-                            ConfigUtil.instance.config.accounts.add(newData);
-                            ConfigUtil.instance.updateConfigFile();
-                            PixivRequest.instance.updateHeaders();
-                          });
+                          if(ConfigUtil.instance.config.accounts.indexWhere((e) => e.userId==newData.userId)!=-1){
+                            setState(() {
+                              ConfigUtil.instance.config.accounts.add(newData);
+                              PixivRequest.instance.updateHeaders();
+                              ConfigUtil.instance.updateConfigFile();
+                            });
+                          }else{
+                            Util.toast('已经存在的ID');
+                          }
                         },
                       );
                     },
@@ -93,10 +120,14 @@ class _AccountPageState extends State<AccountPage> {
       list.add(Card(
         child: ListTile(
           onTap: () {
-            setState(() {
-              ConfigUtil.instance.config.currentAccount = account;
-              PixivRequest.instance.updateHeaders();
-            });
+            if (account.userId !=
+                ConfigUtil.instance.config.currentAccount.userId) {
+              setState(() {
+                ConfigUtil.instance.config.currentAccount = account;
+                PixivRequest.instance.updateHeaders();
+                ConfigUtil.instance.updateConfigFile();
+              });
+            }
           },
           onLongPress: () {
             showDialog(
@@ -109,10 +140,10 @@ class _AccountPageState extends State<AccountPage> {
                       if (account.userId ==
                           ConfigUtil.instance.config.currentAccount.userId) {
                         ConfigUtil.instance.config.currentAccount = newData;
-                        ConfigUtil.instance.updateConfigFile();
                       }
                       account = newData;
                       PixivRequest.instance.updateHeaders();
+                      ConfigUtil.instance.updateConfigFile();
                     });
                   },
                 );

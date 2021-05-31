@@ -127,7 +127,9 @@ class UserWorksContentState extends State<UserWorksContent>
                 _ids.addAll(userAllWork.body!.manga);
                 break;
             }
-            await _loadIllustsData();
+            if(_ids.isNotEmpty) {
+              await _loadIllustsData();
+            }
           }
         } else {
           LogUtil.instance.add(
@@ -405,6 +407,7 @@ class UserWorksContentState extends State<UserWorksContent>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
     return RefreshIndicator(
       child: _buildBody(),
       onRefresh: _loadData,
