@@ -20,6 +20,7 @@ import 'package:pixiv_xiaocao_android/pages/search/search_content_page.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_input.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_settings.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -31,18 +32,21 @@ class _SearchPageState extends State<SearchPage> {
 
   final _scrollController = ScrollController();
 
+  final RefreshController _refreshController =
+  RefreshController(initialRefresh: true);
+
   bool _loading = false;
   bool _initialize = false;
 
   @override
   void initState() {
-    _loadData(reload: false, init: true);
     super.initState();
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
 
@@ -58,20 +62,8 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  Future _loadData({bool reload = true, bool init = false}) async {
-    if (this.mounted) {
-      setState(() {
-        if (reload) {
-          _searchSuggestionData = null;
-        }
-        if (init) {
-          _initialize = false;
-        }
-        _loading = true;
-      });
-    } else {
-      return;
-    }
+  Future _loadData({void Function()? onSuccess, void Function()? onFail}) async {
+    var isSuccess = false;
 
     final searchSuggestion = await PixivRequest.instance.getSearchSuggestion(
       mode: 'all',
@@ -108,17 +100,16 @@ class _SearchPageState extends State<SearchPage> {
             url: '',
             context: '',
           );
+        }else{
+          isSuccess = true;
         }
       }
     }
 
-    if (this.mounted) {
-      setState(() {
-        if (init) {
-          _initialize = true;
-        }
-        _loading = false;
-      });
+    if (isSuccess) {
+      onSuccess?.call();
+    } else {
+      onFail?.call();
     }
   }
 
@@ -352,6 +343,17 @@ class _SearchPageState extends State<SearchPage> {
     return component;
   }
 
+  Future<void> _onRefresh() async {
+
+    await _loadData();
+    if (this.mounted) {
+      setState(() {});
+    }
+    _refreshController.refreshCompleted();
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -412,10 +414,14 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
       endDrawer: SearchSettings(),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
+      body: SmartRefresher(
+        enablePullDown: true,
+        header: MaterialClassicHeader(
+          color: Colors.pinkAccent,
+        ),
+        controller: _refreshController,
+        onRefresh: _onRefresh,
         child: _buildBody(),
-        backgroundColor: Colors.white,
       ),
     );
   }

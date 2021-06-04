@@ -12,6 +12,7 @@ import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SearchByImagePage extends StatefulWidget {
   final List<int> ids;
@@ -27,22 +28,24 @@ class _SearchByImagePageState extends State<SearchByImagePage> {
 
   ScrollController _scrollController = ScrollController();
 
+  final RefreshController _refreshController =
+  RefreshController(initialRefresh: true);
+
   static const int _pageQuantity = 30;
 
   int _currentPage = 1;
 
   bool _hasNext = true;
-  bool _loading = false;
 
   @override
   void initState() {
-    _loadIllustsData(reload: false);
     super.initState();
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
 
@@ -58,18 +61,9 @@ class _SearchByImagePageState extends State<SearchByImagePage> {
     }
   }
 
-  Future _loadIllustsData({bool reload = true}) async {
-    if (this.mounted) {
-      setState(() {
-        if (reload) {
-          _illusts.clear();
-          _currentPage = 1;
-        }
-        _loading = true;
-      });
-    } else {
-      return;
-    }
+  Future<void> _loadIllustsData( {void Function()? onSuccess, void Function()? onFail}) async {
+    var isSuccess=false;
+
     final startOffset = (_currentPage - 1) * _pageQuantity;
 
     final endOffset = widget.ids.length >= startOffset + _pageQuantity
@@ -120,14 +114,12 @@ class _SearchByImagePageState extends State<SearchByImagePage> {
           );
         }
       }
-    } else {
-      return;
     }
 
-    if (this.mounted) {
-      setState(() {
-        _loading = false;
-      });
+    if (isSuccess) {
+      onSuccess?.call();
+    } else {
+      onFail?.call();
     }
   }
 
@@ -251,72 +243,54 @@ class _SearchByImagePageState extends State<SearchByImagePage> {
   Widget _buildBody() {
     late Widget component;
     if (_illusts.isNotEmpty) {
-      final List<Widget> list = [];
-      list.add(_buildIllustsPreview());
-
-      if (_loading) {
-        list.add(SizedBox(height: 20));
-        list.add(Center(
-          child: CircularProgressIndicator(),
-        ));
-        list.add(SizedBox(height: 20));
-      } else {
-        if (_hasNext) {
-          list.add(Card(
-            child: ListTile(
-              title: Text('加载更多'),
-              onTap: () {
-                _loadIllustsData();
-              },
-            ),
-          ));
-        } else {
-          list.add(Card(child: ListTile(title: Text('没有更多数据啦'))));
-        }
-      }
-
       component = SingleChildScrollView(
         controller: _scrollController,
-        child: Column(
-          children: list,
-        ),
+        child: _buildIllustsPreview(),
       );
     } else {
-      if (widget.ids.isNotEmpty) {
-        if (_loading) {
-          component = Container(
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        } else {
-          component = ListView.builder(
-            itemCount: 1,
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                title: Center(
-                  child: Text('加载数据失败'),
-                ),
-              );
-            },
-            physics: const AlwaysScrollableScrollPhysics(),
-          );
-        }
-      } else {
-        component = ListView.builder(
-          itemCount: 1,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Center(
-                child: Text('没有任何数据'),
-              ),
-            );
-          },
-          physics: const NeverScrollableScrollPhysics(),
-        );
-      }
+      component = Container();
     }
     return component;
+  }
+
+  Future<void> _onRefresh() async {
+    setState(() {
+      _illusts.clear();
+      _currentPage = 1;
+      _hasNext = true;
+    });
+
+    await _loadIllustsData(onSuccess: () {
+      if (this.mounted) {
+        setState(() {
+          if (_hasNext) {
+            _refreshController.loadComplete();
+          } else {
+            _refreshController.loadNoData();
+          }
+        });
+      }
+    }, onFail: () {
+      _refreshController.loadFailed();
+    });
+
+    _refreshController.refreshCompleted();
+  }
+
+  Future<void> _onLoading() async {
+    await _loadIllustsData(onSuccess: () {
+      if (this.mounted) {
+        setState(() {
+          if (_hasNext) {
+            _refreshController.loadComplete();
+          } else {
+            _refreshController.loadNoData();
+          }
+        });
+      }
+    }, onFail: () {
+      _refreshController.loadFailed();
+    });
   }
 
   @override
@@ -325,10 +299,46 @@ class _SearchByImagePageState extends State<SearchByImagePage> {
       appBar: AppBar(
         title: Text('搜索图片'),
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadIllustsData,
+      body: SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: true,
+        header: MaterialClassicHeader(
+          color: Colors.pinkAccent,
+        ),
+        footer: CustomFooter(
+          builder: (BuildContext context, LoadStatus? mode) {
+            Widget body;
+            switch (mode) {
+              case LoadStatus.idle:
+                body = Text("上拉,加载更多");
+                break;
+              case LoadStatus.canLoading:
+                body = Text("松手,加载更多");
+                break;
+              case LoadStatus.loading:
+                body = CircularProgressIndicator();
+                break;
+              case LoadStatus.noMore:
+                body = Text("没有更多数据啦");
+                break;
+              case LoadStatus.failed:
+                body = Text('加载失败');
+                break;
+              default:
+                body = Container();
+                break;
+            }
+
+            return Container(
+              height: 55.0,
+              child: Center(child: body),
+            );
+          },
+        ),
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        onLoading: _onLoading,
         child: _buildBody(),
-        backgroundColor: Colors.white,
       ),
     );
   }

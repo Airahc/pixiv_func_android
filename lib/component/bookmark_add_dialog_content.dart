@@ -26,8 +26,8 @@ class BookmarkAddDialogContent extends StatefulWidget {
 }
 
 class _BookmarkAddDialogContentState extends State<BookmarkAddDialogContent> {
-  var tags = <String>[];
-  var tagInputController = TextEditingController();
+  final tags = <String>[];
+  final tagInputController = TextEditingController();
   String comment = '';
 
   Future onAdd() async {

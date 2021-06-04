@@ -14,6 +14,7 @@ import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class NewWorksPage extends StatefulWidget {
   @override
@@ -57,8 +58,8 @@ class _NewWorksPageState extends State<NewWorksPage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          _Content(false, key: _globalKeys[0]),
-          _Content(true, key: _globalKeys[1]),
+          _Content(isR18: false, key: _globalKeys[0]),
+          _Content(isR18: true, key: _globalKeys[1]),
         ],
       ),
     );
@@ -68,7 +69,7 @@ class _NewWorksPageState extends State<NewWorksPage>
 class _Content extends StatefulWidget {
   final bool isR18;
 
-  _Content(this.isR18, {Key? key}) : super(key: key);
+  _Content({required this.isR18, Key? key}) : super(key: key);
 
   @override
   __ContentState createState() => __ContentState();
@@ -79,26 +80,26 @@ class __ContentState extends State<_Content>
   @override
   bool get wantKeepAlive => true;
 
-  List<Illust> _illusts = <Illust>[];
+  final _illusts = <Illust>[];
 
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
+
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: true);
 
   int _currentPage = 1;
 
   bool _hasNext = true;
-  bool _loading = false;
-
-  bool _initialize = false;
 
   @override
   void initState() {
-    _loadData(reload: false, init: true);
     super.initState();
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
 
@@ -114,21 +115,9 @@ class __ContentState extends State<_Content>
     }
   }
 
-  Future _loadData({bool reload = true, bool init = false}) async {
-    if (this.mounted) {
-      setState(() {
-        if (reload) {
-          _illusts.clear();
-          _currentPage = 1;
-        }
-        if (init) {
-          _initialize = false;
-        }
-        _loading = true;
-      });
-    } else {
-      return;
-    }
+  Future _loadData(
+      {void Function()? onSuccess, void Function()? onFail}) async {
+    var isSuccess = false;
 
     final followIllustsData = await PixivRequest.instance.getFollowIllusts(
       _currentPage,
@@ -157,22 +146,16 @@ class __ContentState extends State<_Content>
 
     if (this.mounted) {
       if (followIllustsData != null && followIllustsData.body != null) {
-        setState(() {
-          _hasNext = followIllustsData.body!.lastPage != ++_currentPage;
-          _illusts.addAll(followIllustsData.body!.illusts);
-        });
+        _hasNext = followIllustsData.body!.lastPage > _currentPage++;
+        _illusts.addAll(followIllustsData.body!.illusts);
+        isSuccess = true;
       }
-    } else {
-      return;
     }
 
-    if (this.mounted) {
-      setState(() {
-        if (init) {
-          _initialize = true;
-        }
-        _loading = false;
-      });
+    if (isSuccess) {
+      onSuccess?.call();
+    } else {
+      onFail?.call();
     }
   }
 
@@ -189,72 +172,75 @@ class __ContentState extends State<_Content>
             padding: EdgeInsets.all(5),
             child: Column(
               children: [
-                LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-                  return Container(
-                    width: constraints.maxWidth,
-                    height: constraints.maxWidth,
-                    child: ImageViewFromUrl(
-                      _illusts[index].urlS,
-                      fit: BoxFit.cover,
-                      imageBuilder: (Widget imageWidget) {
-                        return Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Util.gotoPage(
-                                  context,
-                                  IllustPage(
-                                    _illusts[index].id,
-                                    onBookmarkAdd: (bookmarkId) {
-                                      if (this.mounted) {
-                                        setState(() {
-                                          _illusts[index].bookmarkId = bookmarkId;
-                                        });
-                                      }
-                                    },
-                                    onBookmarkDelete: () {
-                                      if (this.mounted) {
-                                        setState(() {
-                                          _illusts[index].bookmarkId = null;
-                                        });
-                                      }
-                                    },
-                                  ),
-                                );
-                              },
-                              child: imageWidget,
-                            ),
-                            Positioned(
-                              left: 2,
-                              top: 2,
-                              child: _illusts[index].tags.contains('R-18')
-                                  ? Card(
-                                color: Colors.pinkAccent,
-                                child: Text('R-18'),
-                              )
-                                  : Container(),
-                            ),
-                            Positioned(
-                              top: 2,
-                              right: 2,
-                              child: Card(
-                                color: Colors.white12,
-                                child: Padding(
-                                  padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                  child: Text(
-                                    '${_illusts[index].pageCount}',
-                                    style: TextStyle(fontSize: 20),
+                LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                    return Container(
+                      width: constraints.maxWidth,
+                      height: constraints.maxWidth,
+                      child: ImageViewFromUrl(
+                        _illusts[index].urlS,
+                        fit: BoxFit.cover,
+                        imageBuilder: (Widget imageWidget) {
+                          return Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Util.gotoPage(
+                                    context,
+                                    IllustPage(
+                                      _illusts[index].id,
+                                      onBookmarkAdd: (bookmarkId) {
+                                        if (this.mounted) {
+                                          setState(() {
+                                            _illusts[index].bookmarkId =
+                                                bookmarkId;
+                                          });
+                                        }
+                                      },
+                                      onBookmarkDelete: () {
+                                        if (this.mounted) {
+                                          setState(() {
+                                            _illusts[index].bookmarkId = null;
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  );
+                                },
+                                child: imageWidget,
+                              ),
+                              Positioned(
+                                left: 2,
+                                top: 2,
+                                child: _illusts[index].tags.contains('R-18')
+                                    ? Card(
+                                        color: Colors.pinkAccent,
+                                        child: Text('R-18'),
+                                      )
+                                    : Container(),
+                              ),
+                              Positioned(
+                                top: 2,
+                                right: 2,
+                                child: Card(
+                                  color: Colors.white12,
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                    child: Text(
+                                      '${_illusts[index].pageCount}',
+                                      style: TextStyle(fontSize: 20),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  );
-                },),
+                            ],
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
                 Container(
                   alignment: Alignment.topLeft,
                   child: ListTile(
@@ -293,72 +279,95 @@ class __ContentState extends State<_Content>
   Widget _buildBody() {
     late Widget component;
     if (_illusts.isNotEmpty) {
-      final List<Widget> list = [];
-      list.add(_buildIllustsPreview());
-
-      if (_loading) {
-        list.add(SizedBox(height: 20));
-        list.add(Center(
-          child: CircularProgressIndicator(),
-        ));
-        list.add(SizedBox(height: 20));
-      } else {
-        if (_hasNext) {
-          list.add(Card(
-            child: ListTile(
-              title: Text('加载更多'),
-              onTap: () {
-
-                _loadData(reload: false);
-              },
-            ),
-          ));
-        } else {
-          list.add(Card(child: ListTile(title: Text('没有更多数据啦'))));
-        }
-      }
-
       component = SingleChildScrollView(
         controller: _scrollController,
-        child: Column(
-          children: list,
-        ),
+        child: _buildIllustsPreview(),
       );
     } else {
-      if (_loading) {
-        if (!_initialize) {
-          component = Container(
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        } else {
-          component = Container();
-        }
-      } else {
-        component = ListView.builder(
-          itemCount: 1,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Center(
-                child: Text('没有任何数据'),
-              ),
-            );
-          },
-          physics: const AlwaysScrollableScrollPhysics(),
-        );
-      }
+      component = Container();
     }
     return component;
+  }
+
+  Future<void> _onRefresh() async {
+    setState(() {
+      _illusts.clear();
+      _currentPage = 1;
+      _hasNext = true;
+    });
+
+    await _loadData();
+    if (_illusts.isEmpty) {
+      _refreshController.loadNoData();
+    } else {
+      _refreshController.loadComplete();
+    }
+
+    if (this.mounted) {
+      setState(() {});
+    }
+    _refreshController.refreshCompleted();
+  }
+
+  Future<void> _onLoading() async {
+    await _loadData(onSuccess: () {
+      if (this.mounted) {
+        setState(() {
+          if (_hasNext) {
+            _refreshController.loadComplete();
+          } else {
+            _refreshController.loadNoData();
+          }
+        });
+      }
+    }, onFail: () {
+      _refreshController.loadFailed();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return RefreshIndicator(
-      onRefresh: _loadData,
+    return SmartRefresher(
+      enablePullDown: true,
+      enablePullUp: true,
+      header: MaterialClassicHeader(
+        color: Colors.pinkAccent,
+      ),
+      footer: CustomFooter(
+        builder: (BuildContext context, LoadStatus? mode) {
+          Widget body;
+          switch (mode) {
+            case LoadStatus.idle:
+              body = Text("上拉,加载更多");
+              break;
+            case LoadStatus.canLoading:
+              body = Text("松手,加载更多");
+              break;
+            case LoadStatus.loading:
+              body = CircularProgressIndicator();
+              break;
+            case LoadStatus.noMore:
+              body = Text("没有更多数据啦");
+              break;
+            case LoadStatus.failed:
+              body = Text('加载失败');
+              break;
+            default:
+              body = Container();
+              break;
+          }
+
+          return Container(
+            height: 55.0,
+            child: Center(child: body),
+          );
+        },
+      ),
+      controller: _refreshController,
+      onRefresh: _onRefresh,
+      onLoading: _onLoading,
       child: _buildBody(),
-      backgroundColor: Colors.white,
     );
   }
 }
