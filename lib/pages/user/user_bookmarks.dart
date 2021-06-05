@@ -34,7 +34,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
   final ScrollController _scrollController = ScrollController();
 
   final RefreshController _refreshController =
-  RefreshController(initialRefresh: true);
+      RefreshController(initialRefresh: true);
 
   static const int _pageQuantity = 30;
 
@@ -42,6 +42,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
 
   bool _hasNext = true;
 
+  bool _initialize = false;
 
   @override
   void initState() {
@@ -67,14 +68,15 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
     }
   }
 
-  Future _loadData({void Function()? onSuccess, void Function()? onFail}) async {
+  Future _loadData(
+      {void Function()? onSuccess, void Function()? onFail}) async {
     var isSuccess = false;
 
     final userBookmarks = await PixivRequest.instance.queryUserBookmarks(
       widget.userId,
       (_currentPage - 1) * _pageQuantity,
       _pageQuantity,
-      requestException: (e){
+      requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
           id: widget.userId,
@@ -84,7 +86,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
           exception: e,
         );
       },
-      decodeException: (e,response){
+      decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
           id: widget.userId,
@@ -103,7 +105,7 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
             _hasNext =
                 userBookmarks.body!.total > _currentPage++ * _pageQuantity;
             _works.addAll(userBookmarks.body!.works);
-            isSuccess=true;
+            isSuccess = true;
           }
         } else {
           LogUtil.instance.add(
@@ -125,108 +127,112 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
   }
 
   Widget _buildIllustsPreview() {
-    return StaggeredGridView.countBuilder(
-      shrinkWrap: true,
-      crossAxisCount: 2,
-      itemCount: _works.length,
-      staggeredTileBuilder: (index) => StaggeredTile.fit(1),
-      mainAxisSpacing: 6,
-      crossAxisSpacing: 6,
-      physics: NeverScrollableScrollPhysics(),
-      itemBuilder: (BuildContext context, int index) {
-        return _works[index].isMasked
-            ? Card(
-                child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-                  return Container(
-                    width: constraints.maxWidth,
-                    height: constraints.maxWidth,
-                    child: ImageViewFromUrl(_works[index].url),
-                  );
-                },
-                ),
-              )
-            : Card(
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  child: Column(
-                    children: [
-                      LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-                        return Container(
-                          width: constraints.maxWidth,
-                          height: constraints.maxWidth,
-                          child: ImageViewFromUrl(
-                            _works[index].url,
-                            fit: BoxFit.cover,
-                            imageBuilder: (Widget imageWidget) {
-                              return Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      Util.gotoPage(
-                                        context,
-                                        IllustPage(_works[index].id),
-                                      );
-                                    },
-                                    child: imageWidget,
-                                  ),
-                                  Positioned(
-                                    left: 2,
-                                    top: 2,
-                                    child: _works[index].tags.contains('R-18')
-                                        ? Card(
-                                      color: Colors.pinkAccent,
-                                      child: Text('R-18'),
-                                    )
-                                        : Container(),
-                                  ),
-                                  Positioned(
-                                    top: 2,
-                                    right: 2,
-                                    child: Card(
-                                      color: Colors.white12,
-                                      child: Padding(
-                                        padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                        child: Text(
-                                          '${_works[index].pageCount}',
-                                          style: TextStyle(fontSize: 20),
+    return Container(
+      child: StaggeredGridView.countBuilder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        crossAxisCount: 2,
+        itemCount: _works.length,
+        staggeredTileBuilder: (index) => StaggeredTile.fit(1),
+        itemBuilder: (BuildContext context, int index) {
+          return _works[index].isMasked
+              ? Card(
+                  child: LayoutBuilder(
+                    builder:
+                        (BuildContext context, BoxConstraints constraints) {
+                      return Container(
+                        width: constraints.maxWidth,
+                        height: constraints.maxWidth,
+                        child: ImageViewFromUrl(_works[index].url),
+                      );
+                    },
+                  ),
+                )
+              : Card(
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    child: Column(
+                      children: [
+                        LayoutBuilder(
+                          builder: (BuildContext context,
+                              BoxConstraints constraints) {
+                            return Container(
+                              width: constraints.maxWidth,
+                              height: constraints.maxWidth,
+                              child: ImageViewFromUrl(
+                                _works[index].url,
+                                fit: BoxFit.cover,
+                                imageBuilder: (Widget imageWidget) {
+                                  return Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          Util.gotoPage(
+                                            context,
+                                            IllustPage(_works[index].id),
+                                          );
+                                        },
+                                        child: imageWidget,
+                                      ),
+                                      Positioned(
+                                        left: 2,
+                                        top: 2,
+                                        child:
+                                            _works[index].tags.contains('R-18')
+                                                ? Card(
+                                                    color: Colors.pinkAccent,
+                                                    child: Text('R-18'),
+                                                  )
+                                                : Container(),
+                                      ),
+                                      Positioned(
+                                        top: 2,
+                                        right: 2,
+                                        child: Card(
+                                          color: Colors.white12,
+                                          child: Padding(
+                                            padding:
+                                                EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                            child: Text(
+                                              '${_works[index].pageCount}',
+                                              style: TextStyle(fontSize: 20),
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        );
-                      },),
-                      Container(
-                        alignment: Alignment.topLeft,
-                        child: ListTile(
-                          contentPadding: EdgeInsets.all(0),
-                          title: Text(
-                            '${_works[index].title}',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          subtitle: Text('${_works[index].userName}',
-                              style: TextStyle(fontSize: 10)),
+                                    ],
+                                  );
+                                },
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                    ],
+                        Container(
+                          alignment: Alignment.topLeft,
+                          child: ListTile(
+                            contentPadding: EdgeInsets.all(0),
+                            title: Text(
+                              '${_works[index].title}',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            subtitle: Text('${_works[index].userName}',
+                                style: TextStyle(fontSize: 10)),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-      },
+                );
+        },
+      ),
     );
   }
 
   Widget _buildBody() {
     late Widget component;
     if (_works.isNotEmpty) {
-      component = SingleChildScrollView(
-        controller: _scrollController,
-        child: _buildIllustsPreview(),
-      );
+      component = _buildIllustsPreview();
     } else {
       component = Container();
     }
@@ -238,19 +244,31 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
       _works.clear();
       _currentPage = 1;
       _hasNext = true;
+
+      if (_initialize) {
+        _initialize = false;
+      }
     });
 
     await _loadData();
     if (_works.isEmpty) {
       _refreshController.loadNoData();
     } else {
-      _refreshController.loadComplete();
+      if (_hasNext) {
+        _refreshController.loadComplete();
+      } else {
+        _refreshController.loadNoData();
+      }
     }
 
     if (this.mounted) {
-      setState(() {});
+      setState(() {
+        if (!_initialize) {
+          _initialize = true;
+        }
+        _refreshController.refreshCompleted();
+      });
     }
-    _refreshController.refreshCompleted();
   }
 
   Future<void> _onLoading() async {
@@ -274,40 +292,42 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
     super.build(context);
     return SmartRefresher(
       enablePullDown: true,
-      enablePullUp: true,
+      enablePullUp: _initialize,
       header: MaterialClassicHeader(
         color: Colors.pinkAccent,
       ),
-      footer: CustomFooter(
-        builder: (BuildContext context, LoadStatus? mode) {
-          Widget body;
-          switch (mode) {
-            case LoadStatus.idle:
-              body = Text("上拉,加载更多");
-              break;
-            case LoadStatus.canLoading:
-              body = Text("松手,加载更多");
-              break;
-            case LoadStatus.loading:
-              body = CircularProgressIndicator();
-              break;
-            case LoadStatus.noMore:
-              body = Text("没有更多数据啦");
-              break;
-            case LoadStatus.failed:
-              body = Text('加载失败');
-              break;
-            default:
-              body = Container();
-              break;
-          }
+      footer: _initialize
+          ? CustomFooter(
+              builder: (BuildContext context, LoadStatus? mode) {
+                Widget body;
+                switch (mode) {
+                  case LoadStatus.idle:
+                    body = Text("上拉,加载更多");
+                    break;
+                  case LoadStatus.canLoading:
+                    body = Text("松手,加载更多");
+                    break;
+                  case LoadStatus.loading:
+                    body = CircularProgressIndicator();
+                    break;
+                  case LoadStatus.noMore:
+                    body = Text("没有更多数据啦");
+                    break;
+                  case LoadStatus.failed:
+                    body = Text('加载失败');
+                    break;
+                  default:
+                    body = Container();
+                    break;
+                }
 
-          return Container(
-            height: 55.0,
-            child: Center(child: body),
-          );
-        },
-      ),
+                return Container(
+                  height: 55.0,
+                  child: Center(child: body),
+                );
+              },
+            )
+          : null,
       controller: _refreshController,
       onRefresh: _onRefresh,
       onLoading: _onLoading,

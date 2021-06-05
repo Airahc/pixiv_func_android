@@ -18,8 +18,9 @@ import 'entity/illust_related/illust_related.dart';
 import 'entity/profile_all/profile_all.dart';
 import 'entity/ranking/ranking.dart';
 import 'entity/recommender/recommender.dart';
-import 'entity/search/search.dart';
+import 'entity/search_illusts/search_illusts.dart';
 import 'entity/search_suggestion/search_suggestion.dart';
+import 'entity/search_users/search_users.dart';
 import 'entity/user_bookmarks/user_bookmarks.dart';
 import 'entity/user_info/user_info.dart';
 
@@ -623,7 +624,7 @@ class PixivRequest {
     return searchAutocompleteData;
   }
 
-  Future<Search?> search(
+  Future<SearchIllusts?> searchIllusts(
     String keyword, {
     required int page,
     required String mode,
@@ -634,7 +635,7 @@ class PixivRequest {
     void Function(Exception e)? requestException,
     void Function(Exception e)? decodeException,
   }) async {
-    Search? searchData;
+    SearchIllusts? searchData;
 
     try {
       var response = await _httpClient
@@ -652,7 +653,7 @@ class PixivRequest {
 
       if (response.data != null) {
         try {
-          searchData = Search.fromJson(jsonDecode(response.data!));
+          searchData = SearchIllusts.fromJson(jsonDecode(response.data!));
         } on Exception catch (e) {
           decodeException?.call(e);
         }
@@ -663,4 +664,34 @@ class PixivRequest {
 
     return searchData;
   }
+
+  Future<SearchUsers?> searchUsers(
+    String keyword, {
+    required int page,
+    void Function(Exception e)? requestException,
+    void Function(Exception e)? decodeException,
+  }) async {
+    SearchUsers? searchData;
+
+    try {
+      var response = await _httpClient
+          .get<String>('/touch/ajax/search/users', queryParameters: {
+        'nick': keyword,
+        'p': page,
+        'lang': 'zh',
+      });
+
+      if (response.data != null) {
+        try {
+          searchData = SearchUsers.fromJson(jsonDecode(response.data!));
+        } on Exception catch (e) {
+          decodeException?.call(e);
+        }
+      }
+    } on Exception catch (e) {
+      requestException?.call(e);
+    }
+    return searchData;
+  }
 }
+

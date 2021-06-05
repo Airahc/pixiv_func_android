@@ -1,40 +1,30 @@
 /*
  * Copyright (C) 2021. by 小草, All rights reserved
  * 项目名称 : pixiv_xiaocao_android
- * 文件名称 : user_works.dart
+ * 文件名称 : search_illust_result_page.dart
  */
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:pixiv_xiaocao_android/api/entity/illust_many/illust.dart';
+import 'package:pixiv_xiaocao_android/api/entity/search_illusts/illust.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
-import 'package:pixiv_xiaocao_android/config/config_util.dart';
-import 'package:pixiv_xiaocao_android/log/log_entity.dart';
-import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
+import 'package:pixiv_xiaocao_android/pages/search/search_settings.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-enum UserWorkType { illust, manga }
+class SearchIllustResultPage extends StatefulWidget {
+  final String searchKeyword;
 
-class UserWorksContent extends StatefulWidget {
-  final UserWorkType type;
-  final int userId;
-
-  UserWorksContent({required this.type, required this.userId, Key? key})
-      : super(key: key);
+  SearchIllustResultPage(this.searchKeyword);
 
   @override
-  UserWorksContentState createState() => UserWorksContentState();
+  _SearchIllustResultPageState createState() => _SearchIllustResultPageState();
 }
 
-class UserWorksContentState extends State<UserWorksContent>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  final List<int> _ids = <int>[];
+class _SearchIllustResultPageState extends State<SearchIllustResultPage> {
+  late String _searchKeyword = widget.searchKeyword;
 
   final List<Illust> _illusts = <Illust>[];
 
@@ -43,13 +33,13 @@ class UserWorksContentState extends State<UserWorksContent>
   final RefreshController _refreshController =
       RefreshController(initialRefresh: true);
 
-  static const int _pageQuantity = 30;
-
   int _currentPage = 1;
+
+  int _total = 0;
 
   bool _hasNext = true;
 
-  bool _initialize = true;
+  bool _initialize = false;
 
   @override
   void initState() {
@@ -59,11 +49,10 @@ class UserWorksContentState extends State<UserWorksContent>
   @override
   void dispose() {
     _scrollController.dispose();
-    _refreshController.dispose();
     super.dispose();
   }
 
-  void scrollToTop() {
+  void _scrollToTop() {
     if (_scrollController.hasClients) {
       if (_scrollController.offset != 0) {
         _scrollController.animateTo(
@@ -75,123 +64,34 @@ class UserWorksContentState extends State<UserWorksContent>
     }
   }
 
-  Future _loadData({void Function()? onFail}) async {
-    var isSuccess = false;
-
-    final userAllWork = await PixivRequest.instance.getUserAllWork(
-      widget.userId,
-      requestException: (e) {
-        LogUtil.instance.add(
-          type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.currentAccount.userId,
-          title: '获取用户作品失败',
-          url: '',
-          context: '在用户页面',
-          exception: e,
-        );
-      },
-      decodeException: (e, response) {
-        LogUtil.instance.add(
-          type: LogType.DeserializationException,
-          id: widget.userId,
-          title: '获取用户作品反序列化异常',
-          url: '',
-          context: response,
-          exception: e,
-        );
-      },
-    );
-
-    if (this.mounted) {
-      if (userAllWork != null) {
-        if (!userAllWork.error) {
-          if (userAllWork.body != null) {
-            isSuccess = true;
-            _hasNext = _ids.length > _pageQuantity;
-            switch (widget.type) {
-              case UserWorkType.illust:
-                _ids.addAll(userAllWork.body!.illusts);
-                break;
-              case UserWorkType.manga:
-                _ids.addAll(userAllWork.body!.manga);
-                break;
-            }
-            if (_ids.isNotEmpty) {
-              await _loadIllustsData();
-            }
-          }
-        } else {
-          LogUtil.instance.add(
-            type: LogType.Info,
-            id: widget.userId,
-            title: '获取用户作品失败',
-            url: '',
-            context: 'error:${userAllWork.message}',
-          );
-        }
-      }
-    } else {
-      return;
-    }
-
-    if (!isSuccess) {
-      onFail?.call();
-    }
-  }
-
-  Future _loadIllustsData(
+  Future _loadData(
       {void Function()? onSuccess, void Function()? onFail}) async {
     var isSuccess = false;
 
-    final startOffset = (_currentPage - 1) * _pageQuantity;
-
-    final endOffset = _ids.length > startOffset + _pageQuantity
-        ? startOffset + _pageQuantity
-        : _ids.length;
-
-    _hasNext = _ids.length > startOffset + _pageQuantity;
-
-    final works = await PixivRequest.instance.queryIllustsById(
-      _ids.getRange(startOffset, endOffset).toList(),
-      requestException: (e) {
-        LogUtil.instance.add(
-          type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.currentAccount.userId,
-          title: '查询作品信息失败',
-          url: '',
-          context: '在用户页面',
-          exception: e,
-        );
-      },
-      decodeException: (e, response) {
-        LogUtil.instance.add(
-          type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.currentAccount.userId,
-          title: '查询作品信息反序列化异常',
-          url: '',
-          context: response,
-          exception: e,
-        );
-      },
+    final searchData = await PixivRequest.instance.searchIllusts(
+      _searchKeyword,
+      page: _currentPage,
+      mode: SearchSettings.ageLimitSelected,
+      type: SearchSettings.workTypeSelected,
+      searchMode: SearchSettings.searchModeSelected,
+      startDate: SearchSettings.dateLimitChecked
+          ? SearchSettings.dateToString(SearchSettings.startDate)
+          : '',
+      endDate: SearchSettings.dateLimitChecked
+          ? SearchSettings.dateToString(SearchSettings.endDate)
+          : '',
     );
-    if (this.mounted) {
-      if (works != null) {
-        if (!works.error) {
-          if (works.body != null) {
-            ++_currentPage;
 
-            _illusts.addAll(works.body!.illustDetails);
-            isSuccess = true;
+    if (this.mounted) {
+      if (searchData != null && searchData.body != null) {
+        _hasNext = searchData.body!.lastPage > ++_currentPage;
+        _total = searchData.body!.total;
+        searchData.body!.illusts.forEach((illust) {
+          if (illust != null) {
+            _illusts.add(illust);
           }
-        } else {
-          LogUtil.instance.add(
-            type: LogType.Info,
-            id: widget.userId,
-            title: '查询作品信息失败',
-            url: '',
-            context: 'error:${works.message}',
-          );
-        }
+        });
+        isSuccess = true;
       }
     }
 
@@ -295,12 +195,10 @@ class UserWorksContentState extends State<UserWorksContent>
                         style: TextStyle(fontSize: 14),
                       ),
                       subtitle: Text(
-                          Util.dateTimeToString(
-                            DateTime.fromMillisecondsSinceEpoch(
-                              _illusts[index].uploadTimestamp * 1000,
-                            ),
-                          ),
-                          style: TextStyle(fontSize: 10)),
+                        '${_illusts[index].authorDetails.userName}',
+                        style: TextStyle(fontSize: 10),
+                      ),
+                      // leading: AvatarViewFromUrl,
                       trailing: Util.buildBookmarkButton(
                         context,
                         illustId: _illusts[index].id,
@@ -331,13 +229,11 @@ class UserWorksContentState extends State<UserWorksContent>
     } else {
       component = Container();
     }
-
     return component;
   }
 
   Future<void> _onRefresh() async {
     setState(() {
-      _ids.clear();
       _illusts.clear();
       _currentPage = 1;
       _hasNext = true;
@@ -369,7 +265,7 @@ class UserWorksContentState extends State<UserWorksContent>
   }
 
   Future<void> _onLoading() async {
-    await _loadIllustsData(onSuccess: () {
+    await _loadData(onSuccess: () {
       if (this.mounted) {
         setState(() {
           if (_hasNext) {
@@ -386,49 +282,88 @@ class UserWorksContentState extends State<UserWorksContent>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return SmartRefresher(
-      enablePullDown: true,
-      enablePullUp: _initialize,
-      header: MaterialClassicHeader(
-        color: Colors.pinkAccent,
+    return Scaffold(
+      floatingActionButton: Builder(
+        builder: (BuildContext context) {
+          return FloatingActionButton(
+            heroTag: '滚动到顶部',
+            backgroundColor: Colors.black.withAlpha(200),
+            child: Icon(
+              Icons.arrow_upward_outlined,
+              color: Colors.white,
+            ),
+            onPressed: _scrollToTop,
+          );
+        },
       ),
-      footer: _initialize
-          ? CustomFooter(
-              builder: (BuildContext context, LoadStatus? mode) {
-                Widget body;
-                switch (mode) {
-                  case LoadStatus.idle:
-                    body = Text("上拉,加载更多");
-                    break;
-                  case LoadStatus.canLoading:
-                    body = Text("松手,加载更多");
-                    break;
-                  case LoadStatus.loading:
-                    body = CircularProgressIndicator();
-                    break;
-                  case LoadStatus.noMore:
-                    body = Text("没有更多数据啦");
-                    break;
-                  case LoadStatus.failed:
-                    body = Text('加载失败');
-                    break;
-                  default:
-                    body = Container();
-                    break;
-                }
+      endDrawer: SearchSettings(),
+      appBar: AppBar(
+        leading: IconButton(
+          tooltip: '返回',
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        actions: [
+          Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                splashRadius: 20,
+                icon: Icon(
+                  Icons.settings,
+                  color: Colors.white.withAlpha(220),
+                ),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+              );
+            },
+          )
+        ],
+        title: Text('${_illusts.length}/$_total条'),
+      ),
+      body: SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: _initialize,
+        header: MaterialClassicHeader(
+          color: Colors.pinkAccent,
+        ),
+        footer: CustomFooter(
+                builder: (BuildContext context, LoadStatus? mode) {
+                  Widget body;
+                  switch (mode) {
+                    case LoadStatus.idle:
+                      body = Text("上拉,加载更多");
+                      break;
+                    case LoadStatus.canLoading:
+                      body = Text("松手,加载更多");
+                      break;
+                    case LoadStatus.loading:
+                      body = CircularProgressIndicator();
+                      break;
+                    case LoadStatus.noMore:
+                      body = Text("没有更多数据啦");
+                      break;
+                    case LoadStatus.failed:
+                      body = Text('加载失败');
+                      break;
+                    default:
+                      body = Container();
+                      break;
+                  }
 
-                return Container(
-                  height: 55.0,
-                  child: Center(child: body),
-                );
-              },
-            )
-          : null,
-      controller: _refreshController,
-      onRefresh: _onRefresh,
-      onLoading: _onLoading,
-      child: _buildBody(),
+                  return Container(
+                    height: 55.0,
+                    child: Center(child: body),
+                  );
+                },
+              ),
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        onLoading: _onLoading,
+        child: _buildBody(),
+      ),
     );
   }
 }

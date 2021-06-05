@@ -269,6 +269,7 @@ class _UserDetailsContentState extends State<UserDetailsContent> {
   Future<void> _onRefresh() async {
     setState(() {
       _userDetailsData = null;
+
     });
 
     await _loadData();

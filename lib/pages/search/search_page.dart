@@ -16,7 +16,7 @@ import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/pages/left_drawer/left_drawer.dart';
-import 'package:pixiv_xiaocao_android/pages/search/search_content_page.dart';
+import 'package:pixiv_xiaocao_android/pages/search/search_illust_result_page.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_input.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_settings.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
@@ -35,8 +35,6 @@ class _SearchPageState extends State<SearchPage> {
   final RefreshController _refreshController =
   RefreshController(initialRefresh: true);
 
-  bool _loading = false;
-  bool _initialize = false;
 
   @override
   void initState() {
@@ -210,7 +208,7 @@ class _SearchPageState extends State<SearchPage> {
                               SearchSettings.includeKeywords.clear();
                               SearchSettings.notIncludeKeywords.clear();
                               Util.gotoPage(
-                                  context, SearchContentPage(illust.tag));
+                                  context, SearchIllustResultPage(illust.tag));
                             },
                             child: imageWidget,
                           ),
@@ -227,10 +225,10 @@ class _SearchPageState extends State<SearchPage> {
     });
     return StaggeredGridView.countBuilder(
       shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
       crossAxisCount: 3,
       itemCount: list.length,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
-      physics: NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int index) {
         return list[index];
       },
@@ -262,7 +260,7 @@ class _SearchPageState extends State<SearchPage> {
                               SearchSettings.includeKeywords.clear();
                               SearchSettings.notIncludeKeywords.clear();
                               Util.gotoPage(
-                                  context, SearchContentPage(illust.tag));
+                                  context, SearchIllustResultPage(illust.tag));
                             },
                             child: imageWidget,
                           ),
@@ -279,10 +277,10 @@ class _SearchPageState extends State<SearchPage> {
     });
     return StaggeredGridView.countBuilder(
       shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
       crossAxisCount: 3,
       itemCount: list.length,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
-      physics: NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int index) {
         return list[index];
       },
@@ -292,52 +290,22 @@ class _SearchPageState extends State<SearchPage> {
   Widget _buildBody() {
     late Widget component;
     if (_searchSuggestionData != null) {
-      component = SingleChildScrollView(
+      component = ListView(
         controller: _scrollController,
-        child: Container(
-          child: Column(
-            children: [
-              SizedBox(height: 10),
-              Text('推荐标签', style: TextStyle(fontSize: 25)),
-              SizedBox(height: 10),
-              _recommendTags(),
-              SizedBox(height: 10),
-              Text('热门标签', style: TextStyle(fontSize: 25)),
-              _popularTags(),
-              SizedBox(height: 10),
-              _recommendByTags(),
-            ],
-          ),
-        ),
+        children: [
+          SizedBox(height: 10),
+          Text('推荐标签', style: TextStyle(fontSize: 25)),
+          SizedBox(height: 10),
+          _recommendTags(),
+          SizedBox(height: 10),
+          Text('热门标签', style: TextStyle(fontSize: 25)),
+          _popularTags(),
+          SizedBox(height: 10),
+          _recommendByTags(),
+        ],
       );
     } else {
-      if (_loading) {
-        if (_initialize) {
-          component = Container();
-        } else {
-          component = Container(
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-      } else {
-        if (_initialize) {
-          component = ListView.builder(
-            itemCount: 1,
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                title: Center(
-                  child: Text('没有任何数据'),
-                ),
-              );
-            },
-            physics: const AlwaysScrollableScrollPhysics(),
-          );
-        } else {
-          component = Container();
-        }
-      }
+      component = Container();
     }
 
     return component;

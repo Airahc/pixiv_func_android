@@ -76,7 +76,7 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
       if (illustRelated.error) {
         LogUtil.instance.add(
           type: LogType.Info,
-          id:widget.illustId,
+          id: widget.illustId,
           title: '获取插画相关推荐失败',
           url: '',
           context: 'error:${illustRelated.message}',
@@ -154,7 +154,7 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
 
   @override
   Widget build(BuildContext context) {
-    if (_illustRelatedData == null && _initialize) {
+    if (_illustRelatedData == null || _initialize) {
       return ListTile(
         title: Center(
           child: Text('没有任何数据'),

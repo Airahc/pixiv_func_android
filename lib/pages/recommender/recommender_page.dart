@@ -112,6 +112,8 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
 
   bool _hasNext = true;
 
+  bool _initialize = false;
+
   @override
   void initState() {
     super.initState();
@@ -137,7 +139,7 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
   }
 
   Future<void> _loadData({void Function()? onFail}) async {
-    var isSuccess=false;
+    var isSuccess = false;
 
     final recommender = await PixivRequest.instance.getRecommender(
       r18: widget.isR18,
@@ -168,7 +170,7 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
         if (!recommender.error) {
           if (recommender.body != null) {
             _ids.addAll(recommender.body!.recommendedWorkIds);
-            isSuccess=true;
+            isSuccess = true;
           }
         } else {
           LogUtil.instance.add(
@@ -181,22 +183,22 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
         }
       }
     }
-    if(!isSuccess){
+    if (!isSuccess) {
       onFail?.call();
     }
   }
 
-  Future _loadIllustsData(
+  Future<void> _loadIllustsData(
       {void Function()? onSuccess, void Function()? onFail}) async {
     var isSuccess = false;
 
     final startOffset = (_currentPage - 1) * _pageQuantity;
 
-    final endOffset = _ids.length >= startOffset + _pageQuantity
+    final endOffset = _ids.length > startOffset + _pageQuantity
         ? startOffset + _pageQuantity
         : _ids.length;
 
-    _hasNext = _ids.length >= startOffset + _pageQuantity;
+    _hasNext = _ids.length > startOffset + _pageQuantity;
 
     final works = await PixivRequest.instance.queryIllustsById(
       _ids.getRange(startOffset, endOffset).toList(),
@@ -241,137 +243,137 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
         }
       }
     }
-    if(isSuccess){
+    if (isSuccess) {
       onSuccess?.call();
-    }else{
+    } else {
       onFail?.call();
     }
   }
 
   Widget _buildIllustsPreview() {
-    return StaggeredGridView.countBuilder(
-      shrinkWrap: true,
-      crossAxisCount: 2,
-      itemCount: _illusts.length,
-      staggeredTileBuilder: (index) => StaggeredTile.fit(1),
-      physics: NeverScrollableScrollPhysics(),
-      itemBuilder: (BuildContext context, int index) {
-        return Card(
-          child: Container(
-            padding: EdgeInsets.all(5),
-            child: Column(
-              children: [
-                LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                    return Container(
-                      width: constraints.maxWidth,
-                      height: constraints.maxWidth,
-                      child: ImageViewFromUrl(
-                        _illusts[index].urlS,
-                        fit: BoxFit.fill,
-                        imageBuilder: (Widget imageWidget) {
-                          return Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Util.gotoPage(
-                                    context,
-                                    IllustPage(
-                                      _illusts[index].id,
-                                      onBookmarkAdd: (bookmarkId) {
-                                        if (this.mounted) {
-                                          setState(() {
-                                            _illusts[index].bookmarkId =
-                                                bookmarkId;
-                                          });
-                                        }
-                                      },
-                                      onBookmarkDelete: () {
-                                        if (this.mounted) {
-                                          setState(() {
-                                            _illusts[index].bookmarkId = null;
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  );
-                                },
-                                child: imageWidget,
-                              ),
-                              Positioned(
-                                left: 2,
-                                top: 2,
-                                child: _illusts[index].tags.contains('R-18')
-                                    ? Card(
-                                        color: Colors.pinkAccent,
-                                        child: Text('R-18'),
-                                      )
-                                    : Container(),
-                              ),
-                              Positioned(
-                                top: 2,
-                                right: 2,
-                                child: Card(
-                                  color: Colors.white12,
-                                  child: Padding(
-                                    padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                    child: Text(
-                                      '${_illusts[index].pageCount}',
-                                      style: TextStyle(fontSize: 20),
+    return Container(
+      child: StaggeredGridView.countBuilder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        crossAxisCount: 2,
+        itemCount: _illusts.length,
+        staggeredTileBuilder: (index) => StaggeredTile.fit(1),
+        itemBuilder: (BuildContext context, int index) {
+          return Card(
+            child: Container(
+              padding: EdgeInsets.all(5),
+              child: Column(
+                children: [
+                  LayoutBuilder(
+                    builder:
+                        (BuildContext context, BoxConstraints constraints) {
+                      return Container(
+                        width: constraints.maxWidth,
+                        height: constraints.maxWidth,
+                        child: ImageViewFromUrl(
+                          _illusts[index].urlS,
+                          fit: BoxFit.fill,
+                          imageBuilder: (Widget imageWidget) {
+                            return Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Util.gotoPage(
+                                      context,
+                                      IllustPage(
+                                        _illusts[index].id,
+                                        onBookmarkAdd: (bookmarkId) {
+                                          if (this.mounted) {
+                                            setState(() {
+                                              _illusts[index].bookmarkId =
+                                                  bookmarkId;
+                                            });
+                                          }
+                                        },
+                                        onBookmarkDelete: () {
+                                          if (this.mounted) {
+                                            setState(() {
+                                              _illusts[index].bookmarkId = null;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  child: imageWidget,
+                                ),
+                                Positioned(
+                                  left: 2,
+                                  top: 2,
+                                  child: _illusts[index].tags.contains('R-18')
+                                      ? Card(
+                                          color: Colors.pinkAccent,
+                                          child: Text('R-18'),
+                                        )
+                                      : Container(),
+                                ),
+                                Positioned(
+                                  top: 2,
+                                  right: 2,
+                                  child: Card(
+                                    color: Colors.white12,
+                                    child: Padding(
+                                      padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                      child: Text(
+                                        '${_illusts[index].pageCount}',
+                                        style: TextStyle(fontSize: 20),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          );
+                              ],
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  Container(
+                    alignment: Alignment.topLeft,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.all(0),
+                      title: Text(
+                        '${_illusts[index].title}',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      subtitle: Text(
+                        '${_illusts[index].authorDetails.userName}',
+                        style: TextStyle(fontSize: 10),
+                      ),
+                      // leading: AvatarViewFromUrl,
+                      trailing: Util.buildBookmarkButton(
+                        context,
+                        illustId: _illusts[index].id,
+                        bookmarkId: _illusts[index].bookmarkId,
+                        updateCallback: (int? bookmarkId) {
+                          if (this.mounted) {
+                            setState(() {
+                              _illusts[index].bookmarkId = bookmarkId;
+                            });
+                          }
                         },
                       ),
-                    );
-                  },
-                ),
-                Container(
-                  alignment: Alignment.topLeft,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.all(0),
-                    title: Text(
-                      '${_illusts[index].title}',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    subtitle: Text(
-                      '${_illusts[index].authorDetails.userName}',
-                      style: TextStyle(fontSize: 10),
-                    ),
-                    // leading: AvatarViewFromUrl,
-                    trailing: Util.buildBookmarkButton(
-                      context,
-                      illustId: _illusts[index].id,
-                      bookmarkId: _illusts[index].bookmarkId,
-                      updateCallback: (int? bookmarkId) {
-                        if (this.mounted) {
-                          setState(() {
-                            _illusts[index].bookmarkId = bookmarkId;
-                          });
-                        }
-                      },
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
   Widget _buildBody() {
     late Widget component;
     if (_illusts.isNotEmpty) {
-      component = SingleChildScrollView(
-        controller: _scrollController,
-        child: _buildIllustsPreview(),
-      );
+      component = _buildIllustsPreview();
     } else {
       component = Container();
     }
@@ -384,25 +386,37 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
       _illusts.clear();
       _currentPage = 1;
       _hasNext = true;
+
+      if (_initialize) {
+        _initialize = false;
+      }
     });
 
     await _loadData();
     if (_ids.isNotEmpty) {
       await _loadIllustsData();
-      _refreshController.loadComplete();
+      if (_hasNext) {
+        _refreshController.loadComplete();
+      } else {
+        _refreshController.loadNoData();
+      }
     } else {
       _refreshController.loadNoData();
     }
 
     if (this.mounted) {
-      setState(() {});
+      setState(() {
+        if (!_initialize) {
+          _initialize = true;
+        }
+        _refreshController.refreshCompleted();
+      });
     }
-    _refreshController.refreshCompleted();
   }
 
   Future<void> _onLoading() async {
     await _loadIllustsData(onSuccess: () {
-      if(this.mounted){
+      if (this.mounted) {
         setState(() {
           if (_hasNext) {
             _refreshController.loadComplete();
@@ -411,7 +425,6 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
           }
         });
       }
-
     }, onFail: () {
       _refreshController.loadFailed();
     });
@@ -422,40 +435,42 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
     super.build(context);
     return SmartRefresher(
       enablePullDown: true,
-      enablePullUp: true,
+      enablePullUp: _initialize,
       header: MaterialClassicHeader(
         color: Colors.pinkAccent,
       ),
-      footer: CustomFooter(
-        builder: (BuildContext context, LoadStatus? mode) {
-          Widget body;
-          switch (mode) {
-            case LoadStatus.idle:
-              body = Text("上拉,加载更多");
-              break;
-            case LoadStatus.canLoading:
-              body = Text("松手,加载更多");
-              break;
-            case LoadStatus.loading:
-              body =  CircularProgressIndicator();
-              break;
-            case LoadStatus.noMore:
-              body = Text("没有更多数据啦");
-              break;
-            case LoadStatus.failed:
-              body = Text('加载失败');
-              break;
-            default:
-              body = Container();
-              break;
-          }
+      footer: _initialize
+          ? CustomFooter(
+              builder: (BuildContext context, LoadStatus? mode) {
+                Widget body;
+                switch (mode) {
+                  case LoadStatus.idle:
+                    body = Text("上拉,加载更多");
+                    break;
+                  case LoadStatus.canLoading:
+                    body = Text("松手,加载更多");
+                    break;
+                  case LoadStatus.loading:
+                    body = CircularProgressIndicator();
+                    break;
+                  case LoadStatus.noMore:
+                    body = Text("没有更多数据啦");
+                    break;
+                  case LoadStatus.failed:
+                    body = Text('加载失败');
+                    break;
+                  default:
+                    body = Container();
+                    break;
+                }
 
-          return Container(
-            height: 55.0,
-            child: Center(child: body),
-          );
-        },
-      ),
+                return Container(
+                  height: 55.0,
+                  child: Center(child: body),
+                );
+              },
+            )
+          : null,
       controller: _refreshController,
       onRefresh: _onRefresh,
       onLoading: _onLoading,

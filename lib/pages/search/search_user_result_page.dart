@@ -1,39 +1,42 @@
 /*
  * Copyright (C) 2021. by 小草, All rights reserved
  * 项目名称 : pixiv_xiaocao_android
- * 文件名称 : followed_users_page.dart
+ * 文件名称 : search_user_result_page.dart
  */
-
 import 'package:flutter/material.dart';
-import 'package:pixiv_xiaocao_android/api/entity/following/user_preview.dart';
+import 'package:pixiv_xiaocao_android/api/entity/search_users/user.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/avatar_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
-import 'package:pixiv_xiaocao_android/config/config_util.dart';
-import 'package:pixiv_xiaocao_android/log/log_entity.dart';
-import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/pages/user/user_page.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-class FollowedUsersPage extends StatefulWidget {
+class SearchUserResultPage extends StatefulWidget {
+  final String nick;
+
+  SearchUserResultPage(this.nick);
+
   @override
-  _FollowedUsersPageState createState() => _FollowedUsersPageState();
+  _SearchUserResultPageState createState() => _SearchUserResultPageState();
 }
 
-class _FollowedUsersPageState extends State<FollowedUsersPage> {
-  final List<UserPreview> _users = <UserPreview>[];
+class _SearchUserResultPageState extends State<SearchUserResultPage> {
+  late String _searchNick = widget.nick;
+
+  final List<User> _users = <User>[];
+
+  final ScrollController _scrollController = ScrollController();
 
   final RefreshController _refreshController =
       RefreshController(initialRefresh: true);
 
-  static const int _pageQuantity = 30;
-
   int _currentPage = 1;
 
-  bool _hasNext = true;
+  int _total = 0;
 
+  bool _hasNext = true;
   bool _initialize = false;
 
   @override
@@ -43,57 +46,46 @@ class _FollowedUsersPageState extends State<FollowedUsersPage> {
 
   @override
   void dispose() {
-    _refreshController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      if (_scrollController.offset != 0) {
+        _scrollController.animateTo(
+          0,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInQuad,
+        );
+      }
+    }
   }
 
   Future _loadData(
       {void Function()? onSuccess, void Function()? onFail}) async {
-    final following = await PixivRequest.instance.getFollowing(
-      ConfigUtil.instance.config.currentAccount.userId,
-      (_currentPage - 1) * _pageQuantity,
-      _pageQuantity,
-      requestException: (e) {
-        LogUtil.instance.add(
-          type: LogType.NetworkException,
-          id: ConfigUtil.instance.config.currentAccount.userId,
-          title: '获取已关注用户失败',
-          url: '',
-          context: '在已关注用户页面',
-          exception: e,
-        );
-      },
-      decodeException: (e, response) {
-        LogUtil.instance.add(
-          type: LogType.DeserializationException,
-          id: ConfigUtil.instance.config.currentAccount.userId,
-          title: '获取已关注用户反序列化异常',
-          url: '',
-          context: response,
-          exception: e,
-        );
-      },
+    var isSuccess = false;
+
+    final searchData = await PixivRequest.instance.searchUsers(
+      _searchNick,
+      page: _currentPage,
     );
 
     if (this.mounted) {
-      if (following != null) {
-        if (!following.error) {
-          if (following.body != null) {
-            setState(() {
-              _hasNext = following.body!.total > _currentPage++ * _pageQuantity;
-              _users.addAll(following.body!.users);
-            });
-          }
-        } else {
-          LogUtil.instance.add(
-            type: LogType.Info,
-            id: ConfigUtil.instance.config.currentAccount.userId,
-            title: '获取已关注用户失败',
-            url: '',
-            context: 'error:${following.message}',
-          );
-        }
+      if (searchData != null && searchData.body != null) {
+        _hasNext = searchData.body!.lastPage > ++_currentPage;
+        _total = searchData.body!.total;
+        searchData.body!.users.forEach((user) {
+          _users.add(user);
+        });
+        isSuccess = true;
       }
+    }
+
+    if (isSuccess) {
+      onSuccess?.call();
+    } else {
+      onFail?.call();
     }
   }
 
@@ -112,7 +104,7 @@ class _FollowedUsersPageState extends State<FollowedUsersPage> {
                             width: Util.getScreenSize(context).width / 3,
                             height: Util.getScreenSize(context).width / 3,
                             child: ImageViewFromUrl(
-                              illust.url,
+                              illust.urlS,
                               width: Util.windowSize.width / 3,
                               imageBuilder: (Widget imageWidget) {
                                 return Stack(
@@ -166,7 +158,7 @@ class _FollowedUsersPageState extends State<FollowedUsersPage> {
                       Util.gotoPage(context, UserPage(user.userId));
                     },
                     child: AvatarViewFromUrl(
-                      user.profileImageUrl,
+                      user.profileImg.main,
                       radius: 35,
                     ),
                   ),
@@ -188,11 +180,7 @@ class _FollowedUsersPageState extends State<FollowedUsersPage> {
       component = Container();
     }
 
-    return Scrollbar(
-      radius: Radius.circular(10),
-      thickness: 10,
-      child: component,
-    );
+    return component;
   }
 
   Future<void> _onRefresh() async {
@@ -246,8 +234,28 @@ class _FollowedUsersPageState extends State<FollowedUsersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: Builder(
+        builder: (BuildContext context) {
+          return FloatingActionButton(
+            heroTag: '滚动到顶部',
+            backgroundColor: Colors.black.withAlpha(200),
+            child: Icon(
+              Icons.arrow_upward_outlined,
+              color: Colors.white,
+            ),
+            onPressed: _scrollToTop,
+          );
+        },
+      ),
       appBar: AppBar(
-        title: Text('已关注的用户'),
+        leading: IconButton(
+          tooltip: '返回',
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: Text('${_users.length}/$_total条'),
       ),
       body: SmartRefresher(
         enablePullDown: true,

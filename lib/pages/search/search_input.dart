@@ -14,8 +14,9 @@ import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_by_image_page.dart';
-import 'package:pixiv_xiaocao_android/pages/search/search_content_page.dart';
+import 'package:pixiv_xiaocao_android/pages/search/search_illust_result_page.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_settings.dart';
+import 'package:pixiv_xiaocao_android/pages/search/search_user_result_page.dart';
 import 'package:pixiv_xiaocao_android/pages/user/user_page.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
@@ -88,6 +89,15 @@ class _SearchInputPageState extends State<SearchInputPage> {
   Widget _buildBody() {
     final inputNumber = _inputNumber;
     final list = <Widget>[];
+    if(_keywordInput.text.isNotEmpty) {
+      list.add(ListTile(
+        onTap: () {
+          Util.gotoPage(context, SearchUserResultPage(_keywordInput.text));
+        },
+        title: Text(_keywordInput.text),
+        subtitle: Text('搜索用户'),
+      ));
+    }
     if (inputNumber != null) {
       list.add(ListTile(
         onTap: () {
@@ -110,7 +120,7 @@ class _SearchInputPageState extends State<SearchInputPage> {
     _searchAutocompleteData?.candidates.forEach((candidate) {
       list.add(ListTile(
         onTap: () {
-          Util.gotoPage(context, SearchContentPage(candidate.tagName));
+          Util.gotoPage(context, SearchIllustResultPage(candidate.tagName));
         },
         title: Text('${candidate.tagName}'),
         subtitle: Text('访问数量:${candidate.accessCount}'),
@@ -138,9 +148,7 @@ class _SearchInputPageState extends State<SearchInputPage> {
             controller: _keywordInput,
             onChanged: (value) {
               if (value.isNotEmpty) {
-                if (_inputNumber != null) {
-                  setState(() {});
-                }
+                setState(() {});
                 _lastInputTime = DateTime.now();
                 _waitAutocompleteKeyword();
               } else {
@@ -150,7 +158,7 @@ class _SearchInputPageState extends State<SearchInputPage> {
               }
             },
             onSubmitted: (value) {
-              Util.gotoPage(context, SearchContentPage(value));
+              Util.gotoPage(context, SearchIllustResultPage(value));
             },
             decoration: InputDecoration(
               hintText: '搜索关键字或ID',

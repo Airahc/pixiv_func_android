@@ -413,11 +413,9 @@ class _IllustPageState extends State<IllustPage> {
       list.add(ListTile(title: Center(child: Text('相关推荐'))));
 
       list.add(IllustRelatedContent(widget.illustId));
-      component = SingleChildScrollView(
-        child: Center(
-          child: Column(
-            children: list,
-          ),
+      component = Center(
+        child: ListView(
+          children: list,
         ),
       );
     } else {
