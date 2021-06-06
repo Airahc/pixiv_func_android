@@ -5,11 +5,9 @@ part 'illust_info.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class IllustInfo{
-  @JsonKey(name: 'error')
+
   bool error;
-  @JsonKey(name: 'message')
   String message;
-  @JsonKey(name: 'body')
   IllustInfoBody? body;
 
 

@@ -1,37 +1,35 @@
 /*
  * Copyright (C) 2021. by 小草, All rights reserved
  * 项目名称 : pixiv_xiaocao_android
- * 文件名称 : ranking_page.dart
+ * 文件名称 : bookmarking_page.dart
  */
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:pixiv_xiaocao_android/api/entity/illust_many/illust.dart';
+import 'package:pixiv_xiaocao_android/api/entity/bookmarks/bookmark.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
-import 'package:pixiv_xiaocao_android/pages/left_drawer/left_drawer.dart';
-import 'package:pixiv_xiaocao_android/pages/ranking/ranking_settings.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-class RankingPage extends StatefulWidget {
+class BookmarkingPage extends StatefulWidget {
   @override
-  _RankingPageState createState() => _RankingPageState();
+  _BookmarkingPageState createState() => _BookmarkingPageState();
 }
 
-class _RankingPageState extends State<RankingPage> {
-  final List<Illust> _illusts = <Illust>[];
-
-  int _currentPage = 1;
+class _BookmarkingPageState extends State<BookmarkingPage> {
+  List<Bookmark> _bookmarks = <Bookmark>[];
 
   final ScrollController _scrollController = ScrollController();
 
   final RefreshController _refreshController =
-      RefreshController(initialRefresh: true);
+  RefreshController(initialRefresh: true);
+
+  int _currentPage = 1;
 
   bool _hasNext = true;
 
@@ -49,116 +47,53 @@ class _RankingPageState extends State<RankingPage> {
     super.dispose();
   }
 
-  void _scrollToTop() {
-    if (_scrollController.hasClients) {
-      if (_scrollController.offset != 0) {
-        _scrollController.animateTo(
-          0,
-          duration: Duration(milliseconds: 500),
-          curve: Curves.easeInQuad,
-        );
-      }
-    }
-  }
-
-  Future<void> _loadData(
+  Future _loadData(
       {void Function()? onSuccess, void Function()? onFail}) async {
     var isSuccess = false;
 
-    final rankingData = await PixivRequest.instance.getRanking(
+    final bookmarks = await PixivRequest.instance.getBookmarks(
+      ConfigUtil.instance.config.currentAccount.userId,
       _currentPage,
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
           id: ConfigUtil.instance.config.currentAccount.userId,
-          title: '获取排行榜失败',
+          title: '获取已收藏书签失败',
           url: '',
-          context: '在排行榜页面',
+          context: '在已收藏书签页面',
           exception: e,
         );
-        onFail?.call();
       },
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
           id: ConfigUtil.instance.config.currentAccount.userId,
-          title: '获取排行榜反序列化异常',
+          title: '获取已收藏书签反序列化异常',
           url: '',
           context: response,
           exception: e,
         );
-        onFail?.call();
       },
-      mode: RankingSettings.isR18
-          ? RankingSettings.modeR18Selected
-          : RankingSettings.modeSelected,
-      type: RankingSettings.typeSelected,
     );
-
     if (this.mounted) {
-      if (rankingData != null) {
-        if (!rankingData.error) {
-          var worksData = await PixivRequest.instance.queryIllustsById(
-            rankingData.body!.ranking.map((item) => item.illustId).toList(),
-            requestException: (e) {
-              LogUtil.instance.add(
-                type: LogType.NetworkException,
-                id: ConfigUtil.instance.config.currentAccount.userId,
-                title: '查询作品信息失败',
-                url: '',
-                context: '在排行榜页面',
-                exception: e,
-              );
-            },
-            decodeException: (e, response) {
-              LogUtil.instance.add(
-                type: LogType.DeserializationException,
-                id: ConfigUtil.instance.config.currentAccount.userId,
-                title: '查询作品信息反序列化异常',
-                url: '',
-                context: response,
-                exception: e,
-              );
-            },
-          );
-
-          if (this.mounted) {
-            if (worksData != null) {
-              if (!worksData.error) {
-                if (worksData.body != null) {
-                  if (worksData.body!.illustDetails.isNotEmpty) {
-                    _hasNext = true;
-                    ++_currentPage;
-                    _illusts.addAll(worksData.body!.illustDetails);
-                  } else {
-                    _hasNext = false;
-                  }
-                  isSuccess = true;
-                }
-              } else {
-                LogUtil.instance.add(
-                  type: LogType.Info,
-                  id: ConfigUtil.instance.config.currentAccount.userId,
-                  title: '获取作品信息失败',
-                  url: '',
-                  context: 'error:${worksData.message}',
-                );
-              }
-            }
-          } else {
-            return;
-          }
+      if (bookmarks != null) {
+        if (!bookmarks.error) {
+          _hasNext = bookmarks.body!.lastPage > _currentPage++;
+          print(_hasNext);
+          _bookmarks.addAll(bookmarks.body!.bookmarks);
+          isSuccess = true;
         } else {
           LogUtil.instance.add(
             type: LogType.Info,
             id: ConfigUtil.instance.config.currentAccount.userId,
-            title: '获取排行榜失败',
+            title: '获取已收藏书签失败',
             url: '',
-            context: 'error:${rankingData.message}',
+            context: 'error:${bookmarks.message}',
           );
         }
       }
     }
+
     if (isSuccess) {
       onSuccess?.call();
     } else {
@@ -172,7 +107,7 @@ class _RankingPageState extends State<RankingPage> {
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
         crossAxisCount: 2,
-        itemCount: _illusts.length,
+        itemCount: _bookmarks.length,
         staggeredTileBuilder: (index) => StaggeredTile.fit(1),
         itemBuilder: (BuildContext context, int index) {
           return Card(
@@ -187,7 +122,7 @@ class _RankingPageState extends State<RankingPage> {
                         width: constraints.maxWidth,
                         height: constraints.maxWidth,
                         child: ImageViewFromUrl(
-                          _illusts[index].urlS,
+                          _bookmarks[index].urlS,
                           fit: BoxFit.cover,
                           imageBuilder: (Widget imageWidget) {
                             return Stack(
@@ -198,11 +133,11 @@ class _RankingPageState extends State<RankingPage> {
                                     Util.gotoPage(
                                       context,
                                       IllustPage(
-                                        _illusts[index].id,
+                                        _bookmarks[index].id,
                                         onBookmarkAdd: (bookmarkId) {
                                           if (this.mounted) {
                                             setState(() {
-                                              _illusts[index].bookmarkId =
+                                              _bookmarks[index].bookmarkId =
                                                   bookmarkId;
                                             });
                                           }
@@ -210,7 +145,8 @@ class _RankingPageState extends State<RankingPage> {
                                         onBookmarkDelete: () {
                                           if (this.mounted) {
                                             setState(() {
-                                              _illusts[index].bookmarkId = null;
+                                              _bookmarks[index].bookmarkId =
+                                              null;
                                             });
                                           }
                                         },
@@ -222,11 +158,11 @@ class _RankingPageState extends State<RankingPage> {
                                 Positioned(
                                   left: 2,
                                   top: 2,
-                                  child: _illusts[index].tags.contains('R-18')
+                                  child: _bookmarks[index].tags.contains('R-18')
                                       ? Card(
-                                          color: Colors.pinkAccent,
-                                          child: Text('R-18'),
-                                        )
+                                    color: Colors.pinkAccent,
+                                    child: Text('R-18'),
+                                  )
                                       : Container(),
                                 ),
                                 Positioned(
@@ -237,9 +173,7 @@ class _RankingPageState extends State<RankingPage> {
                                     child: Padding(
                                       padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
                                       child: Text(
-                                        '${_illusts[index].pageCount}',
-                                        style: TextStyle(fontSize: 20),
-                                      ),
+                                          '${_bookmarks[index].pageCount}'),
                                     ),
                                   ),
                                 ),
@@ -255,20 +189,22 @@ class _RankingPageState extends State<RankingPage> {
                     child: ListTile(
                       contentPadding: EdgeInsets.all(0),
                       title: Text(
-                        '${_illusts[index].title}',
+                        '${_bookmarks[index].title}',
                         style: TextStyle(fontSize: 14),
                       ),
                       subtitle: Text(
-                          '${_illusts[index].authorDetails.userName}',
-                          style: TextStyle(fontSize: 10)),
+                        '${_bookmarks[index].authorDetails.userName}',
+                        style: TextStyle(fontSize: 10),
+                      ),
+                      // leading: AvatarViewFromUrl,
                       trailing: Util.buildBookmarkButton(
                         context,
-                        illustId: _illusts[index].id,
-                        bookmarkId: _illusts[index].bookmarkId,
+                        illustId: _bookmarks[index].id,
+                        bookmarkId: _bookmarks[index].bookmarkId,
                         updateCallback: (int? bookmarkId) {
                           if (this.mounted) {
                             setState(() {
-                              _illusts[index].bookmarkId = bookmarkId;
+                              _bookmarks[index].bookmarkId = bookmarkId;
                             });
                           }
                         },
@@ -286,7 +222,7 @@ class _RankingPageState extends State<RankingPage> {
 
   Widget _buildBody() {
     late Widget component;
-    if (_illusts.isNotEmpty) {
+    if (_bookmarks.isNotEmpty) {
       component = _buildIllustsPreview();
     } else {
       component = Container();
@@ -297,7 +233,7 @@ class _RankingPageState extends State<RankingPage> {
 
   Future<void> _onRefresh() async {
     setState(() {
-      _illusts.clear();
+      _bookmarks.clear();
       _currentPage = 1;
       _hasNext = true;
 
@@ -307,7 +243,8 @@ class _RankingPageState extends State<RankingPage> {
     });
 
     await _loadData();
-    if (_illusts.isEmpty) {
+
+    if (_bookmarks.isEmpty) {
       _refreshController.loadNoData();
     } else {
       if (_hasNext) {
@@ -324,7 +261,9 @@ class _RankingPageState extends State<RankingPage> {
       }
     }
 
+
     _refreshController.refreshCompleted();
+
   }
 
   Future<void> _onLoading() async {
@@ -346,47 +285,9 @@ class _RankingPageState extends State<RankingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: LeftDrawer(),
       appBar: AppBar(
-        leading: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              splashRadius: 20,
-              icon: Icon(
-                Icons.menu,
-                color: Colors.white.withAlpha(220),
-              ),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          },
-        ),
-        actions: [
-          IconButton(
-            splashRadius: 20,
-            tooltip: '滚动到顶部',
-            icon: Icon(Icons.arrow_upward_outlined),
-            onPressed: _scrollToTop,
-          ),
-          Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                splashRadius: 20,
-                icon: Icon(
-                  Icons.settings,
-                  color: Colors.white.withAlpha(220),
-                ),
-                onPressed: () {
-                  Scaffold.of(context).openEndDrawer();
-                },
-              );
-            },
-          )
-        ],
-        title: Text('排行榜'),
+        title: Text('已收藏的书签'),
       ),
-      endDrawer: RankingSettings(),
       body: SmartRefresher(
         enablePullDown: true,
         enablePullUp: _initialize,

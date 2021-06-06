@@ -393,25 +393,25 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
     });
 
     await _loadData();
-    if (_ids.isNotEmpty) {
+    if (_ids.isEmpty) {
+      _refreshController.loadNoData();
+    } else {
       await _loadIllustsData();
       if (_hasNext) {
+        if (this.mounted) {
+          setState(() {
+            if (!_initialize) {
+              _initialize = true;
+            }
+          });
+        }
         _refreshController.loadComplete();
       } else {
         _refreshController.loadNoData();
       }
-    } else {
-      _refreshController.loadNoData();
     }
 
-    if (this.mounted) {
-      setState(() {
-        if (!_initialize) {
-          _initialize = true;
-        }
-        _refreshController.refreshCompleted();
-      });
-    }
+    _refreshController.refreshCompleted();
   }
 
   Future<void> _onLoading() async {

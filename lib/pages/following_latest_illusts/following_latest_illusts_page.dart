@@ -1,37 +1,93 @@
 /*
  * Copyright (C) 2021. by 小草, All rights reserved
  * 项目名称 : pixiv_xiaocao_android
- * 文件名称 : ranking_page.dart
+ * 文件名称 : following_latest_illusts_page.dart
  */
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:pixiv_xiaocao_android/api/entity/illust_many/illust.dart';
+import 'package:pixiv_xiaocao_android/api/entity/follow_illusts/illust.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
-import 'package:pixiv_xiaocao_android/pages/left_drawer/left_drawer.dart';
-import 'package:pixiv_xiaocao_android/pages/ranking/ranking_settings.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-class RankingPage extends StatefulWidget {
+class FollowingLatestIllustsPage extends StatefulWidget {
   @override
-  _RankingPageState createState() => _RankingPageState();
+  _FollowingLatestIllustsPageState createState() => _FollowingLatestIllustsPageState();
 }
 
-class _RankingPageState extends State<RankingPage> {
-  final List<Illust> _illusts = <Illust>[];
+class _FollowingLatestIllustsPageState extends State<FollowingLatestIllustsPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController = TabController(length: 2, vsync: this);
 
-  int _currentPage = 1;
+  int _currentIndex = 0;
+
+  List<GlobalKey<__ContentState>> _globalKeys = [
+    GlobalKey(),
+    GlobalKey(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('关注的用户的新作品'),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(30),
+          child: TabBar(
+            controller: _tabController,
+            tabs: [
+              Text('全部'),
+              Text('R-18'),
+            ],
+            onTap: (int index) {
+              if (_currentIndex != index && _tabController.index == index) {
+                _currentIndex = index;
+              } else {
+                _globalKeys[index].currentState?.scrollToTop();
+              }
+            },
+          ),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _Content(isR18: false, key: _globalKeys[0]),
+          _Content(isR18: true, key: _globalKeys[1]),
+        ],
+      ),
+    );
+  }
+}
+
+class _Content extends StatefulWidget {
+  final bool isR18;
+
+  _Content({required this.isR18, Key? key}) : super(key: key);
+
+  @override
+  __ContentState createState() => __ContentState();
+}
+
+class __ContentState extends State<_Content>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  final _illusts = <Illust>[];
 
   final ScrollController _scrollController = ScrollController();
 
   final RefreshController _refreshController =
       RefreshController(initialRefresh: true);
+
+  int _currentPage = 1;
 
   bool _hasNext = true;
 
@@ -49,7 +105,7 @@ class _RankingPageState extends State<RankingPage> {
     super.dispose();
   }
 
-  void _scrollToTop() {
+  void scrollToTop() {
     if (_scrollController.hasClients) {
       if (_scrollController.offset != 0) {
         _scrollController.animateTo(
@@ -61,104 +117,43 @@ class _RankingPageState extends State<RankingPage> {
     }
   }
 
-  Future<void> _loadData(
+  Future _loadData(
       {void Function()? onSuccess, void Function()? onFail}) async {
     var isSuccess = false;
 
-    final rankingData = await PixivRequest.instance.getRanking(
+    final followIllustsData = await PixivRequest.instance.getFollowingLatestIllusts(
       _currentPage,
+      r18: widget.isR18,
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
           id: ConfigUtil.instance.config.currentAccount.userId,
-          title: '获取排行榜失败',
+          title: '获取已关注用户的新作品失败',
           url: '',
-          context: '在排行榜页面',
+          context: '在已关注用户的新作品页面',
           exception: e,
         );
-        onFail?.call();
       },
       decodeException: (e, response) {
         LogUtil.instance.add(
           type: LogType.DeserializationException,
           id: ConfigUtil.instance.config.currentAccount.userId,
-          title: '获取排行榜反序列化异常',
+          title: '获取已关注用户的新作品反序列化异常',
           url: '',
           context: response,
           exception: e,
         );
-        onFail?.call();
       },
-      mode: RankingSettings.isR18
-          ? RankingSettings.modeR18Selected
-          : RankingSettings.modeSelected,
-      type: RankingSettings.typeSelected,
     );
 
     if (this.mounted) {
-      if (rankingData != null) {
-        if (!rankingData.error) {
-          var worksData = await PixivRequest.instance.queryIllustsById(
-            rankingData.body!.ranking.map((item) => item.illustId).toList(),
-            requestException: (e) {
-              LogUtil.instance.add(
-                type: LogType.NetworkException,
-                id: ConfigUtil.instance.config.currentAccount.userId,
-                title: '查询作品信息失败',
-                url: '',
-                context: '在排行榜页面',
-                exception: e,
-              );
-            },
-            decodeException: (e, response) {
-              LogUtil.instance.add(
-                type: LogType.DeserializationException,
-                id: ConfigUtil.instance.config.currentAccount.userId,
-                title: '查询作品信息反序列化异常',
-                url: '',
-                context: response,
-                exception: e,
-              );
-            },
-          );
-
-          if (this.mounted) {
-            if (worksData != null) {
-              if (!worksData.error) {
-                if (worksData.body != null) {
-                  if (worksData.body!.illustDetails.isNotEmpty) {
-                    _hasNext = true;
-                    ++_currentPage;
-                    _illusts.addAll(worksData.body!.illustDetails);
-                  } else {
-                    _hasNext = false;
-                  }
-                  isSuccess = true;
-                }
-              } else {
-                LogUtil.instance.add(
-                  type: LogType.Info,
-                  id: ConfigUtil.instance.config.currentAccount.userId,
-                  title: '获取作品信息失败',
-                  url: '',
-                  context: 'error:${worksData.message}',
-                );
-              }
-            }
-          } else {
-            return;
-          }
-        } else {
-          LogUtil.instance.add(
-            type: LogType.Info,
-            id: ConfigUtil.instance.config.currentAccount.userId,
-            title: '获取排行榜失败',
-            url: '',
-            context: 'error:${rankingData.message}',
-          );
-        }
+      if (followIllustsData != null && followIllustsData.body != null) {
+        _hasNext = followIllustsData.body!.lastPage > _currentPage++;
+        _illusts.addAll(followIllustsData.body!.illusts);
+        isSuccess = true;
       }
     }
+
     if (isSuccess) {
       onSuccess?.call();
     } else {
@@ -259,8 +254,10 @@ class _RankingPageState extends State<RankingPage> {
                         style: TextStyle(fontSize: 14),
                       ),
                       subtitle: Text(
-                          '${_illusts[index].authorDetails.userName}',
-                          style: TextStyle(fontSize: 10)),
+                        '${_illusts[index].authorDetails.userName}',
+                        style: TextStyle(fontSize: 10),
+                      ),
+                      // leading: AvatarViewFromUrl,
                       trailing: Util.buildBookmarkButton(
                         context,
                         illustId: _illusts[index].id,
@@ -291,7 +288,6 @@ class _RankingPageState extends State<RankingPage> {
     } else {
       component = Container();
     }
-
     return component;
   }
 
@@ -345,89 +341,49 @@ class _RankingPageState extends State<RankingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: LeftDrawer(),
-      appBar: AppBar(
-        leading: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              splashRadius: 20,
-              icon: Icon(
-                Icons.menu,
-                color: Colors.white.withAlpha(220),
-              ),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          },
-        ),
-        actions: [
-          IconButton(
-            splashRadius: 20,
-            tooltip: '滚动到顶部',
-            icon: Icon(Icons.arrow_upward_outlined),
-            onPressed: _scrollToTop,
-          ),
-          Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                splashRadius: 20,
-                icon: Icon(
-                  Icons.settings,
-                  color: Colors.white.withAlpha(220),
-                ),
-                onPressed: () {
-                  Scaffold.of(context).openEndDrawer();
-                },
-              );
-            },
-          )
-        ],
-        title: Text('排行榜'),
+    super.build(context);
+    return SmartRefresher(
+      enablePullDown: true,
+      enablePullUp: _initialize,
+      header: MaterialClassicHeader(
+        color: Colors.pinkAccent,
       ),
-      endDrawer: RankingSettings(),
-      body: SmartRefresher(
-        enablePullDown: true,
-        enablePullUp: _initialize,
-        header: MaterialClassicHeader(
-          color: Colors.pinkAccent,
-        ),
-        footer: CustomFooter(
-          builder: (BuildContext context, LoadStatus? mode) {
-            Widget body;
-            switch (mode) {
-              case LoadStatus.idle:
-                body = Text("上拉,加载更多");
-                break;
-              case LoadStatus.canLoading:
-                body = Text("松手,加载更多");
-                break;
-              case LoadStatus.loading:
-                body = CircularProgressIndicator();
-                break;
-              case LoadStatus.noMore:
-                body = Text("没有更多数据啦");
-                break;
-              case LoadStatus.failed:
-                body = Text('加载失败');
-                break;
-              default:
-                body = Container();
-                break;
-            }
+      footer: _initialize
+          ? CustomFooter(
+              builder: (BuildContext context, LoadStatus? mode) {
+                Widget body;
+                switch (mode) {
+                  case LoadStatus.idle:
+                    body = Text("上拉,加载更多");
+                    break;
+                  case LoadStatus.canLoading:
+                    body = Text("松手,加载更多");
+                    break;
+                  case LoadStatus.loading:
+                    body = CircularProgressIndicator();
+                    break;
+                  case LoadStatus.noMore:
+                    body = Text("没有更多数据啦");
+                    break;
+                  case LoadStatus.failed:
+                    body = Text('加载失败');
+                    break;
+                  default:
+                    body = Container();
+                    break;
+                }
 
-            return Container(
-              height: 55.0,
-              child: Center(child: body),
-            );
-          },
-        ),
-        controller: _refreshController,
-        onRefresh: _onRefresh,
-        onLoading: _onLoading,
-        child: _buildBody(),
-      ),
+                return Container(
+                  height: 55.0,
+                  child: Center(child: body),
+                );
+              },
+            )
+          : null,
+      controller: _refreshController,
+      onRefresh: _onRefresh,
+      onLoading: _onLoading,
+      child: _buildBody(),
     );
   }
 }

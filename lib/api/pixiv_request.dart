@@ -3,8 +3,6 @@ import 'dart:io';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:pixiv_xiaocao_android/api/entity/illust_many/illust_many.dart';
-import 'package:pixiv_xiaocao_android/api/entity/search_autocomplete/search_autocomplete.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
 
 import 'entity/bookmark_add/bookmark_add.dart';
@@ -14,10 +12,12 @@ import 'entity/follow_illusts/follow_illusts.dart';
 import 'entity/following/following.dart';
 import 'entity/illust_comment/illust_comment.dart';
 import 'entity/illust_info/illust_info.dart';
+import 'entity/illust_many/illust_many.dart';
 import 'entity/illust_related/illust_related.dart';
 import 'entity/profile_all/profile_all.dart';
 import 'entity/ranking/ranking.dart';
 import 'entity/recommender/recommender.dart';
+import 'entity/search_autocomplete/search_autocomplete.dart';
 import 'entity/search_illusts/search_illusts.dart';
 import 'entity/search_suggestion/search_suggestion.dart';
 import 'entity/search_users/search_users.dart';
@@ -104,13 +104,13 @@ class PixivRequest {
   }) async {
     Ranking? rankingData;
     try {
-      var response = await _httpClient
-          .get<String>('/touch/ajax/ranking/illust?', queryParameters: {
-        'mode': mode,
-        'page': page,
-        'type': type,
-        'lang': 'zh'
-      });
+      var response = await _httpClient.get<String>('/touch/ajax/ranking/illust',
+          queryParameters: {
+            'mode': mode,
+            'page': page,
+            'type': type,
+            'lang': 'zh'
+          });
       if (response.data != null) {
         try {
           rankingData = Ranking.fromJson(jsonDecode(response.data!));
@@ -266,7 +266,7 @@ class PixivRequest {
   }
 
   /// 获取自己关注的用户的插画
-  Future<FollowIllusts?> getFollowIllusts(
+  Future<FollowIllusts?> getFollowingLatestIllusts(
     int page, {
     required bool r18,
     void Function(Exception e, String response)? decodeException,
@@ -526,7 +526,7 @@ class PixivRequest {
     return bookmarkDeleteData;
   }
 
-  Future<bool> followUserAdd(int userId,
+  Future<bool> followUsersAdd(int userId,
       {void Function(Exception e)? requestException}) async {
     bool success = false;
 
@@ -549,7 +549,7 @@ class PixivRequest {
     return success;
   }
 
-  Future<bool> followUserDelete(int userId,
+  Future<bool> followUsersDelete(int userId,
       {void Function(Exception e)? requestException}) async {
     bool success = false;
 
@@ -694,4 +694,3 @@ class PixivRequest {
     return searchData;
   }
 }
-

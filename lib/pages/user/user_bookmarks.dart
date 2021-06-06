@@ -255,20 +255,22 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
       _refreshController.loadNoData();
     } else {
       if (_hasNext) {
+        if (this.mounted) {
+          setState(() {
+            if (!_initialize) {
+              _initialize = true;
+            }
+          });
+        }
         _refreshController.loadComplete();
       } else {
         _refreshController.loadNoData();
       }
     }
 
-    if (this.mounted) {
-      setState(() {
-        if (!_initialize) {
-          _initialize = true;
-        }
-        _refreshController.refreshCompleted();
-      });
-    }
+
+    _refreshController.refreshCompleted();
+
   }
 
   Future<void> _onLoading() async {

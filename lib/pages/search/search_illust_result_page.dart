@@ -248,20 +248,20 @@ class _SearchIllustResultPageState extends State<SearchIllustResultPage> {
       _refreshController.loadNoData();
     } else {
       if (_hasNext) {
+        if (this.mounted) {
+          setState(() {
+            if (!_initialize) {
+              _initialize = true;
+            }
+          });
+        }
         _refreshController.loadComplete();
       } else {
         _refreshController.loadNoData();
       }
     }
 
-    if (this.mounted) {
-      setState(() {
-        if (!_initialize) {
-          _initialize = true;
-        }
-        _refreshController.refreshCompleted();
-      });
-    }
+    _refreshController.refreshCompleted();
   }
 
   Future<void> _onLoading() async {
@@ -330,35 +330,35 @@ class _SearchIllustResultPageState extends State<SearchIllustResultPage> {
           color: Colors.pinkAccent,
         ),
         footer: CustomFooter(
-                builder: (BuildContext context, LoadStatus? mode) {
-                  Widget body;
-                  switch (mode) {
-                    case LoadStatus.idle:
-                      body = Text("上拉,加载更多");
-                      break;
-                    case LoadStatus.canLoading:
-                      body = Text("松手,加载更多");
-                      break;
-                    case LoadStatus.loading:
-                      body = CircularProgressIndicator();
-                      break;
-                    case LoadStatus.noMore:
-                      body = Text("没有更多数据啦");
-                      break;
-                    case LoadStatus.failed:
-                      body = Text('加载失败');
-                      break;
-                    default:
-                      body = Container();
-                      break;
-                  }
+          builder: (BuildContext context, LoadStatus? mode) {
+            Widget body;
+            switch (mode) {
+              case LoadStatus.idle:
+                body = Text("上拉,加载更多");
+                break;
+              case LoadStatus.canLoading:
+                body = Text("松手,加载更多");
+                break;
+              case LoadStatus.loading:
+                body = CircularProgressIndicator();
+                break;
+              case LoadStatus.noMore:
+                body = Text("没有更多数据啦");
+                break;
+              case LoadStatus.failed:
+                body = Text('加载失败');
+                break;
+              default:
+                body = Container();
+                break;
+            }
 
-                  return Container(
-                    height: 55.0,
-                    child: Center(child: body),
-                  );
-                },
-              ),
+            return Container(
+              height: 55.0,
+              child: Center(child: body),
+            );
+          },
+        ),
         controller: _refreshController,
         onRefresh: _onRefresh,
         onLoading: _onLoading,

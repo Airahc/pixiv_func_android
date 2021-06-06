@@ -5,13 +5,12 @@ part 'bookmarks.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Bookmarks{
-  @JsonKey(name: 'error')
+
   bool error;
 
   @JsonKey(name:'message')
   String message;
 
-  @JsonKey(name: 'body')
   BookmarksBody? body;
 
   Bookmarks(this.error, this.message, this.body);

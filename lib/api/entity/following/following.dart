@@ -5,11 +5,9 @@ part 'following.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Following{
-  @JsonKey(name: 'error')
+
   bool error;
-  @JsonKey(name: 'message')
   String message;
-  @JsonKey(name: 'body')
   FollowingBody? body;
 
 

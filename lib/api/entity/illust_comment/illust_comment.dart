@@ -5,11 +5,9 @@ part 'illust_comment.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class IllustComment{
-  @JsonKey(name: 'error')
+
   bool error;
-  @JsonKey(name: 'message')
   String message;
-  @JsonKey(name: 'body')
   IllustCommentBody? body;
 
 

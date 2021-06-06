@@ -8,16 +8,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/about/about_page.dart';
 import 'package:pixiv_xiaocao_android/pages/account/account_page.dart';
-import 'package:pixiv_xiaocao_android/pages/bookmarked/bookmarked_page.dart';
-import 'package:pixiv_xiaocao_android/pages/followed_users/followed_users_page.dart';
-import 'package:pixiv_xiaocao_android/pages/new_works/new_works_page.dart';
+import 'package:pixiv_xiaocao_android/pages/bookmarking/bookmarking_page.dart';
+import 'package:pixiv_xiaocao_android/pages/following_users/following_users_page.dart';
+import 'package:pixiv_xiaocao_android/pages/following_latest_illusts/following_latest_illusts_page.dart';
 import 'package:pixiv_xiaocao_android/pages/settings/settings_page.dart';
 import 'package:pixiv_xiaocao_android/util.dart';
 
@@ -96,16 +95,16 @@ class _LeftDrawerState extends State<LeftDrawer> {
             ),
             ListTile(
               onTap: () {
-                Util.gotoPage(context, NewWorksPage());
+                Util.gotoPage(context, FollowingLatestIllustsPage());
               },
               title: Text(
-                '已关注用户的新作品',
+                '已关注(用户)的新插画',
                 style: TextStyle(fontSize: 20),
               ),
             ),
             ListTile(
               onTap: () {
-                Util.gotoPage(context, FollowedUsersPage());
+                Util.gotoPage(context, FollowingUsersPage());
               },
               title: Text(
                 '已关注的用户',
@@ -114,7 +113,7 @@ class _LeftDrawerState extends State<LeftDrawer> {
             ),
             ListTile(
               onTap: () {
-                Util.gotoPage(context, BookmarkedPage());
+                Util.gotoPage(context, BookmarkingPage());
               },
               title: Text(
                 '已收藏的书签',

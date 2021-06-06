@@ -5,7 +5,7 @@ part 'profile_all.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class ProfileAll{
-  @JsonKey(name: 'error')
+
   bool error;
   @JsonKey(name:'message')
   String message;

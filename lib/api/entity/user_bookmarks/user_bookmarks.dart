@@ -5,11 +5,9 @@ part 'user_bookmarks.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class UserBookmarks{
-  @JsonKey(name: 'error')
+
   bool error;
-  @JsonKey(name: 'message')
   String message;
-  @JsonKey(name: 'body')
   UserBookmarksBody? body;
 
 

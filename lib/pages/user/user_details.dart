@@ -139,7 +139,7 @@ class _UserDetailsContentState extends State<UserDetailsContent> {
           ),
           onPressed: () async {
             if (_followed) {
-              final success = await PixivRequest.instance.followUserDelete(
+              final success = await PixivRequest.instance.followUsersDelete(
                 userDetails.userId,
                 requestException: (e) {
                   LogUtil.instance.add(
@@ -169,7 +169,7 @@ class _UserDetailsContentState extends State<UserDetailsContent> {
               }
             } else {
               final success = await PixivRequest.instance
-                  .followUserAdd(userDetails.userId, requestException: (e) {
+                  .followUsersAdd(userDetails.userId, requestException: (e) {
                 LogUtil.instance.add(
                   type: LogType.NetworkException,
                   id: userDetails.userId,

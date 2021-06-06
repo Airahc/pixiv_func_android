@@ -6,7 +6,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:pixiv_xiaocao_android/api/entity/illust_related/illust.dart';
-import 'package:pixiv_xiaocao_android/api/entity/illust_related/illust_related_body.dart';
 import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
@@ -24,7 +23,7 @@ class IllustRelatedContent extends StatefulWidget {
 }
 
 class _IllustRelatedContentState extends State<IllustRelatedContent> {
-  IllustRelatedBody? _illustRelatedData;
+  final List<Illust> _illusts = <Illust>[];
 
   bool _loading = false;
   bool _initialize = false;
@@ -73,7 +72,13 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
     );
 
     if (this.mounted && illustRelated != null) {
-      if (illustRelated.error) {
+      if (!illustRelated.error) {
+        if (illustRelated.body != null) {
+          if (illustRelated.body!.illusts != null) {
+            _illusts.addAll(illustRelated.body!.illusts!);
+          }
+        }
+      } else {
         LogUtil.instance.add(
           type: LogType.Info,
           id: widget.illustId,
@@ -82,11 +87,7 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
           context: 'error:${illustRelated.message}',
         );
       }
-      setState(() {
-        _illustRelatedData = illustRelated.body;
-      });
-    } else {
-      return;
+
     }
     if (this.mounted) {
       setState(() {
@@ -98,9 +99,9 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
     }
   }
 
-  Widget _buildImagesGridView(List<Illust> illusts) {
+  Widget _buildImagesGridView() {
     final list = <Widget>[];
-    _illustRelatedData?.illusts?.forEach((illust) {
+    _illusts.forEach((illust) {
       list.add(ImageViewFromUrl(
         illust.urlS,
         fit: BoxFit.cover,
@@ -154,12 +155,9 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
 
   @override
   Widget build(BuildContext context) {
-    if (_illustRelatedData == null || _initialize) {
-      return ListTile(
-        title: Center(
-          child: Text('没有任何数据'),
-        ),
-      );
+
+    if (_illusts.isNotEmpty) {
+      return _buildImagesGridView();
     } else {
       if (_loading) {
         return Container(
@@ -168,7 +166,15 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
           ),
         );
       } else {
-        return _buildImagesGridView(_illustRelatedData!.illusts!);
+        if(_initialize){
+          return Container();
+        }else{
+          return ListTile(
+            title: Center(
+              child: Text('没有任何数据'),
+            ),
+          );
+        }
       }
     }
   }
