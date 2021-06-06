@@ -188,11 +188,7 @@ class _FollowedUsersPageState extends State<FollowedUsersPage> {
       component = Container();
     }
 
-    return Scrollbar(
-      radius: Radius.circular(10),
-      thickness: 10,
-      child: component,
-    );
+    return component;
   }
 
   Future<void> _onRefresh() async {

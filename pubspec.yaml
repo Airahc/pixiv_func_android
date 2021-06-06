@@ -1,7 +1,11 @@
 name: pixiv_xiaocao_android
 description: Pixiv 安卓客户端
 
+<<<<<<< HEAD
 version: 0.1.8
+=======
+version: 0.1.7
+>>>>>>> 7637b0fd0f0740653a759b2586d94d26ccb93027
 
 environment:
   sdk: ">=2.12.3 <3.0.0"
