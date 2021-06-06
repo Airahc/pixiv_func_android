@@ -413,9 +413,13 @@ class _IllustPageState extends State<IllustPage> {
       list.add(ListTile(title: Center(child: Text('相关推荐'))));
 
       list.add(IllustRelatedContent(widget.illustId));
-      component = Center(
-        child: ListView(
-          children: list,
+      component = SingleChildScrollView(
+        child: Container(
+          child: Center(
+            child: Column(
+              children: list,
+            ),
+          ),
         ),
       );
     } else {
@@ -437,11 +441,7 @@ class _IllustPageState extends State<IllustPage> {
       }
     }
 
-    return Scrollbar(
-      radius: Radius.circular(10),
-      thickness: 10,
-      child: component,
-    );
+    return component;
   }
 
   @override

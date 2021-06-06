@@ -49,6 +49,7 @@ class _FollowingUsersPageState extends State<FollowingUsersPage> {
 
   Future _loadData(
       {void Function()? onSuccess, void Function()? onFail}) async {
+    var isSuccess=false;
     final following = await PixivRequest.instance.getFollowing(
       ConfigUtil.instance.config.currentAccount.userId,
       (_currentPage - 1) * _pageQuantity,
@@ -83,6 +84,7 @@ class _FollowingUsersPageState extends State<FollowingUsersPage> {
               _hasNext = following.body!.total > _currentPage++ * _pageQuantity;
               _users.addAll(following.body!.users);
             });
+            isSuccess=true;
           }
         } else {
           LogUtil.instance.add(
@@ -94,6 +96,11 @@ class _FollowingUsersPageState extends State<FollowingUsersPage> {
           );
         }
       }
+    }
+    if(isSuccess){
+      onSuccess?.call();
+    }else{
+      onFail?.call();
     }
   }
 

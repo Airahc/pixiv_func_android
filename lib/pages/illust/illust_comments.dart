@@ -10,6 +10,7 @@ import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/avatar_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class _CommentStruct {
   Comment data;
@@ -33,7 +34,10 @@ class IllustCommentsPage extends StatefulWidget {
 }
 
 class _IllustCommentsPageState extends State<IllustCommentsPage> {
-  List<_CommentStruct> _comments = <_CommentStruct>[];
+  final List<_CommentStruct> _comments = <_CommentStruct>[];
+
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: true);
 
   int _currentPage = 1;
 
@@ -41,33 +45,22 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
 
   bool _hasNext = true;
 
-  bool _loading = false;
   bool _initialize = false;
 
   @override
   void initState() {
-    _loadData(reload: false, init: true);
     super.initState();
   }
 
-  Future _loadData({bool reload = true, bool init = false}) async {
-    if (this.mounted) {
-      setState(() {
-        _loading = true;
-        if (reload) {
-          _comments.clear();
-          _total = 0;
-          _currentPage = 1;
-          _hasNext = true;
-        }
-        if (init) {
-          _initialize = false;
-        }
-      });
-    } else {
-      return;
-    }
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
+  }
 
+  Future _loadData(
+      {void Function()? onSuccess, void Function()? onFail}) async {
+    var isSuccess = false;
     final illustComments = await PixivRequest.instance.getIllustComments(
       widget.illustId,
       _currentPage,
@@ -99,7 +92,9 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
           });
 
           _total = illustComments.body!.commentCount!;
-          _hasNext = _total - (_currentPage * 20) > 0;
+          _hasNext = _total - (_currentPage++ * 20) > 0;
+
+          isSuccess = true;
         } else {
           LogUtil.instance.add(
             type: LogType.Info,
@@ -110,22 +105,15 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
           );
         }
       }
-    } else {
-      return;
     }
-
-    if (this.mounted) {
-      setState(() {
-        if (init) {
-          _initialize = true;
-        }
-        _loading = false;
-      });
+    if (isSuccess) {
+      onSuccess?.call();
+    } else {
+      onFail?.call();
     }
   }
 
-  Future _loadRepliesData(
-      {required _CommentStruct commentStruct, required int page}) async {
+  Future _loadRepliesData({required _CommentStruct commentStruct}) async {
     if (this.mounted) {
       setState(() {
         commentStruct.loading = true;
@@ -133,9 +121,10 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
     } else {
       return;
     }
+
     final commentReplies = await PixivRequest.instance.getCommentReplies(
       commentStruct.data.oneCommentId,
-      page,
+      commentStruct.repliesPage,
       requestException: (e) {
         LogUtil.instance.add(
           type: LogType.NetworkException,
@@ -167,7 +156,7 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
               }
             });
             commentStruct.hasNext = commentReplies.body!.comments.length -
-                    (commentStruct.repliesPage * 20) >
+                    (commentStruct.repliesPage++ * 20) >
                 0;
           });
         }
@@ -196,17 +185,7 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
   }) {
     final list = <Widget>[];
 
-    if (children.isEmpty) {
-      if (!_initialize) {
-        if (_loading) {
-          list.add(SizedBox(height: 20));
-          list.add(Center(child: CircularProgressIndicator()));
-          list.add(SizedBox(height: 20));
-        } else {
-          list.add(ListTile(title: Center(child: Text('暂无评论'))));
-        }
-      }
-    } else {
+    if (children.isNotEmpty) {
       final decoration = BoxDecoration(
         border: Border(
           top: BorderSide(
@@ -262,7 +241,6 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
                           onPressed: () {
                             _loadRepliesData(
                               commentStruct: child,
-                              page: child.repliesPage,
                             );
                           },
                           child: Text('加载回复'),
@@ -319,10 +297,8 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
                     child: Text('加载更多'),
                   ),
                   onTap: () {
-                    comment.repliesPage++;
                     _loadRepliesData(
                       commentStruct: comment,
-                      page: comment.repliesPage,
                     );
                   },
                 ),
@@ -330,41 +306,69 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
             );
           }
         }
-      } else {
-        if (_loading) {
-          list.add(SizedBox(height: 10));
-          list.add(Center(child: CircularProgressIndicator()));
-          list.add(SizedBox(height: 10));
-        } else {
-          if (_hasNext) {
-            list.add(
-              Container(
-                decoration: decoration,
-                child: ListTile(
-                  title: Center(
-                    child: Text('加载更多'),
-                  ),
-                  onTap: () {
-                    _currentPage++;
-                    _loadData(reload: false);
-                  },
-                ),
-              ),
-            );
-          } else {
-            list.add(ListTile(
-              subtitle: Center(
-                child: Text('没有啦'),
-              ),
-            ));
-          }
-        }
       }
     }
     return list;
   }
 
-  // Widget _buildBody() {}
+  Widget _buildBody() {
+    return Container(
+      child: SingleChildScrollView(
+        physics: NeverScrollableScrollPhysics(),
+        child: Column(
+          children: _buildCommentTiles(_comments),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onRefresh() async {
+    setState(() {
+      _comments.clear();
+      _currentPage = 1;
+      _hasNext = true;
+
+      if (_initialize) {
+        _initialize = false;
+      }
+    });
+
+    await _loadData();
+    if (_comments.isEmpty) {
+      _refreshController.loadNoData();
+    } else {
+      if (_hasNext) {
+        _refreshController.loadComplete();
+      } else {
+        _refreshController.loadNoData();
+      }
+      if (this.mounted) {
+        setState(() {
+          if (!_initialize) {
+            _initialize = true;
+          }
+        });
+      }
+    }
+
+    _refreshController.refreshCompleted();
+  }
+
+  Future<void> _onLoading() async {
+    await _loadData(onSuccess: () {
+      if (this.mounted) {
+        setState(() {
+          if (_hasNext) {
+            _refreshController.loadComplete();
+          } else {
+            _refreshController.loadNoData();
+          }
+        });
+      }
+    }, onFail: () {
+      _refreshController.loadFailed();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -375,14 +379,46 @@ class _IllustCommentsPageState extends State<IllustCommentsPage> {
           subtitle: Text('共$_total条'),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: Scrollbar(
-          child: ListView(
-            children: _buildCommentTiles(_comments),
-          ),
+      body: SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: _initialize,
+        header: MaterialClassicHeader(
+          color: Colors.pinkAccent,
         ),
-        backgroundColor: Colors.white,
+        footer: CustomFooter(
+          builder: (BuildContext context, LoadStatus? mode) {
+            Widget body;
+            switch (mode) {
+              case LoadStatus.idle:
+                body = Text("上拉,加载更多");
+                break;
+              case LoadStatus.canLoading:
+                body = Text("松手,加载更多");
+                break;
+              case LoadStatus.loading:
+                body = CircularProgressIndicator();
+                break;
+              case LoadStatus.noMore:
+                body = Text("没有更多数据啦");
+                break;
+              case LoadStatus.failed:
+                body = Text('加载失败');
+                break;
+              default:
+                body = Container();
+                break;
+            }
+
+            return Container(
+              height: 55.0,
+              child: Center(child: body),
+            );
+          },
+        ),
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        onLoading: _onLoading,
+        child: _buildBody(),
       ),
     );
   }
