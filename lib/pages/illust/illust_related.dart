@@ -87,7 +87,6 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
           context: 'error:${illustRelated.message}',
         );
       }
-
     }
     if (this.mounted) {
       setState(() {
@@ -100,62 +99,66 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
   }
 
   Widget _buildImagesGridView() {
-    final list = <Widget>[];
-    _illusts.forEach((illust) {
-      list.add(ImageViewFromUrl(
-        illust.urlS,
-        fit: BoxFit.cover,
-        imageBuilder: (Widget imageWidget) {
-          return Center(
-            child: Stack(
-              children: [
-                GestureDetector(
-                    onTap: () {
-                      Util.gotoPage(
-                        context,
-                        IllustPage(illust.id),
-                      );
-                    },
-                    child: imageWidget),
-                Positioned(
-                  left: 2,
-                  top: 2,
-                  child: illust.tags.contains('R-18')
-                      ? Card(
-                          color: Colors.pinkAccent,
-                          child: Text('R-18'),
-                        )
-                      : Container(),
-                ),
-                Positioned(
-                  top: 2,
-                  right: 2,
-                  child: Card(
-                    color: Colors.white12,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                      child: Text('${illust.pageCount}'),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ));
-    });
-
     return GridView.count(
       crossAxisCount: 3,
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
-      children: list,
+      children: _illusts.map((illust) {
+        return LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return Container(
+              width: constraints.maxWidth,
+              height: constraints.maxWidth,
+              child: ImageViewFromUrl(
+                illust.urlS,
+                fit: BoxFit.cover,
+                imageBuilder: (Widget imageWidget) {
+                  return Center(
+                    child: Stack(
+                      children: [
+                        GestureDetector(
+                            onTap: () {
+                              Util.gotoPage(
+                                context,
+                                IllustPage(illust.id),
+                              );
+                            },
+                            child: imageWidget),
+                        Positioned(
+                          left: 2,
+                          top: 2,
+                          child: illust.tags.contains('R-18')
+                              ? Card(
+                                  color: Colors.pinkAccent,
+                                  child: Text('R-18'),
+                                )
+                              : Container(),
+                        ),
+                        Positioned(
+                          top: 2,
+                          right: 2,
+                          child: Card(
+                            color: Colors.white12,
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                              child: Text('${illust.pageCount}'),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        );
+      }).toList(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-
     if (_illusts.isNotEmpty) {
       return _buildImagesGridView();
     } else {
@@ -166,9 +169,9 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
           ),
         );
       } else {
-        if(_initialize){
+        if (_initialize) {
           return Container();
-        }else{
+        } else {
           return ListTile(
             title: Center(
               child: Text('没有任何数据'),

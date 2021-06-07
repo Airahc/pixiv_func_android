@@ -20,6 +20,11 @@ Future main() async {
   Provider.debugCheckInvalidValueType = null;
 
   runApp(AndroidApp());
+  final cache = PaintingBinding.instance?.imageCache;
+  if (cache != null) {
+    cache.maximumSize = 5000;
+    cache.maximumSizeBytes = 500 << 20;
+  }
 }
 
 late DateTime _lastPopTime;

@@ -1,7 +1,7 @@
 name: pixiv_xiaocao_android
 description: Pixiv 安卓客户端
 
-version: 0.1.9
+version: 0.1.10
 
 environment:
   sdk: ">=2.12.3 <3.0.0"
