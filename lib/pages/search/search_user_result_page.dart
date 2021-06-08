@@ -73,7 +73,7 @@ class _SearchUserResultPageState extends State<SearchUserResultPage> {
 
     if (this.mounted) {
       if (searchData != null && searchData.body != null) {
-        _hasNext = searchData.body!.lastPage > ++_currentPage;
+        _hasNext = searchData.body!.lastPage > _currentPage++;
         _total = searchData.body!.total;
         searchData.body!.users.forEach((user) {
           _users.add(user);
@@ -198,18 +198,16 @@ class _SearchUserResultPageState extends State<SearchUserResultPage> {
     if (_users.isEmpty) {
       _refreshController.loadNoData();
     } else {
-      if (_hasNext) {
-        if (this.mounted) {
-          setState(() {
-            if (!_initialize) {
-              _initialize = true;
-            }
-          });
+      setState(() {
+        if (_hasNext) {
+          if (!_initialize) {
+            _initialize = true;
+          }
+          _refreshController.loadComplete();
+        } else {
+          _refreshController.loadNoData();
         }
-        _refreshController.loadComplete();
-      } else {
-        _refreshController.loadNoData();
-      }
+      });
     }
 
 

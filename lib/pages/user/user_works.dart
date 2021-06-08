@@ -351,18 +351,16 @@ class UserWorksContentState extends State<UserWorksContent>
     if (_illusts.isEmpty) {
       _refreshController.loadNoData();
     } else {
-      if (_hasNext) {
-        if (this.mounted) {
-          setState(() {
+        setState(() {
+          if (_hasNext) {
             if (!_initialize) {
               _initialize = true;
             }
-          });
-        }
-        _refreshController.loadComplete();
-      } else {
-        _refreshController.loadNoData();
-      }
+            _refreshController.loadComplete();
+          } else {
+            _refreshController.loadNoData();
+          }
+        });
     }
 
 

@@ -310,17 +310,17 @@ class _RankingPageState extends State<RankingPage> {
     if (_illusts.isEmpty) {
       _refreshController.loadNoData();
     } else {
-      if (_hasNext) {
-        if (this.mounted) {
-          setState(() {
+      if (this.mounted) {
+        setState(() {
+          if (_hasNext) {
             if (!_initialize) {
               _initialize = true;
             }
-          });
-        }
-        _refreshController.loadComplete();
-      } else {
-        _refreshController.loadNoData();
+            _refreshController.loadComplete();
+          } else {
+            _refreshController.loadNoData();
+          }
+        });
       }
     }
 

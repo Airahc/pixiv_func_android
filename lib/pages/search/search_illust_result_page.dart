@@ -42,11 +42,6 @@ class _SearchIllustResultPageState extends State<SearchIllustResultPage> {
   bool _initialize = false;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
@@ -84,7 +79,7 @@ class _SearchIllustResultPageState extends State<SearchIllustResultPage> {
 
     if (this.mounted) {
       if (searchData != null && searchData.body != null) {
-        _hasNext = searchData.body!.lastPage > ++_currentPage;
+        _hasNext = searchData.body!.lastPage > _currentPage++;
         _total = searchData.body!.total;
         searchData.body!.illusts.forEach((illust) {
           if (illust != null) {
@@ -247,18 +242,16 @@ class _SearchIllustResultPageState extends State<SearchIllustResultPage> {
     if (_illusts.isEmpty) {
       _refreshController.loadNoData();
     } else {
-      if (_hasNext) {
-        if (this.mounted) {
-          setState(() {
-            if (!_initialize) {
-              _initialize = true;
-            }
-          });
+      setState(() {
+        if (_hasNext) {
+          if (!_initialize) {
+            _initialize = true;
+          }
+          _refreshController.loadComplete();
+        } else {
+          _refreshController.loadNoData();
         }
-        _refreshController.loadComplete();
-      } else {
-        _refreshController.loadNoData();
-      }
+      });
     }
 
     _refreshController.refreshCompleted();
