@@ -397,16 +397,16 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
       _refreshController.loadNoData();
     } else {
       await _loadIllustsData();
-        setState(() {
-          if (_hasNext) {
-            if (!_initialize) {
-              _initialize = true;
-            }
-            _refreshController.loadComplete();
-          } else {
-            _refreshController.loadNoData();
-          }
-        });
+      setState(() {
+        if (!_initialize) {
+          _initialize = true;
+        }
+        if (_hasNext) {
+          _refreshController.loadComplete();
+        } else {
+          _refreshController.loadNoData();
+        }
+      });
     }
 
     _refreshController.refreshCompleted();
@@ -432,6 +432,8 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
   Widget build(BuildContext context) {
     super.build(context);
     return SmartRefresher(
+      scrollController: _scrollController,
+      controller: _refreshController,
       enablePullDown: true,
       enablePullUp: _initialize,
       header: MaterialClassicHeader(
@@ -469,7 +471,6 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
               },
             )
           : null,
-      controller: _refreshController,
       onRefresh: _onRefresh,
       onLoading: _onLoading,
       child: _buildBody(),

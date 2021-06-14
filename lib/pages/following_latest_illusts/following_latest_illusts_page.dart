@@ -308,9 +308,7 @@ class __ContentState extends State<_Content>
     } else {
         setState(() {
           if (_hasNext) {
-            if (!_initialize) {
-              _initialize = true;
-            }
+
             _refreshController.loadComplete();
           } else {
             _refreshController.loadNoData();

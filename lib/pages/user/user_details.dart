@@ -29,8 +29,11 @@ class _UserDetailsContentState extends State<UserDetailsContent> {
   final RefreshController _refreshController =
       RefreshController(initialRefresh: true);
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void dispose() {
+    _scrollController.dispose();
     _refreshController.dispose();
     super.dispose();
   }
@@ -283,6 +286,7 @@ class _UserDetailsContentState extends State<UserDetailsContent> {
   @override
   Widget build(BuildContext context) {
     return SmartRefresher(
+      scrollController: _scrollController,
       controller: _refreshController,
       header: MaterialClassicHeader(
         color: Colors.pinkAccent,

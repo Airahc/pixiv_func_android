@@ -243,10 +243,10 @@ class _SearchIllustResultPageState extends State<SearchIllustResultPage> {
       _refreshController.loadNoData();
     } else {
       setState(() {
+        if (!_initialize) {
+          _initialize = true;
+        }
         if (_hasNext) {
-          if (!_initialize) {
-            _initialize = true;
-          }
           _refreshController.loadComplete();
         } else {
           _refreshController.loadNoData();
@@ -317,6 +317,8 @@ class _SearchIllustResultPageState extends State<SearchIllustResultPage> {
         title: Text('${_illusts.length}/$_total条'),
       ),
       body: SmartRefresher(
+        scrollController: _scrollController,
+        controller: _refreshController,
         enablePullDown: true,
         enablePullUp: _initialize,
         header: MaterialClassicHeader(
@@ -352,7 +354,6 @@ class _SearchIllustResultPageState extends State<SearchIllustResultPage> {
             );
           },
         ),
-        controller: _refreshController,
         onRefresh: _onRefresh,
         onLoading: _onLoading,
         child: _buildBody(),

@@ -312,10 +312,10 @@ class _RankingPageState extends State<RankingPage> {
     } else {
       if (this.mounted) {
         setState(() {
-          if (_hasNext) {
-            if (!_initialize) {
-              _initialize = true;
-            }
+        if (!_initialize) {
+          _initialize = true;
+        }
+        if (_hasNext) {
             _refreshController.loadComplete();
           } else {
             _refreshController.loadNoData();
@@ -388,6 +388,8 @@ class _RankingPageState extends State<RankingPage> {
       ),
       endDrawer: RankingSettings(),
       body: SmartRefresher(
+        scrollController: _scrollController,
+        controller: _refreshController,
         enablePullDown: true,
         enablePullUp: _initialize,
         header: MaterialClassicHeader(
@@ -423,7 +425,6 @@ class _RankingPageState extends State<RankingPage> {
             );
           },
         ),
-        controller: _refreshController,
         onRefresh: _onRefresh,
         onLoading: _onLoading,
         child: _buildBody(),

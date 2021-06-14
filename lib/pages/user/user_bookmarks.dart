@@ -255,10 +255,10 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
       _refreshController.loadNoData();
     } else {
         setState(() {
-          if (_hasNext) {
-            if (!_initialize) {
-              _initialize = true;
-            }
+        if (!_initialize) {
+          _initialize = true;
+        }
+        if (_hasNext) {
             _refreshController.loadComplete();
           } else {
             _refreshController.loadNoData();
@@ -291,6 +291,8 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
   Widget build(BuildContext context) {
     super.build(context);
     return SmartRefresher(
+      scrollController: _scrollController,
+      controller: _refreshController,
       enablePullDown: true,
       enablePullUp: _initialize,
       header: MaterialClassicHeader(
@@ -328,7 +330,6 @@ class UserBookmarksContentState extends State<UserBookmarksContent>
               },
             )
           : null,
-      controller: _refreshController,
       onRefresh: _onRefresh,
       onLoading: _onLoading,
       child: _buildBody(),

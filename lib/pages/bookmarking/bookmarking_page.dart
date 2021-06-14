@@ -248,10 +248,10 @@ class _BookmarkingPageState extends State<BookmarkingPage> {
       _refreshController.loadNoData();
     } else {
         setState(() {
-          if (_hasNext) {
-            if (!_initialize) {
+                      if (!_initialize) {
               _initialize = true;
-            }
+            }if (_hasNext) {
+
             _refreshController.loadComplete();
           } else {
             _refreshController.loadNoData();

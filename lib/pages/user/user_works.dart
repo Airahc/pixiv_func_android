@@ -351,21 +351,19 @@ class UserWorksContentState extends State<UserWorksContent>
     if (_illusts.isEmpty) {
       _refreshController.loadNoData();
     } else {
-        setState(() {
-          if (_hasNext) {
-            if (!_initialize) {
-              _initialize = true;
-            }
-            _refreshController.loadComplete();
-          } else {
-            _refreshController.loadNoData();
-          }
-        });
+      setState(() {
+        if (!_initialize) {
+          _initialize = true;
+        }
+        if (_hasNext) {
+          _refreshController.loadComplete();
+        } else {
+          _refreshController.loadNoData();
+        }
+      });
     }
 
-
     _refreshController.refreshCompleted();
-
   }
 
   Future<void> _onLoading() async {
@@ -388,6 +386,8 @@ class UserWorksContentState extends State<UserWorksContent>
   Widget build(BuildContext context) {
     super.build(context);
     return SmartRefresher(
+      scrollController: _scrollController,
+      controller: _refreshController,
       enablePullDown: true,
       enablePullUp: _initialize,
       header: MaterialClassicHeader(
@@ -425,7 +425,6 @@ class UserWorksContentState extends State<UserWorksContent>
               },
             )
           : null,
-      controller: _refreshController,
       onRefresh: _onRefresh,
       onLoading: _onLoading,
       child: _buildBody(),

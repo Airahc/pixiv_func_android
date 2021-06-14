@@ -674,7 +674,7 @@ class PixivRequest {
     SearchUsers? searchData;
 
     try {
-      var response = await _httpClient
+      final response = await _httpClient
           .get<String>('/touch/ajax/search/users', queryParameters: {
         'nick': keyword,
         'p': page,
@@ -692,5 +692,43 @@ class PixivRequest {
       requestException?.call(e);
     }
     return searchData;
+  }
+
+
+
+  /// 设置年龄限制
+  /// R18关 : 0
+  /// R18开 : 1
+  /// R18G开(R18必须先开启) : 2
+  Future<bool> setAgeRestrict({
+    required bool r18,
+    required bool r18g,
+    void Function(Exception e)? requestException,
+  }) async {
+    var success = false;
+    final restrict = r18
+        ? r18g
+            ? 2
+            : 1
+        : 0;
+    try {
+      final response = await _httpClient.post<String>(
+        '/touch/ajax_api/ajax_api.php',
+        data: FormData.fromMap({
+          'mode': 'set_user_x_restrict',
+          'user_x_restrict': restrict,
+        }),
+      );
+
+      if (response.data != null) {
+        try {
+          success = jsonDecode(response.data!)['user_x_restrict'] == restrict;
+        } on Exception catch (_) {}
+      }
+    } on Exception catch (e) {
+      requestException?.call(e);
+    }
+
+    return success;
   }
 }
