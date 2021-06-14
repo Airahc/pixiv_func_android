@@ -104,7 +104,7 @@ class PixivRequest {
   }) async {
     Ranking? rankingData;
     try {
-      var response = await _httpClient.get<String>('/touch/ajax/ranking/illust',
+      final response = await _httpClient.get<String>('/touch/ajax/ranking/illust',
           queryParameters: {
             'mode': mode,
             'page': page,
@@ -131,7 +131,7 @@ class PixivRequest {
       void Function(Exception e)? requestException}) async {
     UserInfo? userInfoData;
     try {
-      var response = await _httpClient.get<String>('/touch/ajax/user/details',
+      final response = await _httpClient.get<String>('/touch/ajax/user/details',
           queryParameters: {'id': userId, 'lang': 'zh'});
       if (response.data != null) {
         try {
@@ -154,7 +154,7 @@ class PixivRequest {
     IllustInfo? illustInfoData;
 
     try {
-      var response = await _httpClient.get<String>('/touch/ajax/illust/details',
+      final response = await _httpClient.get<String>('/touch/ajax/illust/details',
           queryParameters: {'illust_id': illustId, 'lang': 'zh'});
       if (response.data != null) {
         try {
@@ -180,7 +180,7 @@ class PixivRequest {
     IllustComment? illustCommentData;
 
     try {
-      var response = await _httpClient.get<String>(
+      final response = await _httpClient.get<String>(
           '/touch/ajax/comment/illust?',
           queryParameters: {'work_id': workId, 'page': page, 'lang': 'zh'});
 
@@ -209,7 +209,7 @@ class PixivRequest {
     IllustComment? illustCommentData;
 
     try {
-      var response = await _httpClient
+      final response = await _httpClient
           .get<String>('/touch/ajax/comment/illust/replies?', queryParameters: {
         'comment_id': commentId,
         'page': page,
@@ -241,7 +241,7 @@ class PixivRequest {
     IllustRelated? illustRelatedData;
 
     try {
-      var response = await _httpClient.get<String>(
+      final response = await _httpClient.get<String>(
           '/touch/ajax/recommender/related/illust',
           queryParameters: {
             'illust_id': illustId,
@@ -275,7 +275,7 @@ class PixivRequest {
     FollowIllusts? followIllustsData;
 
     try {
-      var response = await _httpClient
+      final response = await _httpClient
           .get<String>('/touch/ajax/follow/latest', queryParameters: {
         'type': 'illusts',
         'p': page,
@@ -305,7 +305,7 @@ class PixivRequest {
     ProfileAll? profileAllData;
 
     try {
-      var response = await _httpClient
+      final response = await _httpClient
           .get<String>('/ajax/user/$userId/profile/all', queryParameters: {
         'lang': 'zh',
       });
@@ -330,7 +330,7 @@ class PixivRequest {
     IllustMany? illustMany;
 
     try {
-      var response = await _httpClient
+      final response = await _httpClient
           .get<String>('/touch/ajax/illust/details/many', queryParameters: {
         'illust_ids[]': ids,
         'lang': 'zh',
@@ -358,7 +358,7 @@ class PixivRequest {
     UserBookmarks? userBookmarksData;
 
     try {
-      var response = await _httpClient.get<String>(
+      final response = await _httpClient.get<String>(
           '/ajax/user/$userId/illusts/bookmarks',
           queryParameters: {
             'tag': '',
@@ -390,7 +390,7 @@ class PixivRequest {
     Recommender? recommenderData;
 
     try {
-      var response = await _httpClient
+      final response = await _httpClient
           .get<String>('/touch/ajax/recommender/illust', queryParameters: {
         'mode': r18 == null
             ? 'all'
@@ -420,7 +420,7 @@ class PixivRequest {
     Bookmarks? bookmarksData;
 
     try {
-      var response = await _httpClient.get<String>('/touch/ajax/user/bookmarks',
+      final response = await _httpClient.get<String>('/touch/ajax/user/bookmarks',
           queryParameters: {
             'id': userId,
             'type': 'illust',
@@ -466,7 +466,7 @@ class PixivRequest {
     BookmarkAdd? bookmarkAddData;
 
     try {
-      var response = await _httpClient.post<String>(
+      final response = await _httpClient.post<String>(
         '/touch/ajax_api/ajax_api.php',
         data: FormData.fromMap(
           {
@@ -501,7 +501,7 @@ class PixivRequest {
     BookmarkDelete? bookmarkDeleteData;
 
     try {
-      var response = await _httpClient.post<String>(
+      final response = await _httpClient.post<String>(
         '/touch/ajax_api/ajax_api.php',
         data: FormData.fromMap(
           {
@@ -531,7 +531,7 @@ class PixivRequest {
     bool success = false;
 
     try {
-      var response = await _httpClient.post<String>('/bookmark_add.php',
+      final response = await _httpClient.post<String>('/bookmark_add.php',
           data: FormData.fromMap({
             'mode': 'add',
             'type': 'user',
@@ -554,7 +554,7 @@ class PixivRequest {
     bool success = false;
 
     try {
-      var response = await _httpClient.post<String>('/rpc_group_setting.php',
+      final response = await _httpClient.post<String>('/rpc_group_setting.php',
           data: FormData.fromMap(
               {'mode': 'del', 'type': 'bookuser', 'id': '$userId'}));
       if (response.data != null) {
@@ -579,7 +579,7 @@ class PixivRequest {
     SearchSuggestion? searchSuggestionData;
 
     try {
-      var response = await _httpClient.get<String>('/ajax/search/suggestion',
+      final response = await _httpClient.get<String>('/ajax/search/suggestion',
           queryParameters: {'mode': mode, 'lang': 'zh'});
 
       if (response.data != null) {
@@ -605,7 +605,7 @@ class PixivRequest {
     SearchAutocomplete? searchAutocompleteData;
 
     try {
-      var response = await _httpClient.get<String>(
+      final response = await _httpClient.get<String>(
           '/touch/ajax/search/autocomplete',
           queryParameters: {'keyword': keyword, 'lang': 'zh'});
 
@@ -638,7 +638,7 @@ class PixivRequest {
     SearchIllusts? searchData;
 
     try {
-      var response = await _httpClient
+      final response = await _httpClient
           .get<String>('/touch/ajax/search/illusts', queryParameters: {
         'include_meta': '0',
         'mode': mode,
