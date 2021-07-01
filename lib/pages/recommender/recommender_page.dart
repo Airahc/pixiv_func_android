@@ -208,7 +208,7 @@ class _ContentState extends State<_Content> with AutomaticKeepAliveClientMixin {
           id: ConfigUtil.instance.config.currentAccount.userId,
           title: '查询作品信息失败',
           url: '',
-          context: '在排行榜页面',
+          context: '在推荐作品页面',
           exception: e,
         );
       },

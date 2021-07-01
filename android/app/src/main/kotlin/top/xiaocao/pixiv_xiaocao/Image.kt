@@ -14,7 +14,7 @@ import android.webkit.MimeTypeMap
 import java.io.File
 
 
-fun Context.saveImage(imageBytes: ByteArray, fileName: String): Boolean {
+fun Context.saveImage(imageBytes: ByteArray, fileName: String): Boolean? {
 
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
 
@@ -26,22 +26,25 @@ fun Context.saveImage(imageBytes: ByteArray, fileName: String): Boolean {
 
         val imageFile = File("${saveDirectory.absolutePath}/$fileName")
 
-        val parent = imageFile.parentFile
+        val parent = imageFile.parentFile ?: return false
 
         //目录不存在就创建
-        if (parent != null && !parent.exists() && !parent.mkdirs()) {
+        if (!parent.exists() && !parent.mkdirs()) {
             return false
         }
 
-        //存在就删掉
-        if (imageFile.exists() && !imageFile.delete()) {
-            return false
+        //文件已经存在
+        if (imageFile.exists()) {
+            return null
         }
 
         imageFile.outputStream().use {
             it.write(imageBytes)
         }
         return true
+    }
+    if (imageExist(fileName)) {
+        return null
     }
 
     val values = ContentValues()

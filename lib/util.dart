@@ -28,7 +28,16 @@ class Util {
   static void saveImage(int id, String url, String title) async {
     final imageName = url.substring(url.lastIndexOf('/') + 1);
 
-    if (!await PlatformUtil.imageIsExist(imageName)) {
+    if (await PlatformUtil.imageIsExist(imageName)) {
+      toastIconAndText(Icons.error_outlined, '图片已经存在');
+      LogUtil.instance.add(
+        type: LogType.Info,
+        id: id,
+        title: title,
+        url: url,
+        context: '图片已经存在',
+      );
+    } else {
       final imageUrl = ConfigUtil.instance.config.enableImageProxy
           ? url.replaceFirst("i.pximg.net", "i.pixiv.cat")
           : url;
@@ -45,8 +54,10 @@ class Util {
       httpClient.get<Uint8List>(imageUrl).then(
         (response) async {
           if (response.data != null) {
-            if (!await PlatformUtil.imageIsExist(imageName)) {
-              if (await PlatformUtil.saveImage(response.data!, imageName)) {
+            final saveResult =
+                await PlatformUtil.saveImage(response.data!, imageName);
+            if (saveResult != null) {
+              if (saveResult) {
                 toastIconAndText(Icons.save_alt_outlined, '图片保存成功');
                 LogUtil.instance.add(
                   type: LogType.Info,
@@ -75,15 +86,6 @@ class Util {
                 context: '图片已经存在',
               );
             }
-          } else {
-            toastIconAndText(Icons.error_outlined, '图片下载失败');
-            LogUtil.instance.add(
-              type: LogType.DownloadFail,
-              id: id,
-              title: title,
-              url: url,
-              context: '图片下载失败',
-            );
           }
         },
       ).catchError(
@@ -97,15 +99,6 @@ class Util {
               context: '图片下载失败',
               exception: e);
         },
-      );
-    } else {
-      toastIconAndText(Icons.error_outlined, '图片已经存在');
-      LogUtil.instance.add(
-        type: LogType.Info,
-        id: id,
-        title: title,
-        url: url,
-        context: '图片已经存在',
       );
     }
   }
@@ -321,12 +314,13 @@ class Util {
             }
           }
         });
+        Util.toast('搜索到${ids.length}个插画');
       } on Exception catch (e) {
         Util.toast('搜索图片失败');
         LogUtil.instance.add(
           type: LogType.NetworkException,
           id: 0,
-          title: '搜索图片失败',
+          title: '在搜索图片页面',
           url: '',
           context: '网络异常',
           exception: e,

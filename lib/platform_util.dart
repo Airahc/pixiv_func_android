@@ -27,15 +27,15 @@ class PlatformUtil {
     await _channel.invokeMethod(_eventBackgroundRun);
   }
 
-  static Future<bool> saveImage(Uint8List imageBytes, String fileName) async {
-    final success = await _channel.invokeMethod<bool>(
+  static Future<bool?> saveImage(Uint8List imageBytes, String fileName) async {
+    final result = await _channel.invokeMethod<bool?>(
       _eventSaveImage,
       {
         "imageBytes": imageBytes,
         "fileName": fileName,
       },
     );
-    return success == true;
+    return result;
   }
 
   static Future<bool> imageIsExist(String fileName) async {
