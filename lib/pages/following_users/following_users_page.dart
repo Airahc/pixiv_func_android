@@ -14,7 +14,7 @@ import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/pages/user/user_page.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class FollowingUsersPage extends StatefulWidget {
@@ -116,18 +116,18 @@ class _FollowingUsersPageState extends State<FollowingUsersPage> {
                     children: user.illusts
                         .map(
                           (illust) => Container(
-                            width: Util.getScreenSize(context).width / 3,
-                            height: Util.getScreenSize(context).width / 3,
+                            width: Utils.getScreenSize(context).width / 3,
+                            height: Utils.getScreenSize(context).width / 3,
                             child: ImageViewFromUrl(
                               illust.url,
-                              width: Util.windowSize.width / 3,
+                              width: Utils.windowSize.width / 3,
                               imageBuilder: (Widget imageWidget) {
                                 return Stack(
                                   alignment: Alignment.center,
                                   children: [
                                     GestureDetector(
                                       onTap: () {
-                                        Util.gotoPage(
+                                        Utils.gotoPage(
                                           context,
                                           IllustPage(illust.id),
                                         );
@@ -170,7 +170,7 @@ class _FollowingUsersPageState extends State<FollowingUsersPage> {
                   contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   leading: GestureDetector(
                     onTap: () {
-                      Util.gotoPage(context, UserPage(user.userId));
+                      Utils.gotoPage(context, UserPage(user.userId));
                     },
                     child: AvatarViewFromUrl(
                       user.profileImageUrl,

@@ -11,7 +11,7 @@ import 'package:pixiv_xiaocao_android/api/pixiv_request.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_settings.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SearchIllustResultPage extends StatefulWidget {
@@ -126,7 +126,7 @@ class _SearchIllustResultPageState extends State<SearchIllustResultPage> {
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    Util.gotoPage(
+                                    Utils.gotoPage(
                                       context,
                                       IllustPage(
                                         _illusts[index].id,
@@ -194,7 +194,7 @@ class _SearchIllustResultPageState extends State<SearchIllustResultPage> {
                         style: TextStyle(fontSize: 10),
                       ),
                       // leading: AvatarViewFromUrl,
-                      trailing: Util.buildBookmarkButton(
+                      trailing: Utils.buildBookmarkButton(
                         context,
                         illustId: _illusts[index].id,
                         bookmarkId: _illusts[index].bookmarkId,

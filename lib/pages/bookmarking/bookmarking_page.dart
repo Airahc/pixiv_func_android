@@ -13,7 +13,7 @@ import 'package:pixiv_xiaocao_android/config/config_util.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class BookmarkingPage extends StatefulWidget {
@@ -130,7 +130,7 @@ class _BookmarkingPageState extends State<BookmarkingPage> {
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    Util.gotoPage(
+                                    Utils.gotoPage(
                                       context,
                                       IllustPage(
                                         _bookmarks[index].id,
@@ -197,7 +197,7 @@ class _BookmarkingPageState extends State<BookmarkingPage> {
                         style: TextStyle(fontSize: 10),
                       ),
                       // leading: AvatarViewFromUrl,
-                      trailing: Util.buildBookmarkButton(
+                      trailing: Utils.buildBookmarkButton(
                         context,
                         illustId: _bookmarks[index].id,
                         bookmarkId: _bookmarks[index].bookmarkId,

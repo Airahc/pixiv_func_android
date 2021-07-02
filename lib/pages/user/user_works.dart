@@ -13,7 +13,7 @@ import 'package:pixiv_xiaocao_android/config/config_util.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 enum UserWorkType { illust, manga }
@@ -231,7 +231,7 @@ class UserWorksContentState extends State<UserWorksContent>
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    Util.gotoPage(
+                                    Utils.gotoPage(
                                       context,
                                       IllustPage(
                                         _illusts[index].id,
@@ -295,13 +295,13 @@ class UserWorksContentState extends State<UserWorksContent>
                         style: TextStyle(fontSize: 14),
                       ),
                       subtitle: Text(
-                          Util.dateTimeToString(
+                          Utils.dateTimeToString(
                             DateTime.fromMillisecondsSinceEpoch(
                               _illusts[index].uploadTimestamp * 1000,
                             ),
                           ),
                           style: TextStyle(fontSize: 10)),
-                      trailing: Util.buildBookmarkButton(
+                      trailing: Utils.buildBookmarkButton(
                         context,
                         illustId: _illusts[index].id,
                         bookmarkId: _illusts[index].bookmarkId,

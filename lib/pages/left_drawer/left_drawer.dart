@@ -18,7 +18,7 @@ import 'package:pixiv_xiaocao_android/pages/bookmarking/bookmarking_page.dart';
 import 'package:pixiv_xiaocao_android/pages/following_users/following_users_page.dart';
 import 'package:pixiv_xiaocao_android/pages/following_latest_illusts/following_latest_illusts_page.dart';
 import 'package:pixiv_xiaocao_android/pages/settings/settings_page.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 
 class LeftDrawer extends StatefulWidget {
   @override
@@ -36,7 +36,7 @@ class _LeftDrawerState extends State<LeftDrawer> {
           children: [
             ListTile(
               onTap: () {
-                Util.gotoPage(context, SettingsPage());
+                Utils.gotoPage(context, SettingsPage());
               },
               title: Text(
                 '设置',
@@ -45,7 +45,7 @@ class _LeftDrawerState extends State<LeftDrawer> {
             ),
             ListTile(
               onTap: () {
-                Util.gotoPage(context, AccountPage());
+                Utils.gotoPage(context, AccountPage());
               },
               title: Text(
                 '账号',
@@ -54,13 +54,13 @@ class _LeftDrawerState extends State<LeftDrawer> {
             ),
             ListTile(
               onTap: () async {
-                final clipboardContent = await Util.readClipboard();
+                final clipboardContent = await Utils.readClipboard();
                 if (clipboardContent != null) {
                   await ConfigUtil.instance
                       .updateJsonStringToConfig(clipboardContent);
                   PixivRequest.instance.updateHeaders();
                 } else {
-                  Util.toast('获取剪切板内容失败');
+                  Utils.toast('获取剪切板内容失败');
                   LogUtil.instance.add(
                     type: LogType.Info,
                     id: -1,
@@ -77,12 +77,12 @@ class _LeftDrawerState extends State<LeftDrawer> {
             ),
             ListTile(
               onTap: () {
-                Util.copyToClipboard(
+                Utils.copyToClipboard(
                   jsonEncode(
                     ConfigUtil.instance.config.toJson(),
                   ),
                 );
-                Util.toast('已将配置信息复制到剪切板');
+                Utils.toast('已将配置信息复制到剪切板');
               },
               title: Text(
                 '将配置信息导出到剪切板',
@@ -95,7 +95,7 @@ class _LeftDrawerState extends State<LeftDrawer> {
             ),
             ListTile(
               onTap: () {
-                Util.gotoPage(context, FollowingLatestIllustsPage());
+                Utils.gotoPage(context, FollowingLatestIllustsPage());
               },
               title: Text(
                 '已关注(用户)的新插画',
@@ -104,7 +104,7 @@ class _LeftDrawerState extends State<LeftDrawer> {
             ),
             ListTile(
               onTap: () {
-                Util.gotoPage(context, FollowingUsersPage());
+                Utils.gotoPage(context, FollowingUsersPage());
               },
               title: Text(
                 '已关注的用户',
@@ -113,7 +113,7 @@ class _LeftDrawerState extends State<LeftDrawer> {
             ),
             ListTile(
               onTap: () {
-                Util.gotoPage(context, BookmarkingPage());
+                Utils.gotoPage(context, BookmarkingPage());
               },
               title: Text(
                 '已收藏的书签',
@@ -122,7 +122,7 @@ class _LeftDrawerState extends State<LeftDrawer> {
             ),
             ListTile(
               onTap: () {
-                Util.gotoPage(context, AboutPage());
+                Utils.gotoPage(context, AboutPage());
               },
               title: Text(
                 '关于此应用',

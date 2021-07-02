@@ -11,7 +11,7 @@ import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 
 class IllustRelatedContent extends StatefulWidget {
   final int illustId;
@@ -118,7 +118,7 @@ class _IllustRelatedContentState extends State<IllustRelatedContent> {
                       children: [
                         GestureDetector(
                             onTap: () {
-                              Util.gotoPage(
+                              Utils.gotoPage(
                                 context,
                                 IllustPage(illust.id),
                               );

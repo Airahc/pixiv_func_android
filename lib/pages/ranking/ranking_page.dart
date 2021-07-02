@@ -15,7 +15,7 @@ import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/pages/left_drawer/left_drawer.dart';
 import 'package:pixiv_xiaocao_android/pages/ranking/ranking_settings.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class RankingPage extends StatefulWidget {
@@ -195,7 +195,7 @@ class _RankingPageState extends State<RankingPage> {
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    Util.gotoPage(
+                                    Utils.gotoPage(
                                       context,
                                       IllustPage(
                                         _illusts[index].id,
@@ -261,7 +261,7 @@ class _RankingPageState extends State<RankingPage> {
                       subtitle: Text(
                           '${_illusts[index].authorDetails.userName}',
                           style: TextStyle(fontSize: 10)),
-                      trailing: Util.buildBookmarkButton(
+                      trailing: Utils.buildBookmarkButton(
                         context,
                         illustId: _illusts[index].id,
                         bookmarkId: _illusts[index].bookmarkId,

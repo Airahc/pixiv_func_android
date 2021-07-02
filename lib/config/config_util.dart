@@ -13,7 +13,7 @@ import 'package:pixiv_xiaocao_android/config/config_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/platform_util.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 
 class ConfigUtil {
   static const referer = 'https://www.pixiv.net/';
@@ -53,9 +53,9 @@ class ConfigUtil {
     try {
       config = ConfigEntity.fromJson(jsonDecode(jsonString));
       await updateConfigFile();
-      Util.toast('导入成功');
+      Utils.toast('导入成功');
     } on Exception catch (e) {
-      Util.toast('导入失败');
+      Utils.toast('导入失败');
       LogUtil.instance.add(
         type: LogType.Info,
         id: -1,

@@ -4,6 +4,7 @@
  * 文件名称 : illust_page.dart
  */
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pixiv_xiaocao_android/api/entity/bookmark_add/bookmark_add.dart';
@@ -19,7 +20,8 @@ import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_comments.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_related.dart';
 import 'package:pixiv_xiaocao_android/pages/user/user_page.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/image_manager.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 
 typedef OnBookmarkAdd = void Function(int bookmarkId);
 typedef OnBookmarkDelete = void Function();
@@ -129,7 +131,7 @@ class _IllustPageState extends State<IllustPage> {
       list.add(
         GestureDetector(
           onTap: () {
-            Util.gotoPage(context, ImageScale(imageOriginalUrls, i));
+            Utils.gotoPage(context, ImageScale(imageOriginalUrls, i));
           },
           child: ImageViewFromUrl(imageUrls[i]),
         ),
@@ -145,11 +147,14 @@ class _IllustPageState extends State<IllustPage> {
             IconButton(
               splashRadius: 20,
               onPressed: () {
-                Util.saveImage(
-                  _illustInfoData!.illustDetails.id,
-                  imageOriginalUrls[i],
-                  _illustInfoData!.illustDetails.title,
-                );
+
+
+                  ImageManager.save(SaveImageTask(
+                    id: _illustInfoData!.illustDetails.id,
+                    url: imageOriginalUrls[i],
+                    title: _illustInfoData!.illustDetails.title,
+                  ));
+
               },
               icon: Icon(Icons.save_alt),
             )
@@ -200,7 +205,7 @@ class _IllustPageState extends State<IllustPage> {
             OutlinedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                Util.copyToClipboard('$value');
+                Utils.copyToClipboard('$value');
               },
               child: Text('确定'),
             ),
@@ -272,7 +277,7 @@ class _IllustPageState extends State<IllustPage> {
         ),
         subtitle: Center(
           child: Text(
-            Util.dateTimeToString(
+            Utils.dateTimeToString(
               DateTime.fromMillisecondsSinceEpoch(
                 _illustInfoData!.illustDetails.uploadTimestamp * 1000,
               ),
@@ -393,7 +398,7 @@ class _IllustPageState extends State<IllustPage> {
       list.add(
         InkWell(
           onTap: () {
-            Util.gotoPage(
+            Utils.gotoPage(
               context,
               IllustCommentsPage(_illustInfoData!.illustDetails.id,
                   _illustInfoData!.illustDetails.title),
@@ -459,7 +464,7 @@ class _IllustPageState extends State<IllustPage> {
           leading: _illustInfoData != null
               ? GestureDetector(
                   onTap: () {
-                    Util.gotoPage(context,
+                    Utils.gotoPage(context,
                         UserPage(_illustInfoData!.authorDetails.userId));
                   },
                   child: AvatarViewFromUrl(
@@ -470,8 +475,8 @@ class _IllustPageState extends State<IllustPage> {
           title: InkWell(
             child: Text('插画ID:${widget.illustId}'),
             onLongPress: () {
-              Util.copyToClipboard('${widget.illustId}');
-              Util.toastIconAndText(
+              Utils.copyToClipboard('${widget.illustId}');
+              Utils.toastIconAndText(
                 Icons.copy_outlined,
                 '已将插画ID复制到剪切板',
               );

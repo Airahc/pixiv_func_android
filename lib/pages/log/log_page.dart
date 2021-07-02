@@ -4,10 +4,12 @@
  * 文件名称 : log_page.dart
  */
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pixiv_xiaocao_android/image_manager.dart';
 import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 
 class LogPage extends StatefulWidget {
   LogPage(Key? key) : super(key: key);
@@ -56,7 +58,7 @@ class LogPageState extends State<LogPage> {
             OutlinedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                Util.copyToClipboard('$value');
+                Utils.copyToClipboard('$value');
               },
               child: Text('确定'),
             ),
@@ -78,9 +80,9 @@ class LogPageState extends State<LogPage> {
                 Card(
                   child: ListTile(
                     onLongPress: () {
-                      _copyDialog(Util.dateTimeToString(log.dateTime));
+                      _copyDialog(Utils.dateTimeToString(log.dateTime));
                     },
-                    title: Text(Util.dateTimeToString(log.dateTime)),
+                    title: Text(Utils.dateTimeToString(log.dateTime)),
                     subtitle: Text(
                       '时间',
                       style: TextStyle(color: Colors.white54),
@@ -128,7 +130,7 @@ class LogPageState extends State<LogPage> {
                 log.exception != null
                     ? Card(
                         child: InkWell(
-                          onLongPress: (){
+                          onLongPress: () {
                             _copyDialog(log.exception.toString());
                           },
                           child: Text(log.exception.toString()),
@@ -154,7 +156,7 @@ class LogPageState extends State<LogPage> {
                 child: ExpansionTile(
                   title: Text('网络异常'),
                   subtitle: Text(
-                    Util.dateTimeToString(log.dateTime),
+                    Utils.dateTimeToString(log.dateTime),
                     style: TextStyle(color: Colors.white54),
                   ),
                   children: [
@@ -175,7 +177,7 @@ class LogPageState extends State<LogPage> {
                         splashRadius: 20,
                         icon: Icon(Icons.copy_outlined),
                         onPressed: () {
-                          Util.copyToClipboard(log.toString());
+                          Utils.copyToClipboard(log.toString());
                         },
                       ),
                     ),
@@ -187,7 +189,7 @@ class LogPageState extends State<LogPage> {
                 child: ExpansionTile(
                   title: Text('反序列化异常'),
                   subtitle: Text(
-                    Util.dateTimeToString(log.dateTime),
+                    Utils.dateTimeToString(log.dateTime),
                     style: TextStyle(color: Colors.white54),
                   ),
                   children: [
@@ -208,7 +210,7 @@ class LogPageState extends State<LogPage> {
                         splashRadius: 20,
                         icon: Icon(Icons.copy_outlined),
                         onPressed: () {
-                          Util.copyToClipboard(log.toString());
+                          Utils.copyToClipboard(log.toString());
                         },
                       ),
                     ),
@@ -220,7 +222,7 @@ class LogPageState extends State<LogPage> {
                 child: ExpansionTile(
                   title: Text('下载失败'),
                   subtitle: Text(
-                    Util.dateTimeToString(log.dateTime),
+                    Utils.dateTimeToString(log.dateTime),
                     style: TextStyle(color: Colors.white54),
                   ),
                   children: [
@@ -241,7 +243,12 @@ class LogPageState extends State<LogPage> {
                         splashRadius: 20,
                         icon: Icon(Icons.refresh_outlined),
                         onPressed: () {
-                          Util.saveImage(log.id, log.url, log.title);
+                          ImageManager.save(SaveImageTask(
+                            id: log.id,
+                            url: log.url,
+                            title: log.title,
+                          ));
+
                         },
                       ),
                     ),
@@ -253,7 +260,7 @@ class LogPageState extends State<LogPage> {
                 child: ExpansionTile(
                   title: Text('保存文件失败'),
                   subtitle: Text(
-                    Util.dateTimeToString(log.dateTime),
+                    Utils.dateTimeToString(log.dateTime),
                     style: TextStyle(color: Colors.white54),
                   ),
                   children: [
@@ -274,7 +281,11 @@ class LogPageState extends State<LogPage> {
                         splashRadius: 20,
                         icon: Icon(Icons.refresh_outlined),
                         onPressed: () {
-                          Util.saveImage(log.id, log.url, log.title);
+                          ImageManager.save(SaveImageTask(
+                            id: log.id,
+                            url: log.url,
+                            title: log.title,
+                          ));
                         },
                       ),
                     ),
@@ -286,7 +297,7 @@ class LogPageState extends State<LogPage> {
                 child: ExpansionTile(
                   title: Text('信息'),
                   subtitle: Text(
-                    Util.dateTimeToString(log.dateTime),
+                    Utils.dateTimeToString(log.dateTime),
                     style: TextStyle(color: Colors.white54),
                   ),
                   children: [

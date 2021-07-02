@@ -12,7 +12,7 @@ import 'package:pixiv_xiaocao_android/log/log_entity.dart';
 import 'package:pixiv_xiaocao_android/log/log_util.dart';
 import 'package:pixiv_xiaocao_android/pages/account/edit_account_dialog.dart';
 import 'package:pixiv_xiaocao_android/pages/login/login_page.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 
 class AccountPage extends StatefulWidget {
   @override
@@ -29,7 +29,7 @@ class _AccountPageState extends State<AccountPage> {
             OutlinedButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Util.gotoPage(
+                  Utils.gotoPage(
                     context,
                     LoginPage(
                       (String cookie, String token, int id) {
@@ -99,7 +99,7 @@ class _AccountPageState extends State<AccountPage> {
                               ConfigUtil.instance.updateConfigFile();
                             });
                           }else{
-                            Util.toast('已经存在的ID');
+                            Utils.toast('已经存在的ID');
                           }
                         },
                       );

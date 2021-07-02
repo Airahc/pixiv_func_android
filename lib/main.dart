@@ -11,7 +11,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:pixiv_xiaocao_android/android_tabs.dart';
 import 'package:pixiv_xiaocao_android/platform_util.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 import 'package:provider/provider.dart';
 
 Future main() async {
@@ -20,11 +20,6 @@ Future main() async {
   Provider.debugCheckInvalidValueType = null;
 
   runApp(AndroidApp());
-  final cache = PaintingBinding.instance?.imageCache;
-  if (cache != null) {
-    cache.maximumSize = 5000;
-    cache.maximumSizeBytes = 500 << 20;
-  }
 }
 
 late DateTime _lastPopTime;
@@ -72,7 +67,7 @@ class AndroidApp extends StatelessWidget {
             if (DateTime.now().difference(_lastPopTime) >
                 Duration(seconds: 2)) {
               _lastPopTime = DateTime.now();
-              Util.toast('再按一次退出',
+              Utils.toast('再按一次退出',
                   backgroundColor: Colors.black54,
                   textStyle: TextStyle(
                     fontSize: 22,

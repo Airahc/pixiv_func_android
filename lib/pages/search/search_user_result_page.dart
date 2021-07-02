@@ -10,7 +10,7 @@ import 'package:pixiv_xiaocao_android/component/avatar_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/component/image_view_from_url.dart';
 import 'package:pixiv_xiaocao_android/pages/illust/illust_page.dart';
 import 'package:pixiv_xiaocao_android/pages/user/user_page.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SearchUserResultPage extends StatefulWidget {
@@ -101,18 +101,18 @@ class _SearchUserResultPageState extends State<SearchUserResultPage> {
                     children: user.illusts
                         .map(
                           (illust) => Container(
-                            width: Util.getScreenSize(context).width / 3,
-                            height: Util.getScreenSize(context).width / 3,
+                            width: Utils.getScreenSize(context).width / 3,
+                            height: Utils.getScreenSize(context).width / 3,
                             child: ImageViewFromUrl(
                               illust.urlS,
-                              width: Util.windowSize.width / 3,
+                              width: Utils.windowSize.width / 3,
                               imageBuilder: (Widget imageWidget) {
                                 return Stack(
                                   alignment: Alignment.center,
                                   children: [
                                     GestureDetector(
                                       onTap: () {
-                                        Util.gotoPage(
+                                        Utils.gotoPage(
                                           context,
                                           IllustPage(illust.id),
                                         );
@@ -155,7 +155,7 @@ class _SearchUserResultPageState extends State<SearchUserResultPage> {
                   contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   leading: GestureDetector(
                     onTap: () {
-                      Util.gotoPage(context, UserPage(user.userId));
+                      Utils.gotoPage(context, UserPage(user.userId));
                     },
                     child: AvatarViewFromUrl(
                       user.profileImg.main,

@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pixiv_xiaocao_android/config/config_util.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -86,9 +86,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 setState(() {
                   storagePermission = true;
                 });
-                Util.toast('存储权限被允许');
+                Utils.toast('存储权限被允许');
               } else {
-                Util.toast('存储权限被拒绝');
+                Utils.toast('存储权限被拒绝');
               }
             },
             title: Text(

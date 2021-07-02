@@ -18,7 +18,7 @@ import 'package:pixiv_xiaocao_android/pages/search/search_illust_result_page.dar
 import 'package:pixiv_xiaocao_android/pages/search/search_settings.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_user_result_page.dart';
 import 'package:pixiv_xiaocao_android/pages/user/user_page.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 
 class SearchInputPage extends StatefulWidget {
   @override
@@ -92,7 +92,7 @@ class _SearchInputPageState extends State<SearchInputPage> {
     if(_keywordInput.text.isNotEmpty) {
       list.add(ListTile(
         onTap: () {
-          Util.gotoPage(context, SearchUserResultPage(_keywordInput.text));
+          Utils.gotoPage(context, SearchUserResultPage(_keywordInput.text));
         },
         title: Text(_keywordInput.text),
         subtitle: Text('搜索用户'),
@@ -101,7 +101,7 @@ class _SearchInputPageState extends State<SearchInputPage> {
     if (inputNumber != null) {
       list.add(ListTile(
         onTap: () {
-          Util.gotoPage(
+          Utils.gotoPage(
             context,
             IllustPage(inputNumber),
           );
@@ -111,7 +111,7 @@ class _SearchInputPageState extends State<SearchInputPage> {
       ));
       list.add(ListTile(
         onTap: () {
-          Util.gotoPage(context, UserPage(inputNumber));
+          Utils.gotoPage(context, UserPage(inputNumber));
         },
         title: Text('$inputNumber'),
         subtitle: Text('用户ID'),
@@ -120,7 +120,7 @@ class _SearchInputPageState extends State<SearchInputPage> {
     _searchAutocompleteData?.candidates.forEach((candidate) {
       list.add(ListTile(
         onTap: () {
-          Util.gotoPage(context, SearchIllustResultPage(candidate.tagName));
+          Utils.gotoPage(context, SearchIllustResultPage(candidate.tagName));
         },
         title: Text('${candidate.tagName}'),
         subtitle: Text('访问数量:${candidate.accessCount}'),
@@ -158,7 +158,7 @@ class _SearchInputPageState extends State<SearchInputPage> {
               }
             },
             onSubmitted: (value) {
-              Util.gotoPage(context, SearchIllustResultPage(value));
+              Utils.gotoPage(context, SearchIllustResultPage(value));
             },
             decoration: InputDecoration(
               hintText: '搜索关键字或ID',
@@ -203,9 +203,9 @@ class _SearchInputPageState extends State<SearchInputPage> {
           color: Colors.white,
         ),
         onPressed: () async {
-          final ids = await Util.searchIdsByImage();
+          final ids = await Utils.searchIdsByImage();
           if (ids.isNotEmpty) {
-            Util.gotoPage(context, SearchByImagePage(ids));
+            Utils.gotoPage(context, SearchByImagePage(ids));
           } else {
             LogUtil.instance.add(
               type: LogType.Info,

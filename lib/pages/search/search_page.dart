@@ -19,7 +19,7 @@ import 'package:pixiv_xiaocao_android/pages/left_drawer/left_drawer.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_illust_result_page.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_input.dart';
 import 'package:pixiv_xiaocao_android/pages/search/search_settings.dart';
-import 'package:pixiv_xiaocao_android/util.dart';
+import 'package:pixiv_xiaocao_android/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SearchPage extends StatefulWidget {
@@ -159,7 +159,7 @@ class _SearchPageState extends State<SearchPage> {
           return Card(
             child: GestureDetector(
               onTap: () {
-                Util.gotoPage(
+                Utils.gotoPage(
                   context,
                   IllustPage(id),
                 );
@@ -207,7 +207,7 @@ class _SearchPageState extends State<SearchPage> {
                             onTap: () {
                               SearchSettings.includeKeywords.clear();
                               SearchSettings.notIncludeKeywords.clear();
-                              Util.gotoPage(
+                              Utils.gotoPage(
                                   context, SearchIllustResultPage(illust.tag));
                             },
                             child: imageWidget,
@@ -259,7 +259,7 @@ class _SearchPageState extends State<SearchPage> {
                             onTap: () {
                               SearchSettings.includeKeywords.clear();
                               SearchSettings.notIncludeKeywords.clear();
-                              Util.gotoPage(
+                              Utils.gotoPage(
                                   context, SearchIllustResultPage(illust.tag));
                             },
                             child: imageWidget,
@@ -376,7 +376,7 @@ class _SearchPageState extends State<SearchPage> {
               color: Colors.white,
             ),
             onPressed: () {
-              Util.gotoPage(context, SearchInputPage());
+              Utils.gotoPage(context, SearchInputPage());
             },
           );
         },
