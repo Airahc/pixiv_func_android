@@ -11,6 +11,7 @@
 - 集成图片搜源(以图搜图)
 - 支持免代理直连(也可以开代理)
 - 登录暂时需要代理(VPN) 
+ 
 前往 [Release](https://github.com/xiao-cao-x/pixiv-xiaocao-android/releases) 页面下载
 
 如果有建议 或者 发现bug 请打开一个 [Illuse](https://github.com/xiao-cao-x/pixiv-xiaocao-android/issues/new) 向我反馈
