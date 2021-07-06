@@ -18,9 +18,11 @@
 
 [桌面版](https://github.com/xiao-cao-x/pixiv-xiaocao-desktop)
 
+## 如果你觉得我的软件好用 帮忙推荐一下啦
+
 ### Dart API 在这个仓库 [xiao-cao-x/pixiv-dart-api-xiaocao](https://github.com/xiao-cao-x/pixiv-dart-api-xiaocao)
 
-如果你觉得我的软件好用 帮忙推荐一下啦
+
 
 ## 该软件免费 不收取打赏
 
