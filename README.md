@@ -20,10 +20,10 @@
 
 ### Dart API 在这个仓库 [xiao-cao-x/pixiv-dart-api-xiaocao](https://github.com/xiao-cao-x/pixiv-dart-api-xiaocao)
 
-
-不希望任何人用这些代码获取利益(包括打赏)
-
+如果你觉得我的软件好用 帮忙推荐一下啦
 
 ## 该软件免费 不收取打赏
 
 # QQ交流群693412468
+
+不希望任何人用这些代码获取利益(包括打赏)
