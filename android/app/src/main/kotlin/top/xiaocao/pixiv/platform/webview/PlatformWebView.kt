@@ -87,6 +87,21 @@ class PlatformWebView(
                 }
                 return super.shouldOverrideUrlLoading(view, request)
             }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                view?.apply {
+                    evaluateJavascript(
+                        "document.querySelectorAll('input').forEach((current)=>{\n" +
+                                "            if('password' === current.type){\n" +
+                                "            current.type='text';\n" +
+                                "            }\n" +
+                                "            });"
+                    ) {
+
+                    }
+                }
+                super.onPageFinished(view, url)
+            }
         }
 
         webView.webChromeClient = object : WebChromeClient() {

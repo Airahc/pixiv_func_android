@@ -12,10 +12,10 @@ import 'dart:io';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:pixiv_func_android/api/entity/comment.dart';
-import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/api/model/comments.dart';
 import 'package:pixiv_func_android/api/model/error_message.dart';
+import 'package:pixiv_func_android/api/model/illust_detail.dart';
 import 'package:pixiv_func_android/api/model/illusts.dart';
 import 'package:pixiv_func_android/api/model/search_autocomplete.dart';
 import 'package:pixiv_func_android/api/model/trending_tags.dart';
@@ -254,7 +254,7 @@ class PixivAPI {
   ///如果没有查询到会返回404 : [ErrorMessage.fromJson] => <br/>
   ///{ user_message:"该作品已被删除，或作品ID不存在。", message:"", reason:"", user_message_details:{} } <br/>
   ///[illustId] - 插画ID <br/>
-  Future<Illust> getIllustDetail(int illustId) async {
+  Future<IllustDetail> getIllustDetail(int illustId) async {
     final response = await httpClient.get<String>(
       '/v1/illust/detail',
       queryParameters: {
@@ -262,8 +262,8 @@ class PixivAPI {
         'illust_id': illustId,
       },
     );
-    final json = jsonDecode(response.data!);
-    final data = Illust.fromJson(json['illust']);
+
+    final data = IllustDetail.fromJson(jsonDecode(response.data!));
     return data;
   }
 

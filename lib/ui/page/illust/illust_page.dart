@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/api/entity/tag.dart';
 import 'package:pixiv_func_android/downloader/downloader.dart';
+import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/provider/view_state.dart';
 import 'package:pixiv_func_android/ui/page/illust/illust_comment/illust_comment_page.dart';
@@ -73,7 +74,8 @@ class _IllustPageState extends State<IllustPage> {
     );
   }
 
-  Widget _buildImages(Illust illust) {
+  Widget _buildImages(IllustModel model) {
+    final illust = model.illust;
     final children = <Widget>[];
     if (1 == illust.pageCount) {
       children.add(
@@ -142,7 +144,8 @@ class _IllustPageState extends State<IllustPage> {
     );
   }
 
-  Widget _buildDetail(Illust illust) {
+  Widget _buildDetail(IllustModel model) {
+    final illust = model.illust;
     final children = <Widget>[];
     children.addAll([
       Container(
@@ -162,7 +165,13 @@ class _IllustPageState extends State<IllustPage> {
       ),
       Container(
         padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-        child: Text('插画ID:${illust.id}'),
+        child: InkWell(
+          onLongPress: () async {
+            await Utils.copyToClipboard('${illust.id}');
+            await platformAPI.toast('已将插画ID复制到剪切板');
+          },
+          child: Text('插画ID:${illust.id}'),
+        ),
       ),
       //创建时间 & 查看数量 & 收藏数量
       Container(
@@ -205,11 +214,17 @@ class _IllustPageState extends State<IllustPage> {
       children.add(
         Container(
           padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-          child: Card(
-            child: Container(
-              alignment: Alignment.topLeft,
-              padding: EdgeInsets.all(10),
-              child: HtmlRichText(illust.caption),
+          child: InkWell(
+            onLongPress: () => model.showOriginalCaption = !model.showOriginalCaption,
+            child: Card(
+              child: Container(
+                alignment: Alignment.topLeft,
+                padding: EdgeInsets.all(10),
+                child: HtmlRichText(
+                  illust.caption,
+                  showOriginal: model.showOriginalCaption,
+                ),
+              ),
             ),
           ),
         ),
@@ -333,8 +348,8 @@ class _IllustPageState extends State<IllustPage> {
   Widget _buildBody(IllustModel model) {
     return CustomScrollView(
       slivers: [
-        _buildImages(model.illust),
-        _buildDetail(model.illust),
+        _buildImages(model),
+        _buildDetail(model),
       ]..addAll(_buildRelated(model)),
     );
   }

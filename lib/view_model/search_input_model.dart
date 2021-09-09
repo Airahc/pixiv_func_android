@@ -91,7 +91,7 @@ class SearchInputModel extends BaseViewModel {
     }
     cancelTask();
     pixivAPI.getIllustDetail(inputAsNumber).then((result) {
-      successCallback(result);
+      successCallback(result.illust);
     }).catchError((e) {
       if (e is DioError && e.response?.statusCode == HttpStatus.notFound) {
         notFoundCallback();

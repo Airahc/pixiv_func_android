@@ -18,7 +18,16 @@ class IllustModel extends BaseViewStateListModel<Illust> {
 
   IllustModel(this.illust);
 
+  bool _showOriginalCaption = false;
+
   bool _bookmarkRequestWaiting = false;
+
+  bool get showOriginalCaption => _showOriginalCaption;
+
+  set showOriginalCaption(bool value) {
+    _showOriginalCaption = value;
+    notifyListeners();
+  }
 
   bool get bookmarkRequestWaiting => _bookmarkRequestWaiting;
 

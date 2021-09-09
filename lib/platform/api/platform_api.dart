@@ -17,7 +17,7 @@ class PlatformAPI {
   final _methodToast = 'toast';
   final _methodGetBuildVersion = 'getBuildVersion';
   final _methodGetAppVersion = 'getAppVersion';
-  final _methodOpenUrlByBrowser = 'openUrlByBrowser';
+  final _methodUrlLaunch = 'urlLaunch';
 
   final _channel = MethodChannel(_pluginName);
 
@@ -58,10 +58,12 @@ class PlatformAPI {
     return result as String;
   }
 
-  Future<bool> openUrlByBrowser(String url) async {
-    final result = await _channel.invokeMethod(_methodOpenUrlByBrowser, {
+
+  Future<bool> urlLaunch(String url) async {
+    final result = await _channel.invokeMethod(_methodUrlLaunch, {
       'url': url,
     });
     return result as bool;
   }
+
 }

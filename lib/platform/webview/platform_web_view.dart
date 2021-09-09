@@ -24,7 +24,6 @@ class _PlatformWebViewState extends State<PlatformWebView> {
 
   static const _methodLoadUrl = 'loadUrl';
 
-
   late final MethodChannel _channel;
 
   double _progress = 0;
@@ -40,7 +39,7 @@ class _PlatformWebViewState extends State<PlatformWebView> {
         },
       );
 
-     BasicMessageChannel(
+    BasicMessageChannel(
       '$_pluginName/progress',
       StandardMessageCodec(),
     )..setMessageHandler(
@@ -63,6 +62,8 @@ class _PlatformWebViewState extends State<PlatformWebView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //不设置这个点输入框的时候 键盘会直接弹回很难输入进去东西
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('PlatformWebView'),
         bottom: PreferredSize(

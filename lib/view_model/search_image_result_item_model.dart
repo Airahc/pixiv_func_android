@@ -23,7 +23,7 @@ class SearchImageResultItemModel extends BaseViewStateModel {
   void loadData() {
     setBusy();
     pixivAPI.getIllustDetail(illustId).then((result) {
-      illust = result;
+      illust = result.illust;
       setIdle();
     }).catchError((e, s) {
       if (e is DioError && HttpStatus.notFound == e.response?.statusCode) {

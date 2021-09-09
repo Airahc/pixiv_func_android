@@ -35,7 +35,7 @@ class AboutPage extends StatelessWidget {
           child: ListTile(
             onTap: () async {
 
-              if (!await platformAPI.openUrlByBrowser(info.htmlUrl)) {
+              if (!await platformAPI.urlLaunch(info.htmlUrl)) {
                 platformAPI.toast('打开浏览器失败');
               }
             },
@@ -46,7 +46,7 @@ class AboutPage extends StatelessWidget {
         Card(
           child: ListTile(
             onTap: () async {
-              if (!await platformAPI.openUrlByBrowser(info.browserDownloadUrl)) {
+              if (!await platformAPI.urlLaunch(info.browserDownloadUrl)) {
                 platformAPI.toast('打开浏览器失败');
               }
             },
@@ -107,7 +107,7 @@ class AboutPage extends StatelessWidget {
                 margin: EdgeInsets.all(0),
                 child: ListTile(
                   onTap: () async {
-                    if (!await platformAPI.openUrlByBrowser(thisProjectGitHubUrl)) {
+                    if (!await platformAPI.urlLaunch(thisProjectGitHubUrl)) {
                       platformAPI.toast('打开浏览器失败');
                     }
                   },

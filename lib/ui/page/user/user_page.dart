@@ -160,7 +160,7 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  null != model.userDetail ? UserDetails(model.userDetail!) : Container(),
+                  null != model.userDetail ? UserDetails(model) : Container(),
                   UserIllust(widget.userId, WorkType.ILLUST),
                   UserIllust(widget.userId, WorkType.MANGA),
                   UserBookmarked(widget.userId),

@@ -79,6 +79,8 @@ class AuthTokenInterceptor extends InterceptorsWrapper {
 
       final currentAccount = accountManager.current!;
 
+      //不能用try catch 因为Dio的严重BUG 偶尔会不抛异常(自作主张自己给处理了???)
+      //可能是因为这个 (https://github.com/flutterchina/dio/issues/377)
       bool hasError = false;
 
       await oAuthAPI.refreshAuthToken(currentAccount.refreshToken).then((result) {

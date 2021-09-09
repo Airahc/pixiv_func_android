@@ -30,12 +30,11 @@ class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
     private val methodToast = "toast"
     private val methodGetBuildVersion = "getBuildVersion"
     private val methodGetAppVersion = "getAppVersion"
-    private val methodOpenUrlByBrowser = "openUrlByBrowser"
+    private val methodUrlLaunch = "urlLaunch"
 
-    var methodChannel: MethodChannel? = null
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        methodChannel = MethodChannel(
+        MethodChannel(
             binding.binaryMessenger,
             pluginName
         ).also {
@@ -88,7 +87,7 @@ class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
                     ).versionName
                 )
             }
-            methodOpenUrlByBrowser -> {
+            methodUrlLaunch -> {
                 try {
                     val intent =
                         Intent(Intent.ACTION_VIEW, Uri.parse(call.argument<String>("url")!!))
@@ -102,5 +101,7 @@ class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
                 result.notImplemented()
             }
         }
+
     }
+
 }

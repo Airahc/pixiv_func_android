@@ -34,6 +34,15 @@ class UserModel extends BaseViewStateModel {
 
   bool _followRequestWaiting = false;
 
+  bool _showOriginalComment = false;
+
+  bool get showOriginalComment => _showOriginalComment;
+
+  set showOriginalComment(bool value) {
+    _showOriginalComment = value;
+    notifyListeners();
+  }
+
   bool get followRequestWaiting => _followRequestWaiting;
 
   set followRequestWaiting(bool value) {
@@ -63,7 +72,6 @@ class UserModel extends BaseViewStateModel {
         parentModel?.isFollowed = false;
       }).catchError((e) {
         Log.e('删除关注失败', e);
-
       }).whenComplete(() => followRequestWaiting = false);
     }
   }

@@ -7,18 +7,38 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:pixiv_func_android/api/model/user_detail.dart';
+
+import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/ui/widget/html_rich_text.dart';
+import 'package:pixiv_func_android/util/utils.dart';
+import 'package:pixiv_func_android/view_model/user_model.dart';
 
 class UserDetails extends StatelessWidget {
-  final UserDetail detail;
+  final UserModel model;
 
-  const UserDetails(this.detail, {Key? key}) : super(key: key);
+  const UserDetails(this.model, {Key? key}) : super(key: key);
 
-  Widget _buildItem(String name, String value) {
+  Widget _buildItem(String name, String value, {bool isUrl = false}) {
     return Card(
       child: ListTile(
-        onLongPress: () {},
+        onLongPress: () async {
+          if (value.isNotEmpty) {
+            await Utils.copyToClipboard(value);
+            await platformAPI.toast('已将$value复制到剪切板');
+          }
+        },
+        onTap: isUrl
+            ? () async {
+                if (Utils.urlIsTwitter(value)) {
+                  final twitterUsername = Utils.findTwitterUsernameByUrl(value);
+                  if (!await platformAPI.urlLaunch('twitter://user?screen_name=$twitterUsername')) {
+                    platformAPI.urlLaunch(value);
+                  }
+                } else {
+                  platformAPI.urlLaunch(value);
+                }
+              }
+            : null,
         leading: Text(name),
         title: Center(
           child: Text(
@@ -33,18 +53,23 @@ class UserDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     final children = <Widget>[];
 
-    final user = detail.user;
-    final profile = detail.profile;
-    final workspace = detail.workspace;
+    final user = model.userDetail!.user;
+    final profile = model.userDetail!.profile;
+    final workspace = model.userDetail!.workspace;
 
     if (null != user.comment) {
-      children.add(Card(
-        child: Container(
-          alignment: Alignment.topLeft,
-          padding: EdgeInsets.all(10),
-          child: HtmlRichText(user.comment!),
+      children.add(
+        InkWell(
+          onLongPress: () => model.showOriginalComment = !model.showOriginalComment,
+          child: Card(
+            child: Container(
+              alignment: Alignment.topLeft,
+              padding: EdgeInsets.all(10),
+              child: HtmlRichText(user.comment!),
+            ),
+          ),
         ),
-      ));
+      );
     }
 
     //user
@@ -69,12 +94,12 @@ class UserDetails extends StatelessWidget {
     children.add(Divider());
 
     if (null != profile.twitterUrl) {
-      children.add(_buildItem('twitter', profile.twitterUrl!));
+      children.add(_buildItem('twitter', profile.twitterUrl!, isUrl: true));
       children.add(Divider());
     }
 
     if (null != profile.pawooUrl) {
-      children.add(_buildItem('pawoo', profile.pawooUrl!));
+      children.add(_buildItem('pawoo', profile.pawooUrl!, isUrl: true));
       children.add(Divider());
     }
 

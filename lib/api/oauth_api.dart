@@ -55,7 +55,7 @@ class OAuthAPI {
         headers: {
           'X-Client-Time': time,
           'X-Client-Hash': getHash(time + _HASH_SALT),
-          'User-Agent': 'PixivAndroidApp/6.19.0 (Android 7.1.2; XiaoCao)',
+          'User-Agent': 'PixivAndroidApp/6.21.0 (Android 7.1.2; XiaoCao)',
           'App-OS': 'android',
           'App-OS-Version': '7.0.0',
           'App-Version': '6.1.9',
@@ -82,9 +82,9 @@ class OAuthAPI {
     final response = await _httpClient.post<String>('/auth/token', data: {
       'client_id': _CLIENT_ID,
       'client_secret': _CLIENT_SECRET,
+      'include_policy': true,
       'grant_type': 'refresh_token',
       'refresh_token': refreshToken,
-      'include_policy': true,
     });
     final data = UserAccount.fromJson(jsonDecode(response.data!));
     return data;
@@ -95,13 +95,13 @@ class OAuthAPI {
     final response = await _httpClient.post<String>(
       '/auth/token',
       data: {
-        "code_verifier": codeVerifier,
-        'code': code,
-        "grant_type": "authorization_code",
-        'redirect_uri': 'https://app-api.pixiv.net/web/v1/users/auth/pixiv/callback',
         "client_id": _CLIENT_ID,
         "client_secret": _CLIENT_SECRET,
         "include_policy": true,
+        "grant_type": "authorization_code",
+        "code_verifier": codeVerifier,
+        'code': code,
+        'redirect_uri': 'https://app-api.pixiv.net/web/v1/users/auth/pixiv/callback',
       },
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );

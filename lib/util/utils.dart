@@ -27,4 +27,43 @@ class Utils {
     await Clipboard.setData(ClipboardData(text: data));
   }
 
+  ///字符串是否是 twitter/用户名
+  static bool textIsTwitterUser(String text) {
+    return RegExp(r'([Tt]witter/)(\w{1,15})\b').hasMatch(text);
+  }
+
+  ///查找文本里的推特用户名
+  static String findTwitterUsernameByText(String url) {
+    return RegExp(r'(?<=([Tt]witter/))(\w{1,15})\b$').stringMatch(url)!;
+  }
+
+  ///推特账号
+  static bool urlIsTwitter(String url) {
+    return RegExp(r'(https://).*(twitter.com/)(\w{1,15})\b$').hasMatch(url);
+  }
+
+  ///查找url里的推特用户名
+  static String findTwitterUsernameByUrl(String url) {
+    return RegExp(r'(?<=(https://).*(twitter.com/))(\w{1,15})\b$').stringMatch(url)!;
+  }
+
+  ///插画页面
+  static bool urlIsIllust(String url) {
+    return RegExp(r'(https://).*(pixiv.net/artworks/)([1-9][0-9]*)\b').hasMatch(url);
+  }
+
+  ///查找url里的插画ID
+  static int findIllustIdByUrl(String url) {
+    return int.parse(RegExp(r'(?<=(https://).*(pixiv.net/artworks/))([1-9][0-9]*)').stringMatch(url)!);
+  }
+
+  ///用户页面
+  static bool urlIsUser(String url) {
+    return RegExp(r'(https://).*(pixiv.net/users/)([1-9][0-9]*)\b').hasMatch(url);
+  }
+
+  ///查找url里的用户ID
+  static int findUserIdByUrl(String url) {
+    return int.parse(RegExp(r'(?<=(https://).*(pixiv.net/users/))([1-9][0-9]*)').stringMatch(url)!);
+  }
 }
