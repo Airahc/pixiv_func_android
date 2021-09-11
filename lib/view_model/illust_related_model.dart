@@ -13,13 +13,13 @@ import 'package:pixiv_func_android/log/log.dart';
 import 'package:pixiv_func_android/provider/base_view_state_list_model.dart';
 
 class IllustRelatedModel extends BaseViewStateListModel<Illust> {
-  final int illustId;
+  final int id;
 
-  IllustRelatedModel(this.illustId);
+  IllustRelatedModel(this.id);
 
   void loadFirstData() {
     setBusy();
-    pixivAPI.getIllustRelated(illustId).then((result) {
+    pixivAPI.getIllustRelated(id).then((result) {
       if (result.illusts.isNotEmpty) {
         list.addAll(result.illusts);
         setIdle();

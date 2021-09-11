@@ -22,6 +22,8 @@ class RecommendedModel extends BaseViewStateRefreshListModel<Illust> {
       _type = value;
       notifyListeners();
       refresh();
+    } else {
+      scrollToTop();
     }
   }
 

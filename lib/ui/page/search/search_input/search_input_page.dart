@@ -39,26 +39,12 @@ class SearchInputPage extends StatelessWidget {
       children.addAll(
         [
           ListTile(
-            onTap: () {
-              model.searchIllustById(
-                successCallback: (illust) {
-                  PageUtils.to(context, IllustPage(illust));
-                },
-                errorCallback: (dynamic e) {
-                  platformAPI.toast('搜索失败,或许可以重试');
-                },
-                notFoundCallback: () {
-                  platformAPI.toast('插画ID:${model.inputAsNumber}不存在');
-                },
-              );
-            },
+            onTap: () => PageUtils.to(context, IllustPage(model.inputAsNumber)),
             title: Text('${model.inputAsNumber}'),
             subtitle: Text('插画ID'),
           ),
           ListTile(
-            onTap: () {
-              PageUtils.to(context, UserPage(model.inputAsNumber));
-            },
+            onTap: () => PageUtils.to(context, UserPage(model.inputAsNumber)),
             title: Text('${model.inputAsNumber}'),
             subtitle: Text('用户ID'),
           )
@@ -83,9 +69,7 @@ class SearchInputPage extends StatelessWidget {
   Widget _buildInputBox(BuildContext context, SearchInputModel model) {
     return TextField(
       controller: model.wordInput,
-      onSubmitted: (String value) {
-        _toSearchIllust(context, model, value);
-      },
+      onSubmitted: (String value) => _toSearchIllust(context, model, value),
       onChanged: (value) {
         if (value.isNotEmpty) {
           model.lastInputTime = DateTime.now();

@@ -24,28 +24,37 @@ class _SearchGuidePageState extends State<SearchGuidePage> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: TabBar(
-        indicatorColor: Theme.of(context).colorScheme.primary,
-        controller: _tabController,
-        tabs: [
-          Tab(
-            text: '推荐标签',
-          ),
-          Tab(
-            text: '推荐用户',
-          ),
-        ],
+      appBar: AppBar(
+        title: Text('搜索'),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).colorScheme.onBackground,
         onPressed: () => PageUtils.to(context, SearchInputPage()),
         child: Icon(Icons.search_outlined),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          TrendingIllust(),
-          RecommendUser(),
+          TabBar(
+            indicatorColor: Theme.of(context).colorScheme.primary,
+            controller: _tabController,
+            tabs: [
+              Tab(
+                text: '推荐标签',
+              ),
+              Tab(
+                text: '推荐用户',
+              ),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                TrendingIllust(),
+                RecommendUser(),
+              ],
+            ),
+          ),
         ],
       ),
     );

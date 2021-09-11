@@ -16,6 +16,7 @@ class ProviderWidget<T extends BaseViewModel> extends StatefulWidget {
   final Widget? child;
   final Function(T model)? onModelReady;
   final bool autoDispose;
+  final bool autoKeep;
 
   ProviderWidget({
     Key? key,
@@ -24,13 +25,19 @@ class ProviderWidget<T extends BaseViewModel> extends StatefulWidget {
     this.child,
     this.onModelReady,
     this.autoDispose: true,
+    this.autoKeep: false,
   }) : super(key: key);
 
   _ProviderWidgetState<T> createState() => _ProviderWidgetState<T>();
 }
 
-class _ProviderWidgetState<T extends BaseViewModel> extends State<ProviderWidget<T>> {
+class _ProviderWidgetState<T extends BaseViewModel> extends State<ProviderWidget<T>>
+    with AutomaticKeepAliveClientMixin {
   late T model;
+
+
+  @override
+  bool get wantKeepAlive => widget.autoKeep;
 
   @override
   void initState() {
@@ -47,7 +54,7 @@ class _ProviderWidgetState<T extends BaseViewModel> extends State<ProviderWidget
 
   @override
   Widget build(BuildContext context) {
-
+    super.build(context);
     return ChangeNotifierProvider<T>.value(
       value: model,
       child: Consumer<T>(

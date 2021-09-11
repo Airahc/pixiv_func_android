@@ -16,10 +16,10 @@ import 'package:pixiv_func_android/provider/base_view_state_model.dart';
 import 'package:pixiv_func_android/view_model/user_preview_model.dart';
 
 class UserModel extends BaseViewStateModel {
-  final int _userId;
+  final int id;
   UserDetail? userDetail;
 
-  UserModel(this._userId);
+  UserModel(this.id);
 
   int _index = 0;
 
@@ -80,7 +80,7 @@ class UserModel extends BaseViewStateModel {
     userDetail = null;
     setBusy();
 
-    pixivAPI.getUserDetail(_userId).then((result) {
+    pixivAPI.getUserDetail(id).then((result) {
       userDetail = result;
       setIdle();
     }).catchError((e, s) {

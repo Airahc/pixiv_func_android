@@ -28,13 +28,13 @@ class RankingSelectorPage extends StatelessWidget {
                 spacing: 5,
                 children: model.typeItems
                     .map((e) => ChoiceChip(
-                          selectedColor: Theme.of(context).colorScheme.primary,
-                          labelStyle:
-                              TextStyle(fontSize: 15, color: !e.value ? Theme.of(context).colorScheme.primary : null),
-                          label: Text(e.key.name),
-                          selected: e.value,
-                          onSelected: (bool value) => model.onSelected(e.key, value),
-                        ))
+                  selectedColor: Theme.of(context).colorScheme.primary,
+                  labelStyle:
+                  TextStyle(fontSize: 15, color: !e.value ? Theme.of(context).colorScheme.primary : null),
+                  label: Text(e.key.name),
+                  selected: e.value,
+                  onSelected: (bool value) => model.onSelected(e.key, value),
+                ))
                     .toList(),
               ),
             ),

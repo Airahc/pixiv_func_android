@@ -12,16 +12,16 @@ import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/base_view_state_refresh_list_model.dart';
 
 class UserBookmarkedModel extends BaseViewStateRefreshListModel<Illust> {
-  final int _userId;
+  final int id;
 
-  UserBookmarkedModel(this._userId);
+  UserBookmarkedModel(this.id);
 
   @override
   Future<List<Illust>> loadFirstDataRoutine() async {
     if (null == accountManager.current) {
       return [];
     }
-    final result = await pixivAPI.getUserBookmarks(_userId);
+    final result = await pixivAPI.getUserBookmarks(id);
     nextUrl = result.nextUrl;
 
     return result.illusts;

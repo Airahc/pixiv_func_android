@@ -6,9 +6,12 @@
  * 作者:小草
  */
 
+import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/model/navigation_page.dart';
 import 'package:pixiv_func_android/provider/base_view_model.dart';
+import 'package:pixiv_func_android/ui/page/about/about_page.dart';
+import 'package:pixiv_func_android/ui/page/account/account_page.dart';
 import 'package:pixiv_func_android/ui/page/bookmarked/bookmarked_page.dart';
 import 'package:pixiv_func_android/ui/page/download_task/download_task_page.dart';
 import 'package:pixiv_func_android/ui/page/following_new_illust/following_new_illust_page.dart';
@@ -17,6 +20,7 @@ import 'package:pixiv_func_android/ui/page/new_illust/new_illust_page.dart';
 import 'package:pixiv_func_android/ui/page/ranking/ranking_selector_page.dart';
 import 'package:pixiv_func_android/ui/page/recommended/recommended_page.dart';
 import 'package:pixiv_func_android/ui/page/search/search_guide_page.dart';
+import 'package:pixiv_func_android/ui/page/settings/settings_page.dart';
 
 class HomeModel extends BaseViewModel {
   int _currentPage = 0;
@@ -38,15 +42,21 @@ class HomeModel extends BaseViewModel {
     }
   }
 
-  List<NavigationPage> get navigationPages => [
-        NavigationPage(name: '推荐作品', page: RecommendedPage()),
-        NavigationPage(name: '收藏的作品', page: BookmarkedPage()),
-        NavigationPage(name: '最新作品(已关注的用户)', page: FollowingNewIllustPage()),
-        NavigationPage(name: '最新作品(所有人)', page: NewIllustPage()),
-        NavigationPage(name: '关注(的用户)', page: FollowingUserPage(int.parse(accountManager.current!.user.id))),
-        NavigationPage(name: '排行榜', page: RankingSelectorPage()),
-        NavigationPage(name: '搜索', page: SearchGuidePage()),
-        NavigationPage(name: '下载任务', page: DownloadTaskPage()),
+  final List<Widget> navigationPages = [
+    RecommendedPage(),
+    RankingSelectorPage(),
+    DownloadTaskPage(),
+    AboutPage(),
+  ];
+
+  List<NavigationPage> get pages => [
+        NavigationPage(name: '收藏的作品', widget: BookmarkedPage()),
+        NavigationPage(name: '已关注用户的新作品', widget: FollowingNewIllustPage()),
+        NavigationPage(name: '大家的新作品', widget: NewIllustPage()),
+        NavigationPage(name: '关注的用户', widget: FollowingUserPage(int.parse(accountManager.current!.user.id))),
+        NavigationPage(name: '搜索', widget: SearchGuidePage()),
+        NavigationPage(name: '设置', widget: SettingsPage()),
+        NavigationPage(name: '账号', widget: AccountPage()),
       ];
 
   void refresh() {

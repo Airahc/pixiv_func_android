@@ -11,7 +11,7 @@ import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/model/search_image_result.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/provider/view_state.dart';
-import 'package:pixiv_func_android/ui/page/illust/illust_page.dart';
+import 'package:pixiv_func_android/ui/page/illust/illust_content_page.dart';
 import 'package:pixiv_func_android/ui/widget/image_view_from_url.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/view_model/search_image_result_item_model.dart';
@@ -50,7 +50,7 @@ class SearchImageResultItem extends StatelessWidget {
           } else {
             final Illust illust = model.illust!;
             child = ListTile(
-              onTap: () => PageUtils.to(context, IllustPage(illust)),
+              onTap: () => PageUtils.to(context, IllustContentPage(illust)),
               leading: ImageViewFromUrl(
                 illust.imageUrls.squareMedium,
                 width: 60,

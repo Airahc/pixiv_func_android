@@ -49,15 +49,15 @@ class ImageViewFromUrl extends StatelessWidget {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
             return Container(
-              padding: EdgeInsets.all(5),
-              child: Center(child: const CircularProgressIndicator()),
+              padding: const EdgeInsets.all(5),
+              child: const Center(child: CircularProgressIndicator()),
             );
           case LoadState.completed:
             return imageBuilder?.call(state.completedWidget);
           case LoadState.failed:
             return Center(
               child: IconButton(
-                icon: Icon(Icons.refresh_sharp),
+                icon: const Icon(Icons.refresh_sharp),
                 iconSize: 35,
                 onPressed: () {
                   state.reLoadImage();

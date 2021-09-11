@@ -61,6 +61,7 @@ class _AccountPageState extends State<AccountPage> {
     final model = Provider.of<AccountModel>(context);
     return Scaffold(
       appBar: AppBar(
+        title: Text('账号管理'),
         actions: [
           SizedBox(height: 5),
           IconButton(

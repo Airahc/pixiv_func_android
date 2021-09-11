@@ -5,28 +5,31 @@
  * 创建时间:2021/8/27 下午8:42
  * 作者:小草
  */
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
+import 'package:pixiv_func_android/ui/widget/image_view_from_url.dart';
 
 class AvatarViewFromUrl extends StatelessWidget {
   static const _TARGET_HOST = 'i.pximg.net';
 
   final String url;
   final double? radius;
+  final Widget Function(Widget imageWidget)? imageBuilder;
 
-  const AvatarViewFromUrl(this.url, {Key? key, this.radius}) : super(key: key);
+  const AvatarViewFromUrl(this.url, {Key? key, this.radius, this.imageBuilder}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final imageUrl = url.replaceFirst(_TARGET_HOST, settingsManager.imageSource);
 
-    return CircleAvatar(
-      backgroundImage: CachedNetworkImageProvider(
+    return ClipOval(
+      child: ImageViewFromUrl(
         imageUrl,
-        headers: {'Referer': 'https://app-api.pixiv.net/'},
+        fit: BoxFit.cover,
+        width: radius ?? 40,
+        height: radius ?? 40,
+        imageBuilder: imageBuilder,
       ),
-      radius: radius,
     );
   }
 }

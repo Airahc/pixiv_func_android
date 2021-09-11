@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 class NavigationPage {
   final String name;
-  final Widget page;
+  final Widget widget;
 
-  NavigationPage({required this.name, required this.page});
+  NavigationPage({required this.name, required this.widget});
 }

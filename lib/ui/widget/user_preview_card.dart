@@ -9,7 +9,7 @@
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/entity/user_preview.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
-import 'package:pixiv_func_android/ui/page/illust/illust_page.dart';
+import 'package:pixiv_func_android/ui/page/illust/illust_content_page.dart';
 import 'package:pixiv_func_android/ui/page/user/user_page.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/view_model/user_preview_model.dart';
@@ -41,7 +41,7 @@ class UserPreviewCard extends StatelessWidget {
                           .map((illust) => Container(
                                 padding: EdgeInsets.all(padding),
                                 child: GestureDetector(
-                                  onTap: () => PageUtils.to(context, IllustPage(illust)),
+                                  onTap: () => PageUtils.to(context, IllustContentPage(illust)),
                                   child: ImageViewFromUrl(
                                     illust.imageUrls.squareMedium,
                                     width: width,

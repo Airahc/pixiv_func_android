@@ -10,11 +10,13 @@ import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/api/model/user_detail.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/provider/view_state.dart';
+import 'package:pixiv_func_android/ui/page/following_user/following_user_page.dart';
 import 'package:pixiv_func_android/ui/page/user/user_bookmarked/user_bookmarked.dart';
 import 'package:pixiv_func_android/ui/page/user/user_details/user_details.dart';
 import 'package:pixiv_func_android/ui/page/user/user_illust/user_illust.dart';
 import 'package:pixiv_func_android/ui/widget/avatar_view_from_url.dart';
 import 'package:pixiv_func_android/ui/widget/image_view_from_url.dart';
+import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/view_model/user_model.dart';
 import 'package:pixiv_func_android/view_model/user_preview_model.dart';
 
@@ -66,7 +68,10 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
           radius: 35,
         ),
         title: Text(user.name),
-        subtitle: Text('${detail.profile.totalFollowUsers}关注'),
+        subtitle: GestureDetector(
+          onTap: () => PageUtils.to(context, FollowingUserPage(user.id)),
+          child: Text('${detail.profile.totalFollowUsers}关注'),
+        ),
         trailing: model.followRequestWaiting
             ? RefreshProgressIndicator()
             : model.isFollowed
@@ -148,7 +153,7 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
                           ),
                         ],
                       ),
-                      preferredSize: Size.fromHeight(30),
+                      preferredSize: Size.fromHeight(25),
                     ),
                     flexibleSpace: _buildFlexibleSpaceBar(model),
                   ),
@@ -156,7 +161,7 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
               ];
             },
             body: Container(
-              padding: EdgeInsets.only(top: kToolbarHeight + 35),
+              padding: EdgeInsets.only(top: kToolbarHeight + 50),
               child: TabBarView(
                 controller: _tabController,
                 children: [

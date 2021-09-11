@@ -9,14 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/api/model/trending_tags.dart';
 import 'package:pixiv_func_android/model/search_filter.dart';
-import 'package:pixiv_func_android/provider/automatic_keep_provider_widget.dart';
-import 'package:pixiv_func_android/ui/page/illust/illust_page.dart';
+import 'package:pixiv_func_android/provider/provider_widget.dart';
+import 'package:pixiv_func_android/ui/page/illust/illust_content_page.dart';
 import 'package:pixiv_func_android/ui/page/search/search_illust_result/search_illust_result_page.dart';
 import 'package:pixiv_func_android/ui/widget/image_view_from_url.dart';
-import 'package:pixiv_func_android/ui/widget/refresher_footer.dart';
+import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/view_model/trending_illust_model.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+
 
 class TrendingIllust extends StatefulWidget {
   const TrendingIllust({Key? key}) : super(key: key);
@@ -72,7 +72,7 @@ class _TrendingIllustState extends State<TrendingIllust> {
                     ),
                     onLongPress: () => PageUtils.to(
                       context,
-                      IllustPage(trendTag.illust),
+                      IllustContentPage(trendTag.illust),
                     ),
                     child: imageWidget,
                   ),
@@ -88,25 +88,20 @@ class _TrendingIllustState extends State<TrendingIllust> {
 
   @override
   Widget build(BuildContext context) {
-    return AutomaticKeepProviderWidget(
+    return ProviderWidget(
+      autoKeep: true,
       model: TrendingIllustModel(),
       builder: (BuildContext context, TrendingIllustModel model, Widget? child) {
-        return SmartRefresher(
-          controller: model.refreshController,
-          enablePullDown: true,
-          enablePullUp: model.initialized && model.hasNext,
-          header: MaterialClassicHeader(
-            color: Theme.of(context).colorScheme.primary,
+        return RefresherWidget(
+          model,
+          child: CustomScrollView(
+            slivers: [
+              SliverGrid.count(
+                crossAxisCount: 3,
+                children: model.list.map((trendTag) => _buildTagIllustItem(trendTag)).toList(),
+              )
+            ],
           ),
-          footer: model.initialized ? RefresherFooter() : null,
-          onRefresh: model.refreshRoutine,
-          onLoading: model.nextRoutine,
-          child: CustomScrollView(slivers: [
-            SliverGrid.count(
-              crossAxisCount: 3,
-              children: model.list.map((trendTag) => _buildTagIllustItem(trendTag)).toList(),
-            )
-          ]),
         );
       },
     );

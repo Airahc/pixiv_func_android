@@ -204,7 +204,7 @@ class PixivAPI {
   }
 
   ///获取关注用户的最新作品 <br/>
-  ///[userId] - 用户ID <br/>
+  ///[id] - 用户ID <br/>
   ///[restrict] - 为ture获取公开的(public) 反之不公开(private)
   Future<Illusts> getFollowingLatestIllust({bool? restrict}) async {
     final response = await httpClient.get<String>(

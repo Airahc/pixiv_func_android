@@ -10,7 +10,6 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/widget/illust_previewer.dart';
-import 'package:pixiv_func_android/ui/widget/refresher_footer.dart';
 import 'package:pixiv_func_android/ui/widget/segment_bar.dart';
 import 'package:pixiv_func_android/view_model/new_illust_model.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -25,36 +24,38 @@ class NewIllustPage extends StatelessWidget {
       builder: (BuildContext context, NewIllustModel model, Widget? child) {
         return Scaffold(
           appBar: AppBar(
-            centerTitle: true,
-            title: SegmentBar(
-              items: ['插画', '漫画'],
-              values: [WorkType.ILLUST, WorkType.MANGA],
-              onSelected: (WorkType value) {
-                model.type = value;
-              },
-              selectedValue: model.type,
-            ),
+            title: Text('大家的新作品'),
           ),
-          body: SmartRefresher(
-            controller: model.refreshController,
-            enablePullDown: true,
-            enablePullUp: model.initialized && model.hasNext,
-            header: MaterialClassicHeader(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            footer: model.initialized ? RefresherFooter() : null,
-            onRefresh: model.refreshRoutine,
-            onLoading: model.nextRoutine,
-            child: CustomScrollView(
-              slivers: [
-                SliverStaggeredGrid.countBuilder(
-                  crossAxisCount: 2,
-                  itemBuilder: (BuildContext context, int index) => IllustPreviewer(illust: model.list[index]),
-                  staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
-                  itemCount: model.list.length,
-                )
-              ],
-            ),
+          body: Column(
+            children: [
+              SegmentBar(
+                items: ['插画', '漫画'],
+                values: [WorkType.ILLUST, WorkType.MANGA],
+                onSelected: (WorkType value) {
+                  model.type = value;
+                },
+                selectedValue: model.type,
+              ),
+              Expanded(
+                child: SmartRefresher(
+                  controller: model.refreshController,
+                  enablePullDown: true,
+                  enablePullUp: model.initialized && model.hasNext,
+                  onRefresh: model.refreshRoutine,
+                  onLoading: model.nextRoutine,
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverStaggeredGrid.countBuilder(
+                        crossAxisCount: 2,
+                        itemBuilder: (BuildContext context, int index) => IllustPreviewer(illust: model.list[index]),
+                        staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
+                        itemCount: model.list.length,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },

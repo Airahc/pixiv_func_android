@@ -8,9 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
-import 'package:pixiv_func_android/ui/page/illust/illust_page.dart';
-import 'package:pixiv_func_android/ui/page/user/user_page.dart';
-import 'package:pixiv_func_android/ui/widget/avatar_view_from_url.dart';
+import 'package:pixiv_func_android/ui/page/illust/illust_content_page.dart';
 import 'package:pixiv_func_android/ui/widget/image_view_from_url.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/view_model/illust_previewer_model.dart';
@@ -64,7 +62,7 @@ class _IllustPreviewerState extends State<IllustPreviewer> {
                               onTap: () {
                                 PageUtils.to(
                                   context,
-                                  IllustPage(
+                                  IllustContentPage(
                                     model.illust,
                                     parentModel: model,
                                   ),
@@ -113,10 +111,6 @@ class _IllustPreviewerState extends State<IllustPreviewer> {
                     subtitle: Text(
                       model.illust.user.name,
                       style: TextStyle(fontSize: 10),
-                    ),
-                    leading: GestureDetector(
-                      onTap: () => PageUtils.to(context, UserPage(model.illust.user.id)),
-                      child: AvatarViewFromUrl(model.illust.user.profileImageUrls.medium),
                     ),
                     trailing: model.bookmarkRequestWaiting ? RefreshProgressIndicator() : _buildBookmarkButton(model),
                   ),

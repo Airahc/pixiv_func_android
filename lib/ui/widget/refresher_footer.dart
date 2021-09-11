@@ -9,14 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class RefresherFooter extends StatelessWidget {
-
   const RefresherFooter({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return CustomFooter(
       builder: (BuildContext context, LoadStatus? mode) {
-        Widget body;
+        final Widget body;
         switch (mode) {
           case LoadStatus.idle:
             body = Text("上拉,加载更多");
@@ -37,11 +36,7 @@ class RefresherFooter extends StatelessWidget {
             body = Container();
             break;
         }
-
-        return Container(
-          height: 55.0,
-          child: Center(child: body),
-        );
+        return Container(height: 55.0, child: Center(child: body));
       },
     );
   }

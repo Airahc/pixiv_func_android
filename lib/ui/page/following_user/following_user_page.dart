@@ -9,47 +9,44 @@
 import 'package:flutter/material.dart';
 
 import 'package:pixiv_func_android/provider/provider_widget.dart';
-import 'package:pixiv_func_android/ui/widget/refresher_footer.dart';
+import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
 import 'package:pixiv_func_android/ui/widget/segment_bar.dart';
 import 'package:pixiv_func_android/ui/widget/user_preview_card.dart';
 import 'package:pixiv_func_android/view_model/following_user_model.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class FollowingUserPage extends StatelessWidget {
-  final int userId;
+  final int id;
 
-  const FollowingUserPage(this.userId, {Key? key}) : super(key: key);
+  const FollowingUserPage(this.id, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ProviderWidget(
-      model: FollowingUserModel(userId),
+      model: FollowingUserModel(id),
       builder: (BuildContext context, FollowingUserModel model, Widget? child) {
         return Scaffold(
           appBar: AppBar(
-            centerTitle: true,
-            title: SegmentBar(
-              items: ['公开', '私有'],
-              values: [true, false],
-              onSelected: (bool value) {
-                model.restrict = value;
-              },
-              selectedValue: model.restrict,
-            ),
+            title: Text('关注的用户'),
           ),
-          body: SmartRefresher(
-            controller: model.refreshController,
-            enablePullDown: true,
-            enablePullUp: model.initialized && model.hasNext,
-            header: MaterialClassicHeader(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            footer: model.initialized ? RefresherFooter() : null,
-            onRefresh: model.refreshRoutine,
-            onLoading: model.nextRoutine,
-            child: ListView(
-              children: model.list.map((e) => UserPreviewCard(e)).toList(),
-            ),
+          body: Column(
+            children: [
+              SegmentBar(
+                items: ['公开', '私有'],
+                values: [true, false],
+                onSelected: (bool value) {
+                  model.restrict = value;
+                },
+                selectedValue: model.restrict,
+              ),
+              Expanded(
+                child: RefresherWidget(
+                  model,
+                  child: ListView(
+                    children: model.list.map((e) => UserPreviewCard(e)).toList(),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },

@@ -12,9 +12,9 @@ import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/base_view_state_refresh_list_model.dart';
 
 class FollowingUserModel extends BaseViewStateRefreshListModel<UserPreview> {
-  final int userId;
+  final int id;
 
-  FollowingUserModel(this.userId);
+  FollowingUserModel(this.id);
 
   bool _restrict = true;
 
@@ -30,7 +30,7 @@ class FollowingUserModel extends BaseViewStateRefreshListModel<UserPreview> {
 
   @override
   Future<List<UserPreview>> loadFirstDataRoutine() async {
-    final result = await pixivAPI.getFollowingUsers(userId, restrict: restrict);
+    final result = await pixivAPI.getFollowingUsers(id, restrict: restrict);
     nextUrl = result.nextUrl;
     return result.userPreviews;
   }

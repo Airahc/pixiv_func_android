@@ -1,33 +1,26 @@
 /*
  * Copyright (C) 2021. by xiao-cao-x, All rights reserved
- * 项目名称:pixiv_func_android
+ * 项目名称:pixiv_android
  * 文件名称:illust_model.dart
- * 创建时间:2021/8/26 下午8:32
+ * 创建时间:2021/9/11 上午11:32
  * 作者:小草
  */
 
-import 'package:pixiv_func_android/api/entity/illust.dart';
-import 'package:pixiv_func_android/api/model/illusts.dart';
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:pixiv_func_android/api/model/illust_detail.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/log/log.dart';
-import 'package:pixiv_func_android/provider/base_view_state_list_model.dart';
-import 'package:pixiv_func_android/view_model/illust_previewer_model.dart';
+import 'package:pixiv_func_android/provider/base_view_state_model.dart';
 
-class IllustModel extends BaseViewStateListModel<Illust> {
-  Illust illust;
+class IllustModel extends BaseViewStateModel {
+  final int id;
+  IllustDetail? illustDetail;
 
-  IllustModel(this.illust);
-
-  bool _showOriginalCaption = false;
+  IllustModel(this.id);
 
   bool _bookmarkRequestWaiting = false;
-
-  bool get showOriginalCaption => _showOriginalCaption;
-
-  set showOriginalCaption(bool value) {
-    _showOriginalCaption = value;
-    notifyListeners();
-  }
 
   bool get bookmarkRequestWaiting => _bookmarkRequestWaiting;
 
@@ -37,57 +30,25 @@ class IllustModel extends BaseViewStateListModel<Illust> {
   }
 
   set isBookmarked(bool value) {
-    illust.isBookmarked = value;
+    illustDetail!.illust.isBookmarked = value;
     notifyListeners();
   }
 
-  void loadFirstData() {
+  void loadData() async {
+    illustDetail = null;
     setBusy();
 
-    pixivAPI.getIllustRelated(illust.id).then((result) {
-      if (result.illusts.isNotEmpty) {
-        list.addAll(result.illusts);
-        setIdle();
-      } else {
-        setEmpty();
-      }
-
-      nextUrl = result.nextUrl;
+    pixivAPI.getIllustDetail(id).then((result) {
+      illustDetail = result;
       initialized = true;
-    }).catchError((e, s) {
-      Log.e('首次加载数据异常', e);
-      setInitFailed(e, s);
-    });
-  }
-
-  void loadNextData() {
-    setBusy();
-    pixivAPI.next<Illusts>(nextUrl!).then((result) {
-      list.addAll(result.illusts);
-      nextUrl = result.nextUrl;
       setIdle();
-    }).catchError((e) {
-      Log.e('加载下一条数据异常', e);
-      setLoadFailed();
+    }).catchError((e, s) {
+      if (e is DioError && e.response?.statusCode == HttpStatus.notFound) {
+        setEmpty();
+      } else {
+        setInitFailed(e, s);
+      }
+      Log.e('获取插画详细异常', e);
     });
-  }
-
-  void onBookmarkStateChange(IllustPreviewerModel? parentModel) {
-    bookmarkRequestWaiting = true;
-    if (!illust.isBookmarked) {
-      pixivAPI.bookmarkAdd(illust.id).then((result) {
-        isBookmarked = true;
-        parentModel?.isBookmarked = true;
-      }).catchError((e) {
-        Log.e('添加书签失败', e);
-      }).whenComplete(() => bookmarkRequestWaiting = false);
-    } else {
-      pixivAPI.bookmarkDelete(illust.id).then((result) {
-        isBookmarked = false;
-        parentModel?.isBookmarked = false;
-      }).catchError((e) {
-        Log.e('删除书签失败', e);
-      }).whenComplete(() => bookmarkRequestWaiting = false);
-    }
   }
 }

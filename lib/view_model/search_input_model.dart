@@ -6,12 +6,9 @@
  * 作者:小草
  */
 
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/api/model/search_autocomplete.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/log/log.dart';
@@ -41,7 +38,14 @@ class SearchInputModel extends BaseViewModel {
 
   String get inputAsString => wordInput.text;
 
-  DateTime lastInputTime = DateTime.now();
+  DateTime _lastInputTime = DateTime.now();
+
+  DateTime get lastInputTime => _lastInputTime;
+
+  set lastInputTime(DateTime value) {
+    _lastInputTime = value;
+    notifyListeners();
+  }
 
   CancelableOperation<SearchAutocomplete>? _cancelableTask;
 
@@ -79,26 +83,6 @@ class SearchInputModel extends BaseViewModel {
 
   void cancelTask() {
     _cancelableTask?.cancel();
-  }
-
-  void searchIllustById({
-    required void Function(Illust illust) successCallback,
-    required void Function(dynamic e) errorCallback,
-    required void Function() notFoundCallback,
-  }) {
-    if (!inputIsNumber) {
-      return;
-    }
-    cancelTask();
-    pixivAPI.getIllustDetail(inputAsNumber).then((result) {
-      successCallback(result.illust);
-    }).catchError((e) {
-      if (e is DioError && e.response?.statusCode == HttpStatus.notFound) {
-        notFoundCallback();
-      } else {
-        errorCallback(e);
-      }
-    });
   }
 
   List<SearchImageResult> decodeSearchHtml(html.Document document) {

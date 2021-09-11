@@ -7,10 +7,9 @@
  */
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
-import 'package:pixiv_func_android/ui/widget/refresher_footer.dart';
+import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
 import 'package:pixiv_func_android/ui/widget/user_preview_card.dart';
 import 'package:pixiv_func_android/view_model/search_user_result_model.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SearchUserResultPage extends StatelessWidget {
   final String word;
@@ -26,16 +25,8 @@ class SearchUserResultPage extends StatelessWidget {
           appBar: AppBar(
             title: Text('搜索用户:$word'),
           ),
-          body: SmartRefresher(
-            controller: model.refreshController,
-            enablePullDown: true,
-            enablePullUp: model.initialized && model.hasNext,
-            header: MaterialClassicHeader(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            footer: model.initialized ? RefresherFooter() : null,
-            onRefresh: model.refreshRoutine,
-            onLoading: model.nextRoutine,
+          body: RefresherWidget(
+            model,
             child: ListView(
               children: model.list.map((e) => UserPreviewCard(e)).toList(),
             ),

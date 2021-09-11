@@ -48,21 +48,15 @@ class SegmentBar<T> extends StatelessWidget {
       return Container(
         height: 34,
         child: ElevatedButton(
-          onPressed: () {},
-          child: Text(
-            item,
-          ),
+          onPressed: () => onSelected.call(value),
+          child: Text(item),
         ),
       );
     } else {
       return Container(
         height: 34,
         child: OutlinedButton(
-          onPressed: () {
-            if (value != selectedValue) {
-              onSelected.call(value);
-            }
-          },
+          onPressed: () => onSelected.call(value),
           child: Text(item),
         ),
       );

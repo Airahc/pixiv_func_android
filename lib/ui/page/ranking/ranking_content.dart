@@ -9,11 +9,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:pixiv_func_android/api/enums.dart';
-import 'package:pixiv_func_android/provider/automatic_keep_provider_widget.dart';
+import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/widget/illust_previewer.dart';
-import 'package:pixiv_func_android/ui/widget/refresher_footer.dart';
+import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
 import 'package:pixiv_func_android/view_model/ranking_model.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class RankingContent extends StatelessWidget {
   final RankingMode mode;
@@ -22,19 +21,12 @@ class RankingContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AutomaticKeepProviderWidget(
+    return ProviderWidget(
+      autoKeep: true,
       model: RankingModel(mode),
       builder: (BuildContext context, RankingModel model, Widget? child) {
-        return SmartRefresher(
-          controller: model.refreshController,
-          enablePullDown: true,
-          enablePullUp: model.initialized && model.hasNext,
-          header: MaterialClassicHeader(
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          footer: model.initialized ? RefresherFooter() : null,
-          onRefresh: model.refreshRoutine,
-          onLoading: model.nextRoutine,
+        return RefresherWidget(
+          model,
           child: CustomScrollView(
             slivers: [
               SliverStaggeredGrid.countBuilder(

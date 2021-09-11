@@ -12,16 +12,15 @@ import 'package:pixiv_func_android/model/comment_tree.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/provider/view_state.dart';
 import 'package:pixiv_func_android/ui/widget/avatar_view_from_url.dart';
-import 'package:pixiv_func_android/ui/widget/refresher_footer.dart';
+import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
 import 'package:pixiv_func_android/ui/widget/sliver_child.dart';
 import 'package:pixiv_func_android/util/utils.dart';
 import 'package:pixiv_func_android/view_model/illust_comment_model.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class IllustCommentPage extends StatelessWidget {
-  final int illustId;
+  final int id;
 
-  const IllustCommentPage(this.illustId, {Key? key}) : super(key: key);
+  const IllustCommentPage(this.id, {Key? key}) : super(key: key);
 
   List<Widget> _buildCommentTileList(IllustCommentModel model, List<CommentTree> commentTrees) {
     return commentTrees.map((e) => _buildCommentTile(model, e)).toList();
@@ -136,7 +135,7 @@ class IllustCommentPage extends StatelessWidget {
 
   Widget _buildBody() {
     return ProviderWidget(
-      model: IllustCommentModel(illustId),
+      model: IllustCommentModel(id),
       builder: (BuildContext context, IllustCommentModel model, Widget? child) {
         final List<Widget> slivers = [];
 
@@ -159,16 +158,8 @@ class IllustCommentPage extends StatelessWidget {
           );
         }
 
-        return SmartRefresher(
-          controller: model.refreshController,
-          enablePullDown: true,
-          enablePullUp: model.initialized && model.hasNext,
-          header: MaterialClassicHeader(
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          footer: model.initialized ? RefresherFooter() : null,
-          onRefresh: model.refreshRoutine,
-          onLoading: model.nextRoutine,
+        return RefresherWidget(
+          model,
           child: CustomScrollView(
             slivers: slivers,
           ),

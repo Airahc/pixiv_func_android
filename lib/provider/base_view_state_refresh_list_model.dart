@@ -6,21 +6,57 @@
  * 作者:小草
  */
 
+
+import 'package:flutter/cupertino.dart';
 import 'package:pixiv_func_android/log/log.dart';
 import 'package:pixiv_func_android/provider/base_view_state_list_model.dart';
-
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:async/async.dart';
 
 abstract class BaseViewStateRefreshListModel<T> extends BaseViewStateListModel<T> {
   RefreshController refreshController = RefreshController(initialRefresh: true);
+  ScrollController scrollController = ScrollController();
+
+  bool _showToTop = false;
+
+  bool get showToTop => _showToTop;
+
+  set showToTop(bool value) {
+    _showToTop = value;
+    notifyListeners();
+  }
 
   CancelableOperation<List<T>>? cancelableTask;
+
+  BaseViewStateRefreshListModel() {
+    scrollController.addListener(scrollEvent);
+  }
+
+  void scrollEvent() {
+    if (scrollController.hasClients) {
+      final show = scrollController.offset > 1200;
+      if (show != showToTop) {
+        showToTop = show;
+      }
+    }
+  }
 
   @override
   void dispose() {
     cancelTask();
     super.dispose();
+  }
+
+  void scrollToTop() {
+    if (scrollController.hasClients) {
+      if (scrollController.offset != 0) {
+        scrollController.animateTo(
+          0,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInQuad,
+        );
+      }
+    }
   }
 
   void cancelTask() {

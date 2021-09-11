@@ -8,10 +8,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
+import 'package:pixiv_func_android/ui/widget/refresher_footer.dart';
 import 'package:pixiv_func_android/view_model/theme_model.dart';
-
 import 'package:pixiv_func_android/ui/home.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 DateTime? lastPopTime;
 
@@ -20,27 +21,32 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      supportedLocales: [
-        Locale('zh', 'CN'),
-      ],
-      debugShowCheckedModeBanner: false,
-      theme: Provider.of<ThemeModel>(context).currentTheme,
-      home: WillPopScope(
-        onWillPop: () async {
-          if (null == lastPopTime || DateTime.now().difference(lastPopTime!) > Duration(seconds: 1)) {
-            lastPopTime = DateTime.now();
-            await platformAPI.toast('再按一次退出');
-            return false;
-          } else {
-            return true;
-          }
-        },
-        child: Home(),
+    return RefreshConfiguration(
+      headerBuilder: () => MaterialClassicHeader(color: Provider.of<ThemeModel>(context).currentTheme.colorScheme.primary),
+      footerBuilder: () => RefresherFooter(),
+      hideFooterWhenNotFull: false,
+      child: MaterialApp(
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: [
+          Locale('zh', 'CN'),
+        ],
+        debugShowCheckedModeBanner: false,
+        theme: Provider.of<ThemeModel>(context).currentTheme,
+        home: WillPopScope(
+          onWillPop: () async {
+            if (null == lastPopTime || DateTime.now().difference(lastPopTime!) > Duration(seconds: 1)) {
+              lastPopTime = DateTime.now();
+              await platformAPI.toast('再按一次退出');
+              return false;
+            } else {
+              return true;
+            }
+          },
+          child: Home(),
+        ),
       ),
     );
   }

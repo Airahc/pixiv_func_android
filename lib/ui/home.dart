@@ -9,84 +9,63 @@ import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/model/user_account.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/log/log.dart';
-import 'package:pixiv_func_android/ui/page/about/about_page.dart';
 import 'package:pixiv_func_android/view_model/home_model.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
-import 'package:pixiv_func_android/ui/page/account/account_page.dart';
-import 'package:pixiv_func_android/ui/page/settings/settings_page.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
 
   Widget _buildAppBody(BuildContext context, HomeModel model) {
-    final pages = model.navigationPages.map((navigationPage) => navigationPage.page).toList();
-    final drawerItems = <Widget>[];
-    for (int i = 0; i < model.navigationPages.length; i++) {
-      drawerItems.add(
-        Card(
-          child: ListTile(
-            title: Text(
-              model.navigationPages[i].name,
-              style: TextStyle(
-                color: i == model.currentPage ? Theme.of(context).colorScheme.primary : null,
-              ),
-            ),
-            onTap: () {
-              PageUtils.back(context);
-              model.currentPage = i;
-            },
-          ),
-        ),
-      );
-    }
-
-    drawerItems.addAll(
-      [
-        Divider(),
-        Card(
-          child: ListTile(
-            title: Text('设置'),
-            onTap: () {
-              PageUtils.back(context);
-              PageUtils.to(context, SettingsPage());
-            },
-          ),
-        ),
-        Card(
-          child: ListTile(
-            title: Text('账号'),
-            onTap: () {
-              PageUtils.back(context);
-              PageUtils.to(context, AccountPage());
-            },
-          ),
-        ),
-        Card(
-          child: ListTile(
-            title: Text('关于'),
-            onTap: () {
-              PageUtils.back(context);
-              PageUtils.to(context, AboutPage());
-            },
-          ),
-        ),
-      ],
-    );
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Pixiv Func'),
       ),
       body: IndexedStack(
         index: model.currentPage,
-        children: pages,
+        children: model.navigationPages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: model.currentPage,
+        onTap: (int index) => model.currentPage = index,
+        items: [
+          BottomNavigationBarItem(
+            label: '推荐作品',
+            icon: Icon(Icons.alt_route_outlined),
+          ),
+          BottomNavigationBarItem(
+            label: '排行榜',
+            icon: Icon(Icons.leaderboard_outlined),
+          ),
+          BottomNavigationBarItem(
+            label: '下载任务',
+            icon: Icon(Icons.download_outlined),
+          ),
+          BottomNavigationBarItem(
+            label: '关于',
+            icon: Icon(Icons.view_week_outlined),
+          ),
+        ],
       ),
       drawer: Drawer(
         child: Container(
           padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
           child: ListView(
-            children: drawerItems,
+            children: model.pages
+                .map(
+                  (page) => Card(
+                    margin: EdgeInsets.all(1),
+                    child: ListTile(
+                      title: Text(page.name),
+                      onTap: () {
+                        PageUtils.back(context);
+                        PageUtils.to(context, page.widget);
+                      },
+                    ),
+                  ),
+                )
+                .toList(),
           ),
         ),
       ),

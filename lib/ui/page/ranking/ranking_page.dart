@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/model/ranking_type_item.dart';
 import 'package:pixiv_func_android/ui/page/ranking/ranking_content.dart';
 
-
 class RankingPage extends StatefulWidget {
   final List<RankingTypeItem> typeItems;
 
@@ -29,31 +28,34 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
     return Scaffold(
       appBar: AppBar(
         title: Text('排行榜'),
-        bottom: PreferredSize(
-          child: TabBar(
+      ),
+      body: Column(
+        children: [
+          TabBar(
             isScrollable: true,
             controller: _tabController,
             indicatorColor: Theme.of(context).colorScheme.primary,
             tabs: widget.typeItems
                 .map(
                   (item) => Tab(
-                text: item.name,
-              ),
-            )
+                    text: item.name,
+                  ),
+                )
                 .toList(),
           ),
-          preferredSize: Size.fromHeight(35),
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: widget.typeItems
-            .map(
-              (item) => RankingContent(
-                item.mode,
-              ),
-            )
-            .toList(),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: widget.typeItems
+                  .map(
+                    (item) => RankingContent(
+                      item.mode,
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ],
       ),
     );
   }

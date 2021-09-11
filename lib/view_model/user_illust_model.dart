@@ -13,15 +13,15 @@ import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/base_view_state_refresh_list_model.dart';
 
 class UserIllustModel extends BaseViewStateRefreshListModel<Illust> {
-  final int _userId;
+  final int id;
 
-  final WorkType _type;
+  final WorkType type;
 
-  UserIllustModel(this._userId, this._type);
+  UserIllustModel(this.id, this.type);
 
   @override
   Future<List<Illust>> loadFirstDataRoutine() async {
-    final result = await pixivAPI.getUserIllusts(_userId, _type);
+    final result = await pixivAPI.getUserIllusts(id, type);
     nextUrl = result.nextUrl;
 
     return result.illusts;
