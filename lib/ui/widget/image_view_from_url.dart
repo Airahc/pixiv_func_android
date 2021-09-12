@@ -10,10 +10,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pixiv_func_android/instance_setup.dart';
+import 'package:pixiv_func_android/util/utils.dart';
 
 class ImageViewFromUrl extends StatelessWidget {
-  static const _TARGET_HOST = 'i.pximg.net';
 
   final String url;
 
@@ -42,7 +41,6 @@ class ImageViewFromUrl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = url.replaceFirst(_TARGET_HOST, settingsManager.imageSource);
 
     return ExtendedImage(
       loadStateChanged: (ExtendedImageState state) {
@@ -67,7 +65,7 @@ class ImageViewFromUrl extends StatelessWidget {
         }
       },
       image: CachedNetworkImageProvider(
-        imageUrl,
+        Utils.replaceImageSource(url),
         headers: {'Referer': 'https://app-api.pixiv.net/'},
       ),
       color: color,

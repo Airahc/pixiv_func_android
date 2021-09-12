@@ -46,7 +46,6 @@ class HomeModel extends BaseViewModel {
     RecommendedPage(),
     RankingSelectorPage(),
     DownloadTaskPage(),
-    AboutPage(),
   ];
 
   List<NavigationPage> get pages => [
@@ -57,6 +56,7 @@ class HomeModel extends BaseViewModel {
         NavigationPage(name: '搜索', widget: SearchGuidePage()),
         NavigationPage(name: '设置', widget: SettingsPage()),
         NavigationPage(name: '账号', widget: AccountPage()),
+        NavigationPage(name: '关于', widget: AboutPage()),
       ];
 
   void refresh() {

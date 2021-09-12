@@ -19,6 +19,7 @@ import 'package:pixiv_func_android/api/model/illust_detail.dart';
 import 'package:pixiv_func_android/api/model/illusts.dart';
 import 'package:pixiv_func_android/api/model/search_autocomplete.dart';
 import 'package:pixiv_func_android/api/model/trending_tags.dart';
+import 'package:pixiv_func_android/api/model/ugoira_metadata.dart';
 import 'package:pixiv_func_android/api/model/users.dart';
 import 'package:pixiv_func_android/api/model/search.dart';
 import 'package:pixiv_func_android/api/model/user_detail.dart';
@@ -34,10 +35,10 @@ class PixivAPI {
       baseUrl: 'https://$_TARGET_IP',
       responseType: ResponseType.plain,
       headers: {
-        'User-Agent': 'PixivAndroidApp/6.19.0 (Android 7.1.2; XiaoCao)',
+        'User-Agent': 'PixivAndroidApp/6.21.1 (Android 7.1.2; XiaoCao)',
         'App-OS': 'android',
-        'App-OS-Version': '7.0.0',
-        'App-Version': '6.1.9',
+        'App-OS-Version': '7.1.2',
+        'App-Version': '6.21.1',
         'Accept-Language': 'zh',
         'Host': _TARGET_HOST
       },
@@ -264,6 +265,20 @@ class PixivAPI {
     );
 
     final data = IllustDetail.fromJson(jsonDecode(response.data!));
+    return data;
+  }
+
+  ///获取动图
+  ///[illustId] 插画ID
+  Future<UgoiraMetadata> getUgoiraMetadata(int illustId) async {
+    final response = await httpClient.get<String>(
+      '/v1/ugoira/metadata',
+      queryParameters: {
+        'illust_id': illustId,
+      },
+    );
+
+    final data = UgoiraMetadata.fromJson(jsonDecode(response.data!));
     return data;
   }
 

@@ -18,7 +18,7 @@ class PlatformAPI {
   final _methodGetBuildVersion = 'getBuildVersion';
   final _methodGetAppVersion = 'getAppVersion';
   final _methodUrlLaunch = 'urlLaunch';
-
+  final _methodGenerateGif = 'generateGif';
   final _channel = MethodChannel(_pluginName);
 
   Future<bool> imageIsExist(String filename) async {
@@ -58,7 +58,6 @@ class PlatformAPI {
     return result as String;
   }
 
-
   Future<bool> urlLaunch(String url) async {
     final result = await _channel.invokeMethod(_methodUrlLaunch, {
       'url': url,
@@ -66,4 +65,20 @@ class PlatformAPI {
     return result as bool;
   }
 
+  Future<Uint8List> generateGif({
+    required int id,
+    required Uint8List zipBytes,
+    required int width,
+    required int height,
+    required Int32List delays,
+  }) async {
+    final result = await _channel.invokeMethod(_methodGenerateGif, {
+      'id': id,
+      'zipBytes': zipBytes,
+      'width': width,
+      'height': height,
+      'delays': delays,
+    });
+    return result as Uint8List;
+  }
 }

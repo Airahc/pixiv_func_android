@@ -11,9 +11,11 @@ import 'package:pixiv_func_android/api/entity/comment.dart';
 import 'package:pixiv_func_android/model/comment_tree.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/provider/view_state.dart';
+import 'package:pixiv_func_android/ui/page/user/user_page.dart';
 import 'package:pixiv_func_android/ui/widget/avatar_view_from_url.dart';
 import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
 import 'package:pixiv_func_android/ui/widget/sliver_child.dart';
+import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/util/utils.dart';
 import 'package:pixiv_func_android/view_model/illust_comment_model.dart';
 
@@ -22,8 +24,8 @@ class IllustCommentPage extends StatelessWidget {
 
   const IllustCommentPage(this.id, {Key? key}) : super(key: key);
 
-  List<Widget> _buildCommentTileList(IllustCommentModel model, List<CommentTree> commentTrees) {
-    return commentTrees.map((e) => _buildCommentTile(model, e)).toList();
+  List<Widget> _buildCommentTileList(BuildContext context, IllustCommentModel model, List<CommentTree> commentTrees) {
+    return commentTrees.map((commentTree) => _buildCommentTile(context, model, commentTree)).toList();
   }
 
   Widget _buildCommentContent(IllustCommentModel model, Comment comment) {
@@ -59,11 +61,14 @@ class IllustCommentPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCommentTile(IllustCommentModel model, CommentTree commentTree) {
+  Widget _buildCommentTile(BuildContext context, IllustCommentModel model, CommentTree commentTree) {
     if (commentTree.children.isEmpty) {
       return Card(
         child: ListTile(
-          leading: AvatarViewFromUrl(commentTree.data.user.profileImageUrls.medium),
+          leading: GestureDetector(
+            onTap: () => PageUtils.to(context, UserPage(commentTree.data.user.id)),
+            child: AvatarViewFromUrl(commentTree.data.user.profileImageUrls.medium),
+          ),
           title: _buildCommentContent(model, commentTree.data),
           subtitle: Text(
             Utils.japanDateToLocalDateString(
@@ -82,7 +87,7 @@ class IllustCommentPage extends StatelessWidget {
         ),
       );
     } else {
-      final children = _buildCommentTileList(model, commentTree.children);
+      final children = _buildCommentTileList(context, model, commentTree.children);
 
       if (commentTree.loading) {
         children.add(
@@ -142,7 +147,7 @@ class IllustCommentPage extends StatelessWidget {
         if (ViewState.Empty != model.viewState) {
           slivers.add(
             SliverList(
-              delegate: SliverChildListDelegate(_buildCommentTileList(model, model.list)),
+              delegate: SliverChildListDelegate(_buildCommentTileList(context, model, model.list)),
             ),
           );
         } else {

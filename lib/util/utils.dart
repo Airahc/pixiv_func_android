@@ -8,6 +8,7 @@
 
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:pixiv_func_android/instance_setup.dart';
 
 class Utils {
   /// 枚举类型(的值)转小写字符串
@@ -25,6 +26,10 @@ class Utils {
 
   static Future<void> copyToClipboard(String data) async {
     await Clipboard.setData(ClipboardData(text: data));
+  }
+
+  static String replaceImageSource(String url){
+    return url.replaceFirst('i.pximg.net', settingsManager.imageSource);
   }
 
   ///字符串是否是 twitter/用户名

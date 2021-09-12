@@ -11,14 +11,20 @@ package top.xiaocao.pixiv.platform.api
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
+import com.waynejo.androidndkgif.GifEncoder
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import top.xiaocao.pixiv.util.forEachEntry
 import top.xiaocao.pixiv.util.imageIsExist
 import top.xiaocao.pixiv.util.saveImage
+import java.io.ByteArrayInputStream
+import java.io.File
+import java.util.zip.ZipInputStream
 
 @SuppressLint("ShowToast")
 class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
@@ -31,6 +37,7 @@ class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
     private val methodGetBuildVersion = "getBuildVersion"
     private val methodGetAppVersion = "getAppVersion"
     private val methodUrlLaunch = "urlLaunch"
+    private val methodGenerateGif = "generateGif"
 
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -96,6 +103,40 @@ class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
                 } catch (e: Exception) {
                     result.success(false)
                 }
+            }
+            methodGenerateGif -> {
+                val id = call.argument<Int>("id")
+                val zipBytes = call.argument<ByteArray>("zipBytes")!!
+                val width = call.argument<Int>("width")!!
+                val height = call.argument<Int>("height")!!
+                val delays = call.argument<IntArray>("delays")!!
+
+                val gifFile = File(context.externalCacheDir, "$id.gif")
+
+                val gifEncoder = GifEncoder()
+                gifEncoder.init(
+                    width,
+                    height,
+                    gifFile.absolutePath,
+                    GifEncoder.EncodingType.ENCODING_TYPE_FAST
+                )
+                var index = 0
+                ByteArrayInputStream(zipBytes).use { byteArrayInputStream ->
+                    ZipInputStream(byteArrayInputStream).use { zipInputStream ->
+                        zipInputStream.forEachEntry {
+                            val imageBytes = zipInputStream.readBytes()
+                            val bitmap =
+                                BitmapFactory.decodeByteArray(
+                                    imageBytes,
+                                    0,
+                                    imageBytes.size,
+                                )
+                            gifEncoder.encodeFrame(bitmap, delays[index++])
+                        }
+                    }
+                    gifEncoder.close()
+                }
+                result.success(gifFile.readBytes())
             }
             else -> {
                 result.notImplemented()

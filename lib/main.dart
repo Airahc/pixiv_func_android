@@ -38,13 +38,10 @@ Future<void> main() async {
     ),
   );
 
-  //Build.VERSION_CODES.Q
-  if (await platformAPI.buildVersion < 29) {
-    final storageStatus = Permission.storage;
+  final storageStatus = Permission.storage;
 
-    if (!await storageStatus.isGranted) {
-      Permission.storage.request();
-    }
+  if (!await storageStatus.isGranted) {
+    Permission.storage.request();
   }
 }
 

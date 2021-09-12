@@ -34,7 +34,6 @@ class AboutPage extends StatelessWidget {
         Card(
           child: ListTile(
             onTap: () async {
-
               if (!await platformAPI.urlLaunch(info.htmlUrl)) {
                 platformAPI.toast('打开浏览器失败');
               }
@@ -88,62 +87,67 @@ class AboutPage extends StatelessWidget {
           releaseInfoWidget = Container();
         }
 
-        return ListView(
-          children: [
-            ListTile(
-              leading: Image.asset(
-                'assets/xiaocao.png',
-                width: 50,
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('关于'),
+          ),
+          body: ListView(
+            children: [
+              ListTile(
+                leading: Image.asset(
+                  'assets/xiaocao.png',
+                  width: 50,
+                ),
+                title: Text('这是小草的个人玩具项目'),
+                subtitle: Text('夹批搪与牲口不得使用此软件'),
               ),
-              title: Text('这是小草的个人玩具项目'),
-              subtitle: Text('夹批搪与牲口不得使用此软件'),
-            ),
-            Divider(),
-            Card(
-              margin: EdgeInsets.all(0),
-              child: ListTile(
-                onTap: () async {
-                  if (!await platformAPI.urlLaunch(thisProjectGitHubUrl)) {
-                    platformAPI.toast('打开浏览器失败');
-                  }
-                },
-                title: Text(thisProjectGitHubUrl),
-                subtitle: Text('项目地址(点击前往)'),
+              Divider(),
+              Card(
+                margin: EdgeInsets.all(0),
+                child: ListTile(
+                  onTap: () async {
+                    if (!await platformAPI.urlLaunch(thisProjectGitHubUrl)) {
+                      platformAPI.toast('打开浏览器失败');
+                    }
+                  },
+                  title: Text(thisProjectGitHubUrl),
+                  subtitle: Text('项目地址(点击前往)'),
+                ),
               ),
-            ),
-            Divider(),
-            ListTile(
-              title: Row(
-                children: [
-                  Text('该软件使用'),
-                  Image.asset(
-                    'assets/dart-logo.png',
-                    width: 30,
-                    height: 30,
-                  ),
-                  Text('与'),
-                  Image.asset(
-                    'assets/kotlin-logo.png',
-                    width: 30,
-                    height: 30,
-                  ),
-                  Text('开发 开源且免费'),
-                ],
+              Divider(),
+              ListTile(
+                title: Row(
+                  children: [
+                    Text('该软件使用'),
+                    Image.asset(
+                      'assets/dart-logo.png',
+                      width: 30,
+                      height: 30,
+                    ),
+                    Text('与'),
+                    Image.asset(
+                      'assets/kotlin-logo.png',
+                      width: 30,
+                      height: 30,
+                    ),
+                    Text('开发 开源且免费'),
+                  ],
+                ),
+                subtitle: Text('禁止用于商业用途(包括收取打赏)'),
               ),
-              subtitle: Text('禁止用于商业用途(包括收取打赏)'),
-            ),
-            Divider(),
-            ListTile(
-              title: Text('该项目与一切现有同类项目无关'),
-              subtitle: Text('请不要拿来比较'),
-            ),
-            Divider(),
-            ListTile(
-              title: Text('当前版本:${null != model.appVersion ? model.appVersion! : '正在获取...'}'),
-            ),
-            Divider(),
-            releaseInfoWidget,
-          ],
+              Divider(),
+              ListTile(
+                title: Text('该项目与一切现有同类项目无关'),
+                subtitle: Text('请不要拿来比较'),
+              ),
+              Divider(),
+              ListTile(
+                title: Text('当前版本:${null != model.appVersion ? model.appVersion! : '正在获取...'}'),
+              ),
+              Divider(),
+              releaseInfoWidget,
+            ],
+          ),
         );
       },
       onModelReady: (AboutModel model) async {

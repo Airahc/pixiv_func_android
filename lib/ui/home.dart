@@ -26,7 +26,6 @@ class Home extends StatelessWidget {
         children: model.navigationPages,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
         currentIndex: model.currentPage,
         onTap: (int index) => model.currentPage = index,
         items: [
@@ -41,10 +40,6 @@ class Home extends StatelessWidget {
           BottomNavigationBarItem(
             label: '下载任务',
             icon: Icon(Icons.download_outlined),
-          ),
-          BottomNavigationBarItem(
-            label: '关于',
-            icon: Icon(Icons.view_week_outlined),
           ),
         ],
       ),

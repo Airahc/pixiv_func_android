@@ -6,11 +6,15 @@
  * 作者:小草
  */
 
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/api/model/illusts.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/log/log.dart';
 import 'package:pixiv_func_android/provider/base_view_state_list_model.dart';
+import 'package:pixiv_func_android/util/utils.dart';
 import 'package:pixiv_func_android/view_model/illust_previewer_model.dart';
 
 class IllustContentModel extends BaseViewStateListModel<Illust> {
@@ -21,6 +25,13 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
   bool _showOriginalCaption = false;
 
   bool _bookmarkRequestWaiting = false;
+
+  Uint8List? _gifBytes;
+
+  bool _generatingGif = false;
+
+
+  bool get isUgoira => 'ugoira' == illust.type;
 
   bool get showOriginalCaption => _showOriginalCaption;
 
@@ -38,6 +49,20 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
 
   set isBookmarked(bool value) {
     illust.isBookmarked = value;
+    notifyListeners();
+  }
+
+  Uint8List? get gifBytes => _gifBytes;
+
+  set gifBytes(Uint8List? value) {
+    _gifBytes = value;
+    notifyListeners();
+  }
+
+  bool get generatingGif => _generatingGif;
+
+  set generatingGif(bool value) {
+    _generatingGif = value;
     notifyListeners();
   }
 
@@ -88,6 +113,45 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
       }).catchError((e) {
         Log.e('删除书签失败', e);
       }).whenComplete(() => bookmarkRequestWaiting = false);
+    }
+  }
+
+  Future<void> startGenerateGif() async {
+    generatingGif = true;
+    pixivAPI.getUgoiraMetadata(illust.id).then((result) async {
+      final dio = Dio(BaseOptions(responseType: ResponseType.bytes));
+      final ugoiraMetadata = result.ugoiraMetadata;
+      await dio.get<Uint8List>(Utils.replaceImageSource(ugoiraMetadata.zipUrls.medium)).then((response) async {
+        gifBytes = await platformAPI.generateGif(
+          id: illust.id,
+          zipBytes: response.data!,
+          width: illust.width,
+          height: illust.height,
+          delays: Int32List.fromList(ugoiraMetadata.frames.map((e) => e.delay).toList()),
+        );
+      }).catchError((e) {
+        Log.e('获取动图压缩包失败', e);
+      });
+    }).catchError((e,s) {
+      Log.e('获取动图信息失败', e,s);
+    }).whenComplete(() => generatingGif = false);
+  }
+
+  Future<void> saveGifFile() async {
+    final filename = '${illust.id}.gif';
+    if (await platformAPI.imageIsExist(filename)) {
+      platformAPI.toast('GIF图片已经存在');
+    } else {
+      final saveResult = await platformAPI.saveImage(gifBytes!, filename);
+      if (null == saveResult) {
+        await platformAPI.toast('GIF图片已经存在');
+        return;
+      }
+      if (saveResult) {
+        await platformAPI.toast('保存成功');
+      } else {
+        await platformAPI.toast('保存失败');
+      }
     }
   }
 }

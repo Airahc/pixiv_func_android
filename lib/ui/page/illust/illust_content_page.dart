@@ -42,15 +42,15 @@ class _IllustContentPageState extends State<IllustContentPage> {
       child: model.bookmarkRequestWaiting
           ? CircularProgressIndicator()
           : model.illust.isBookmarked
-          ? Icon(
-        Icons.favorite_sharp,
-        size: 30,
-        color: Colors.pinkAccent,
-      )
-          : Icon(
-        Icons.favorite_outline_sharp,
-        size: 30,
-      ),
+              ? Icon(
+                  Icons.favorite_sharp,
+                  size: 30,
+                  color: Colors.pinkAccent,
+                )
+              : Icon(
+                  Icons.favorite_outline_sharp,
+                  size: 30,
+                ),
       onPressed: () => model.bookmarkRequestWaiting ? null : model.onBookmarkStateChange(widget.parentModel),
     );
   }
@@ -74,6 +74,72 @@ class _IllustContentPageState extends State<IllustContentPage> {
     );
   }
 
+  Widget _buildUgoira(IllustContentModel model) {
+    if (null == model.gifBytes) {
+      return SliverChild(
+        Container(
+          padding: EdgeInsets.only(bottom: 5),
+          child: Card(
+            child: Column(
+              children: [
+                Container(
+                  width: model.illust.width + 0.0,
+                  height: model.illust.height + 0.0,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ImageViewFromUrl(
+                        model.illust.imageUrls.large,
+                      ),
+                      model.generatingGif
+                          ? CircularProgressIndicator()
+                          : GestureDetector(
+                              onTap: model.startGenerateGif,
+                              child: Icon(
+                                Icons.play_circle_outline_outlined,
+                                size: 70,
+                              ),
+                            ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: '保存生成的GIF图片',
+                  splashRadius: 20,
+                  onPressed: () => platformAPI.toast('请先点击生成'),
+                  icon: Icon(Icons.save_alt_outlined),
+                )
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      return SliverChild(
+        Container(
+          padding: EdgeInsets.only(bottom: 5),
+          child: Card(
+            child: Column(
+              children: [
+                Container(
+                  width: model.illust.width + 0.0,
+                  height: model.illust.height + 0.0,
+                  child: Image.memory(model.gifBytes!),
+                ),
+                IconButton(
+                  tooltip: '保存生成的GIF图片',
+                  splashRadius: 20,
+                  onPressed: model.saveGifFile,
+                  icon: Icon(Icons.save_alt_outlined),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
   Widget _buildImages(Illust illust) {
     final children = <Widget>[];
     if (1 == illust.pageCount) {
@@ -88,7 +154,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
     } else {
       children.addAll(
         illust.metaPages.map(
-              (matePage) => _buildImageItem(
+          (matePage) => _buildImageItem(
             illust.id,
             illust.title,
             matePage.imageUrls.large,
@@ -112,7 +178,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
       runSpacing: 5,
       spacing: 5,
       children: tags.map(
-            (tag) {
+        (tag) {
           final List<InlineSpan> children;
           if (null != tag.translatedName) {
             children = [
@@ -291,10 +357,10 @@ class _IllustContentPageState extends State<IllustContentPage> {
           children: model.list
               .map(
                 (illust) => GestureDetector(
-              onTap: () => PageUtils.to(context, IllustContentPage(illust)),
-              child: ImageViewFromUrl(illust.imageUrls.squareMedium),
-            ),
-          )
+                  onTap: () => PageUtils.to(context, IllustContentPage(illust)),
+                  child: ImageViewFromUrl(illust.imageUrls.squareMedium),
+                ),
+              )
               .toList(),
         ),
       );
@@ -347,7 +413,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
   Widget _buildBody(IllustContentModel model) {
     return CustomScrollView(
       slivers: [
-        _buildImages(model.illust),
+        model.isUgoira ? _buildUgoira(model) : _buildImages(model.illust),
         _buildDetail(model),
       ]..addAll(_buildRelated(model)),
     );
