@@ -22,8 +22,18 @@ class SearchFilterModel extends BaseViewModel {
 
   int _dateTimeRangeType = 0;
 
-
   int get dateTimeRangeType => _dateTimeRangeType;
+
+
+
+  int get bookmarkTotalSelected => bookmarkTotalItems.indexWhere((item) => item == filter.bookmarkTotal);
+
+  final bookmarkTotalItems = <int?>[null, 100, 250, 500, 1000, 5000, 10000, 20000, 30000, 50000];
+
+  set bookmarkTotalSelected(int value) {
+    bookmarkTotal = bookmarkTotalItems[value];
+    notifyListeners();
+  }
 
   set dateTimeRangeType(int value) {
     _dateTimeRangeType = value;
@@ -58,5 +68,21 @@ class SearchFilterModel extends BaseViewModel {
   set dateTimeRange(DateTimeRange value) {
     filter.dateTimeRange = value;
     notifyListeners();
+  }
+
+  int? get bookmarkTotal => filter.bookmarkTotal;
+
+  set bookmarkTotal(int? value) {
+    filter.bookmarkTotal = value;
+    notifyListeners();
+  }
+
+  String get bookmarkTotalText {
+    final item = bookmarkTotalItems[bookmarkTotalSelected];
+    if (null == item) {
+      return '收藏数量不限';
+    } else {
+      return '超过$item的收藏';
+    }
   }
 }

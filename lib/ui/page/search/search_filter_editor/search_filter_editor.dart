@@ -166,7 +166,7 @@ class SearchFilterEditor extends StatelessWidget {
 
   Widget _buildDateRangeEdit(BuildContext context, SearchFilterModel model) {
     return Container(
-      padding: EdgeInsets.only(top: 20,bottom: 20),
+      padding: EdgeInsets.only(top: 20, bottom: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -196,7 +196,7 @@ class SearchFilterEditor extends StatelessWidget {
       model: SearchFilterModel(filter: filter),
       builder: (BuildContext context, SearchFilterModel model, Widget? child) {
         return Container(
-          height: 360,
+          height: 430,
           padding: EdgeInsets.all(35),
           child: Column(
             children: [
@@ -204,6 +204,15 @@ class SearchFilterEditor extends StatelessWidget {
               _buildSearchTargetEdit(model),
               _buildDateRangeTypeEdit(model),
               model.dateTimeRangeType == -1 ? _buildDateRangeEdit(context, model) : Container(),
+              Text(model.bookmarkTotalText),
+              Slider(
+                value: model.bookmarkTotalSelected.toDouble(),
+                min: 0,
+                max: model.bookmarkTotalItems.length - 1,
+                onChanged: (double value) {
+                  model.bookmarkTotalSelected = value.round();
+                },
+              ),
               OutlinedButton(
                 onPressed: () {
                   onChanged(model.filter);

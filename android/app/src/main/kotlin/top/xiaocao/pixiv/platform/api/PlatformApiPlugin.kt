@@ -120,6 +120,7 @@ class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
                     gifFile.absolutePath,
                     GifEncoder.EncodingType.ENCODING_TYPE_FAST
                 )
+
                 var index = 0
                 ByteArrayInputStream(zipBytes).use { byteArrayInputStream ->
                     ZipInputStream(byteArrayInputStream).use { zipInputStream ->

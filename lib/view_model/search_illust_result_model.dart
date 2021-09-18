@@ -38,6 +38,7 @@ class SearchIllustResultModel extends BaseViewStateRefreshListModel<Illust> {
       filter.target,
       startDate: filter.enableDateRange ? filter.formatStartDate : null,
       endDate: filter.enableDateRange ? filter.formatEndDate : null,
+      bookmarkTotal: filter.bookmarkTotal,
     );
     nextUrl = result.nextUrl;
 

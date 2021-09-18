@@ -382,12 +382,11 @@ class PixivAPI {
         'filter': 'for_android',
         'include_translated_tag_results': true,
         'merge_plain_keyword_results': true,
-        'word': word,
+        'word': null != bookmarkTotal ? '$word ${bookmarkTotal}users入り' : word,
         'sort': Utils.enumTypeStringToLowerCase(sort),
         'search_target': Utils.enumTypeStringToLowerCase(target),
         'start_date': startDate,
         'end_date': endDate,
-        'bookmark_num': bookmarkTotal,
       }..removeWhere((key, value) => null == value),
     );
     final data = Search.fromJson(jsonDecode(response.data!));
