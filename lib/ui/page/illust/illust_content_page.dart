@@ -7,14 +7,19 @@
  */
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/api/entity/tag.dart';
+import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/downloader/downloader.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
+import 'package:pixiv_func_android/model/search_filter.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/provider/view_state.dart';
 import 'package:pixiv_func_android/ui/page/illust/illust_comment/illust_comment_page.dart';
+import 'package:pixiv_func_android/ui/page/image_scale/image_scale_page.dart';
+import 'package:pixiv_func_android/ui/page/search/search_illust_result/search_illust_result_page.dart';
 import 'package:pixiv_func_android/ui/page/user/user_page.dart';
 import 'package:pixiv_func_android/ui/widget/avatar_view_from_url.dart';
 import 'package:pixiv_func_android/ui/widget/html_rich_text.dart';
@@ -41,7 +46,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
       backgroundColor: Theme.of(context).hintColor,
       child: model.bookmarkRequestWaiting
           ? CircularProgressIndicator()
-          : model.illust.isBookmarked
+          : model.isBookmarked
               ? Icon(
                   Icons.favorite_sharp,
                   size: 30,
@@ -51,23 +56,40 @@ class _IllustContentPageState extends State<IllustContentPage> {
                   Icons.favorite_outline_sharp,
                   size: 30,
                 ),
-      onPressed: () => model.bookmarkRequestWaiting ? null : model.onBookmarkStateChange(widget.parentModel),
+      onPressed: () => model.bookmarkRequestWaiting ? null : model.changeBookmarkState(),
     );
   }
 
-  Widget _buildImageItem(int illustId, String title, String previewUrl, String originUrl) {
+  Widget _buildImageItem(
+    int illustId,
+    String title,
+    String previewUrl,
+    String originUrl, {
+    required Illust illust,
+  }) {
     return Container(
       padding: EdgeInsets.only(bottom: 5),
       child: Card(
         child: Column(
           children: [
-            ImageViewFromUrl(previewUrl),
+            GestureDetector(
+              onTap: () => PageUtils.to(
+                context,
+                ImageScalePage(
+                  illust: illust,
+                  initialPage: illust.pageCount > 1
+                      ? illust.metaPages.indexWhere((metaPage) => metaPage.imageUrls.original == originUrl)
+                      : 0,
+                ),
+              ),
+              child: ImageViewFromUrl(previewUrl),
+            ),
             IconButton(
               tooltip: '保存原图',
               splashRadius: 20,
               onPressed: () => Downloader.start(illust: widget.illust, url: originUrl),
               icon: Icon(Icons.save_alt_outlined),
-            )
+            ),
           ],
         ),
       ),
@@ -83,8 +105,8 @@ class _IllustContentPageState extends State<IllustContentPage> {
             child: Column(
               children: [
                 Container(
-                  width: model.illust.width + 0.0,
-                  height: model.illust.height + 0.0,
+                  width: model.illust.width.toDouble(),
+                  height: model.illust.height.toDouble(),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
@@ -149,6 +171,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
           illust.title,
           illust.imageUrls.large,
           illust.metaSinglePage.originalImageUrl!,
+          illust: illust,
         ),
       );
     } else {
@@ -159,6 +182,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
             illust.title,
             matePage.imageUrls.large,
             matePage.imageUrls.original!,
+            illust: illust,
           ),
         ),
       );
@@ -202,6 +226,18 @@ class _IllustContentPageState extends State<IllustContentPage> {
             text: TextSpan(
               style: Theme.of(context).textTheme.bodyText2,
               children: children,
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  PageUtils.to(
+                    context,
+                    SearchIllustResultPage(
+                      word: tag.name,
+                      filter: SearchFilter.create(
+                        target: SearchTarget.EXACT_MATCH_FOR_TAGS,
+                      ),
+                    ),
+                  );
+                },
             ),
           );
         },
@@ -219,7 +255,13 @@ class _IllustContentPageState extends State<IllustContentPage> {
           contentPadding: EdgeInsets.zero,
           //头像
           leading: GestureDetector(
-            onTap: () => PageUtils.to(context, UserPage(illust.user.id)),
+            onTap: () => PageUtils.to(
+              context,
+              UserPage(
+                illust.user.id,
+                illustContentModel: model,
+              ),
+            ),
             child: AvatarViewFromUrl(illust.user.profileImageUrls.medium),
           ),
           //标题
@@ -238,6 +280,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
           child: Text('插画ID:${illust.id}'),
         ),
       ),
+
       //创建时间 & 查看数量 & 收藏数量
       Container(
         padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
@@ -422,7 +465,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
   @override
   Widget build(BuildContext context) {
     return ProviderWidget(
-      model: IllustContentModel(widget.illust),
+      model: IllustContentModel(widget.illust, illustPreviewerModel: widget.parentModel),
       builder: (BuildContext context, IllustContentModel model, Widget? child) {
         return Scaffold(
           appBar: AppBar(

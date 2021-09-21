@@ -7,7 +7,7 @@
  */
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pixiv_func_android/api/entity/profile_image_urls.dart';
+import '../entity/profile_image_urls.dart';
 
 part 'user_detail.g.dart';
 

@@ -7,7 +7,7 @@
  */
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pixiv_func_android/api/entity/illust.dart';
+import '../entity/illust.dart';
 
 part 'trending_tags.g.dart';
 

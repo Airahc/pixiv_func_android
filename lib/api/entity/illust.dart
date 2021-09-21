@@ -7,11 +7,11 @@
  */
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pixiv_func_android/api/entity/image_urls.dart';
-import 'package:pixiv_func_android/api/entity/meta_single_page.dart';
-import 'package:pixiv_func_android/api/entity/tag.dart';
-import 'package:pixiv_func_android/api/entity/user.dart';
-import 'package:pixiv_func_android/api/model/meta_page.dart';
+import 'image_urls.dart';
+import 'meta_single_page.dart';
+import 'tag.dart';
+import 'user.dart';
+import 'meta_page.dart';
 
 part 'illust.g.dart';
 

@@ -7,7 +7,7 @@
  */
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pixiv_func_android/api/entity/comment.dart';
+import '../entity/comment.dart';
 
 part 'comments.g.dart';
 

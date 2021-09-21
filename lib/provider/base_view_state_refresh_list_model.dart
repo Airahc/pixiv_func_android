@@ -6,7 +6,6 @@
  * 作者:小草
  */
 
-
 import 'package:flutter/cupertino.dart';
 import 'package:pixiv_func_android/log/log.dart';
 import 'package:pixiv_func_android/provider/base_view_state_list_model.dart';
@@ -78,14 +77,18 @@ abstract class BaseViewStateRefreshListModel<T> extends BaseViewStateListModel<T
     setBusy();
     cancelableTask = CancelableOperation.fromFuture(loadFirstDataRoutine());
     cancelableTask?.value.then((result) {
+      refreshController.refreshCompleted();
+      if (!hasNext) {
+        refreshController.loadNoData();
+      }
+      initialized = true;
       if (result.isEmpty) {
         setEmpty();
       } else {
         list.addAll(result);
         setIdle();
       }
-      refreshController.refreshCompleted();
-      initialized = true;
+
     }).catchError((e, s) {
       refreshController.refreshFailed();
       Log.e('异常', e, s);

@@ -14,8 +14,8 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
-import 'package:pixiv_func_android/api/model/user_account.dart';
-import 'package:pixiv_func_android/api/retry_interceptor.dart';
+import 'model/user_account.dart';
+import 'retry_interceptor.dart';
 
 class OAuthAPI {
   static const _TARGET_IP = '210.140.131.199';

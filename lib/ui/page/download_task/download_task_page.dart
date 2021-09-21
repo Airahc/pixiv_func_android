@@ -1,17 +1,17 @@
 /*
  * Copyright (C) 2021. by xiao-cao-x, All rights reserved
- * 项目名称:pixiv_android
+ * 项目名称:pixiv_func_android
  * 文件名称:download_task_page.dart
  * 创建时间:2021/9/5 下午11:53
  * 作者:小草
  */
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pixiv_func_android/downloader/downloader.dart';
 import 'package:pixiv_func_android/model/download_task.dart';
 import 'package:pixiv_func_android/ui/page/illust/illust_content_page.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/view_model/download_task_model.dart';
-import 'package:provider/provider.dart';
 
 class DownloadTaskPage extends StatelessWidget {
   const DownloadTaskPage({Key? key}) : super(key: key);

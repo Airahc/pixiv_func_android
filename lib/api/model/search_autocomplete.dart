@@ -7,7 +7,7 @@
  */
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pixiv_func_android/api/entity/tag.dart';
+import '../entity/tag.dart';
 
 part 'search_autocomplete.g.dart';
 

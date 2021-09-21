@@ -10,11 +10,14 @@ import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/log/log.dart';
 import 'package:pixiv_func_android/provider/base_view_model.dart';
+import 'package:pixiv_func_android/view_model/illust_content_model.dart';
 
 class IllustPreviewerModel extends BaseViewModel {
-  Illust illust;
+  final Illust illust;
+  final IllustContentModel? _illustContentModel;
 
-  IllustPreviewerModel(this.illust);
+  IllustPreviewerModel(this.illust, {IllustContentModel? illustContentModel})
+      : _illustContentModel = illustContentModel;
 
   bool _bookmarkRequestWaiting = false;
 
@@ -29,10 +32,13 @@ class IllustPreviewerModel extends BaseViewModel {
 
   set isBookmarked(bool value) {
     illust.isBookmarked = value;
+    if (_illustContentModel?.illust.id == illust.id) {
+      _illustContentModel?.isBookmarked = value;
+    }
     notifyListeners();
   }
 
-  void bookmarkChange() {
+  void bookmarkStateChange() {
     bookmarkRequestWaiting = true;
     if (!isBookmarked) {
       pixivAPI.bookmarkAdd(illust.id).then((result) {

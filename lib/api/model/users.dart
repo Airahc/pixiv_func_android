@@ -7,7 +7,7 @@
  */
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pixiv_func_android/api/entity/user_preview.dart';
+import '../entity/user_preview.dart';
 
 part 'users.g.dart';
 @JsonSerializable(explicitToJson: true)

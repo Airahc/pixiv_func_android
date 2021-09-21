@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021. by xiao-cao-x, All rights reserved
- * 项目名称:pixiv_android
+ * 项目名称:pixiv_func_android
  * 文件名称:PlatformWebViewFactory.kt
  * 创建时间:2021/9/5 下午4:49
  * 作者:小草

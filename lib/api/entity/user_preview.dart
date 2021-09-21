@@ -7,8 +7,8 @@
  */
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pixiv_func_android/api/entity/illust.dart';
-import 'package:pixiv_func_android/api/entity/user.dart';
+import 'illust.dart';
+import 'user.dart';
 
 
 part 'user_preview.g.dart';

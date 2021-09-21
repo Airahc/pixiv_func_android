@@ -1,10 +1,11 @@
 /*
  * Copyright (C) 2021. by xiao-cao-x, All rights reserved
- * 项目名称:pixiv_android
+ * 项目名称:pixiv_func_android
  * 文件名称:search_filter_editor.dart
  * 创建时间:2021/9/3 下午11:18
  * 作者:小草
  */
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/model/dropdown_item.dart';
@@ -209,6 +210,7 @@ class SearchFilterEditor extends StatelessWidget {
                 value: model.bookmarkTotalSelected.toDouble(),
                 min: 0,
                 max: model.bookmarkTotalItems.length - 1,
+                divisions: model.bookmarkTotalItems.length -1,
                 onChanged: (double value) {
                   model.bookmarkTotalSelected = value.round();
                 },

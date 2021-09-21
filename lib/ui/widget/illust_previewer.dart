@@ -11,22 +11,20 @@ import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/page/illust/illust_content_page.dart';
 import 'package:pixiv_func_android/ui/widget/image_view_from_url.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
+import 'package:pixiv_func_android/view_model/illust_content_model.dart';
 import 'package:pixiv_func_android/view_model/illust_previewer_model.dart';
 
-class IllustPreviewer extends StatefulWidget {
+class IllustPreviewer extends StatelessWidget {
   final Illust illust;
 
-  const IllustPreviewer({Key? key, required this.illust}) : super(key: key);
+  final IllustContentModel? illustContentModel;
 
-  @override
-  _IllustPreviewerState createState() => _IllustPreviewerState();
-}
+  const IllustPreviewer({Key? key, required this.illust, this.illustContentModel}) : super(key: key);
 
-class _IllustPreviewerState extends State<IllustPreviewer> {
   Widget _buildBookmarkButton(IllustPreviewerModel model) {
     return IconButton(
       splashRadius: 20,
-      onPressed: model.bookmarkChange,
+      onPressed: model.bookmarkStateChange,
       icon: model.isBookmarked
           ? Icon(
               Icons.favorite_sharp,
@@ -41,7 +39,7 @@ class _IllustPreviewerState extends State<IllustPreviewer> {
   @override
   Widget build(BuildContext context) {
     return ProviderWidget(
-      model: IllustPreviewerModel(widget.illust),
+      model: IllustPreviewerModel(illust, illustContentModel: illustContentModel),
       builder: (BuildContext context, IllustPreviewerModel model, Widget? child) {
         return Card(
           child: Container(
@@ -103,7 +101,7 @@ class _IllustPreviewerState extends State<IllustPreviewer> {
                 Container(
                   alignment: Alignment.topLeft,
                   child: ListTile(
-                    contentPadding: EdgeInsets.all(0),
+                    contentPadding: EdgeInsets.zero,
                     title: Text(
                       model.illust.title,
                       style: TextStyle(fontSize: 14),

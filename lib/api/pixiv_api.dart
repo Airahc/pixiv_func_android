@@ -11,20 +11,20 @@ import 'dart:io';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:pixiv_func_android/api/entity/comment.dart';
-import 'package:pixiv_func_android/api/enums.dart';
-import 'package:pixiv_func_android/api/model/comments.dart';
-import 'package:pixiv_func_android/api/model/error_message.dart';
-import 'package:pixiv_func_android/api/model/illust_detail.dart';
-import 'package:pixiv_func_android/api/model/illusts.dart';
-import 'package:pixiv_func_android/api/model/search_autocomplete.dart';
-import 'package:pixiv_func_android/api/model/trending_tags.dart';
-import 'package:pixiv_func_android/api/model/ugoira_metadata.dart';
-import 'package:pixiv_func_android/api/model/users.dart';
-import 'package:pixiv_func_android/api/model/search.dart';
-import 'package:pixiv_func_android/api/model/user_detail.dart';
-import 'package:pixiv_func_android/api/auth_token_interceptor.dart';
-import 'package:pixiv_func_android/api/retry_interceptor.dart';
+import 'entity/comment.dart';
+import 'enums.dart';
+import 'model/comments.dart';
+import 'model/error_message.dart';
+import 'model/illust_detail.dart';
+import 'model/illusts.dart';
+import 'model/search_autocomplete.dart';
+import 'model/trending_tags.dart';
+import 'model/ugoira_metadata.dart';
+import 'model/users.dart';
+import 'model/search.dart';
+import 'model/user_detail.dart';
+import 'auth_token_interceptor.dart';
+import 'retry_interceptor.dart';
 import 'package:pixiv_func_android/util/utils.dart';
 
 class PixivAPI {

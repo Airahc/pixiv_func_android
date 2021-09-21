@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021. by xiao-cao-x, All rights reserved
- * 项目名称:pixiv_android
+ * 项目名称:pixiv_func_android
  * 文件名称:about_page.dart
  * 创建时间:2021/9/6 下午6:57
  * 作者:小草
@@ -11,12 +11,13 @@ import 'package:pixiv_func_android/model/release_info.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/provider/view_state.dart';
 import 'package:pixiv_func_android/ui/widget/html_rich_text.dart';
+import 'package:pixiv_func_android/util/utils.dart';
 import 'package:pixiv_func_android/view_model/about_model.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({Key? key}) : super(key: key);
 
-  static const thisProjectGitHubUrl = 'https://github.com/xiao-cao-x/pixiv-func-android';
+  static const thisProjectGitHubUrl = 'https://github.com/xiao-cao-x/pixiv_func_android';
 
   Widget _buildReleaseInfo(ReleaseInfo info) {
     return Column(
@@ -38,8 +39,12 @@ class AboutPage extends StatelessWidget {
                 platformAPI.toast('打开浏览器失败');
               }
             },
+            onLongPress: () async{
+              await Utils.copyToClipboard(info.htmlUrl);
+              await platformAPI.toast('已将 ${info.htmlUrl} 复制到剪切板');
+            },
             title: Text('打开标签页'),
-            subtitle: Text('前往外部浏览器'),
+            subtitle: Text('长按复制url'),
           ),
         ),
         Card(
@@ -49,8 +54,12 @@ class AboutPage extends StatelessWidget {
                 platformAPI.toast('打开浏览器失败');
               }
             },
-            title: Text('点击下载最新版本'),
-            subtitle: Text('前往外部浏览器'),
+            onLongPress: () async{
+              await Utils.copyToClipboard(info.browserDownloadUrl);
+              await platformAPI.toast('已将 ${info.browserDownloadUrl} 复制到剪切板');
+            },
+            title: Text('下载最新版本'),
+            subtitle: Text('长按复制url'),
           ),
         ),
       ],
@@ -110,8 +119,12 @@ class AboutPage extends StatelessWidget {
                       platformAPI.toast('打开浏览器失败');
                     }
                   },
+                  onLongPress: () async{
+                    await Utils.copyToClipboard(thisProjectGitHubUrl);
+                    await platformAPI.toast('已将 $thisProjectGitHubUrl 复制到剪切板');
+                  },
                   title: Text(thisProjectGitHubUrl),
-                  subtitle: Text('项目地址(点击前往)'),
+                  subtitle: Text('项目地址(点击前往浏览器,长按复制url)'),
                 ),
               ),
               Divider(),
@@ -133,7 +146,7 @@ class AboutPage extends StatelessWidget {
                     Text('开发 开源且免费'),
                   ],
                 ),
-                subtitle: Text('禁止用于商业用途(包括收取打赏)'),
+                subtitle: Text('禁止用于盈利(包括但不仅限于收取打赏)'),
               ),
               Divider(),
               ListTile(

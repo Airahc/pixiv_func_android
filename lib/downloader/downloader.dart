@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021. by xiao-cao-x, All rights reserved
- * 项目名称:pixiv_android
+ * 项目名称:pixiv_func_android
  * 文件名称:downloader.dart
  * 创建时间:2021/9/5 下午9:24
  * 作者:小草
@@ -61,36 +61,47 @@ class Downloader {
         connectTimeout: 15000,
       ),
     );
-
-    final task = DownloadTask.create(
-      id: props.id,
-      illust: props.illust,
-      uri: props.url,
-      filename: props.filename,
-    );
-    task.state = DownloadState.Downloading;
-    props.hostSendPort.send(task);
-    await httpClient.get<Uint8List>(
-      props.url,
-      onReceiveProgress: (int count, int total) {
-        task.progress = count / total;
+    if(null!=props.illust){
+      final task = DownloadTask.create(
+        id: props.id,
+        illust: props.illust!,
+        uri: props.url,
+        filename: props.filename,
+      );
+      task.state = DownloadState.Downloading;
+      props.hostSendPort.send(task);
+      await httpClient.get<Uint8List>(
+        props.url,
+        onReceiveProgress: (int count, int total) {
+          task.progress = count / total;
+          props.hostSendPort.send(task);
+        },
+      ).then((result) async {
+        task.state = DownloadState.Complete;
+        props.hostSendPort.send(_DownloadComplete(result.data!, props.filename));
         props.hostSendPort.send(task);
-      },
-    ).then((result) async {
-      task.state = DownloadState.Complete;
-      props.hostSendPort.send(_DownloadComplete(result.data!, props.filename));
-      props.hostSendPort.send(task);
-    }).catchError((e, s) async {
-      task.state = DownloadState.Failed;
-      props.hostSendPort.send(task);
-      props.hostSendPort.send(_DownloadError());
-    });
+      }).catchError((e, s) async {
+        task.state = DownloadState.Failed;
+        props.hostSendPort.send(task);
+        props.hostSendPort.send(_DownloadError());
+      });
+    }else{
+      await httpClient.get<Uint8List>(
+        props.url,
+      ).then((result) async {
+        props.hostSendPort.send(_DownloadComplete(result.data!, props.filename));
+      }).catchError((e, s) async {
+        props.hostSendPort.send(_DownloadError());
+      });
+    }
+
+
   }
 
 
 
   static Future<void> start({
-    required Illust illust,
+    Illust? illust,
     required String url,
     int? id,
   }) async {
@@ -118,7 +129,7 @@ class Downloader {
 class _DownloadStartProps {
   SendPort hostSendPort;
   int id;
-  Illust illust;
+  Illust? illust;
   String url;
   String filename;
 

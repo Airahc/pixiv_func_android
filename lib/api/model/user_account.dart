@@ -7,7 +7,7 @@
  */
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pixiv_func_android/api/entity/local_user.dart';
+import '../entity/local_user.dart';
 
 part 'user_account.g.dart';
 

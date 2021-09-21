@@ -7,8 +7,8 @@
  */
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pixiv_func_android/api/entity/stamp.dart';
-import 'package:pixiv_func_android/api/entity/user.dart';
+import 'stamp.dart';
+import 'user.dart';
 
 part 'comment.g.dart';
 

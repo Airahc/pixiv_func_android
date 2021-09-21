@@ -138,6 +138,7 @@ class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
                     gifEncoder.close()
                 }
                 result.success(gifFile.readBytes())
+                gifFile.delete()
             }
             else -> {
                 result.notImplemented()

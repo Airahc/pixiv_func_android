@@ -12,6 +12,7 @@ import 'package:pixiv_func_android/api/model/illusts.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/base_view_state_refresh_list_model.dart';
 
+
 class UserIllustModel extends BaseViewStateRefreshListModel<Illust> {
   final int id;
 

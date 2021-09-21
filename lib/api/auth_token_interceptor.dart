@@ -10,8 +10,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:pixiv_func_android/api/model/error_message.dart';
-import 'package:pixiv_func_android/api/oauth_api.dart';
+import 'model/error_message.dart';
+import 'oauth_api.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/log/log.dart';
 

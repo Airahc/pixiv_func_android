@@ -19,8 +19,10 @@ import 'package:pixiv_func_android/view_model/illust_previewer_model.dart';
 
 class IllustContentModel extends BaseViewStateListModel<Illust> {
   final Illust illust;
+  final IllustPreviewerModel? _illustPreviewerModel;
 
-  IllustContentModel(this.illust);
+  IllustContentModel(this.illust, {IllustPreviewerModel? illustPreviewerModel})
+      : _illustPreviewerModel = illustPreviewerModel;
 
   bool _showOriginalCaption = false;
 
@@ -29,7 +31,6 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
   Uint8List? _gifBytes;
 
   bool _generatingGif = false;
-
 
   bool get isUgoira => 'ugoira' == illust.type;
 
@@ -47,8 +48,11 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
     notifyListeners();
   }
 
+  bool get isBookmarked => illust.isBookmarked;
+
   set isBookmarked(bool value) {
     illust.isBookmarked = value;
+    _illustPreviewerModel?.isBookmarked = value;
     notifyListeners();
   }
 
@@ -97,19 +101,17 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
     });
   }
 
-  void onBookmarkStateChange(IllustPreviewerModel? parentModel) {
+  void changeBookmarkState() {
     bookmarkRequestWaiting = true;
     if (!illust.isBookmarked) {
       pixivAPI.bookmarkAdd(illust.id).then((result) {
         isBookmarked = true;
-        parentModel?.isBookmarked = true;
       }).catchError((e) {
         Log.e('添加书签失败', e);
       }).whenComplete(() => bookmarkRequestWaiting = false);
     } else {
       pixivAPI.bookmarkDelete(illust.id).then((result) {
         isBookmarked = false;
-        parentModel?.isBookmarked = false;
       }).catchError((e) {
         Log.e('删除书签失败', e);
       }).whenComplete(() => bookmarkRequestWaiting = false);
@@ -132,8 +134,8 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
       }).catchError((e) {
         Log.e('获取动图压缩包失败', e);
       });
-    }).catchError((e,s) {
-      Log.e('获取动图信息失败', e,s);
+    }).catchError((e, s) {
+      Log.e('获取动图信息失败', e, s);
     }).whenComplete(() => generatingGif = false);
   }
 
