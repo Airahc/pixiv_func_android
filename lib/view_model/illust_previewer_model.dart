@@ -19,6 +19,8 @@ class IllustPreviewerModel extends BaseViewModel {
   IllustPreviewerModel(this.illust, {IllustContentModel? illustContentModel})
       : _illustContentModel = illustContentModel;
 
+  bool get isUgoira => 'ugoira' == illust.type;
+
   bool _bookmarkRequestWaiting = false;
 
   bool get bookmarkRequestWaiting => _bookmarkRequestWaiting;

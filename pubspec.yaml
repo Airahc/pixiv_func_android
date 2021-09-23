@@ -1,8 +1,8 @@
 name: pixiv_func_android
 description: Pixiv Android 客户端
 
-version: 0.2.5
-
+version: 0.2.6
+publish_to: 'none'
 environment:
   sdk: ">=2.14.0 <3.0.0"
 
@@ -18,9 +18,8 @@ dependencies:
   dio: ^4.0.0
   crypto: ^3.0.1
   #数据持久化
-  shared_preferences: ^2.0.0
-  extended_image: ^4.1.0
-  cached_network_image: ^3.1.0
+  shared_preferences: ^2.0.8
+  extended_image: ^4.2.1
   intl: ^0.17.0
   #下拉刷新上拉加载
   pull_to_refresh: ^2.0.0
@@ -29,15 +28,16 @@ dependencies:
   #瀑布流
   flutter_staggered_grid_view: ^0.4.0
   #日志
-  logger: ^1.0.0
+  logger: ^1.1.0
   #解析html
   html: ^0.15.0
   #申请权限
-  permission_handler: ^8.1.4+2
-  image_picker: ^0.8.4
+  permission_handler: ^8.1.6
+  image_picker: ^0.8.4+2
 dev_dependencies:
-  json_serializable: ^5.0.0
-  build_runner: ^2.1.1
+  json_serializable: ^5.0.2
+  build_runner: ^2.1.2
+  flutter_lints: ^1.0.4
 flutter:
   uses-material-design: true
   assets:

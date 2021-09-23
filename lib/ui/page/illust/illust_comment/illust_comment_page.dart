@@ -93,7 +93,7 @@ class IllustCommentPage extends StatelessWidget {
         children.add(
           Container(
             padding: EdgeInsets.fromLTRB(0, 30, 0, 30),
-            child: Center(child: RefreshProgressIndicator()),
+            child: Center(child: CircularProgressIndicator()),
           ),
         );
       } else if (commentTree.hasNext) {
@@ -112,7 +112,10 @@ class IllustCommentPage extends StatelessWidget {
 
       return Card(
         child: ExpansionTile(
-          leading: AvatarViewFromUrl(commentTree.data.user.profileImageUrls.medium),
+          leading: GestureDetector(
+            onTap: () => PageUtils.to(context, UserPage(commentTree.data.user.id)),
+            child: AvatarViewFromUrl(commentTree.data.user.profileImageUrls.medium),
+          ),
           childrenPadding: EdgeInsets.only(left: 20),
           children: children,
           title: Column(

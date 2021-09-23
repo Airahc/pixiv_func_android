@@ -14,6 +14,8 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import com.waynejo.androidndkgif.GifEncoder
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -25,6 +27,7 @@ import top.xiaocao.pixiv.util.saveImage
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.zip.ZipInputStream
+import kotlin.concurrent.thread
 
 @SuppressLint("ShowToast")
 class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
@@ -107,38 +110,50 @@ class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
             methodGenerateGif -> {
                 val id = call.argument<Int>("id")
                 val zipBytes = call.argument<ByteArray>("zipBytes")!!
-                val width = call.argument<Int>("width")!!
-                val height = call.argument<Int>("height")!!
                 val delays = call.argument<IntArray>("delays")!!
 
-                val gifFile = File(context.externalCacheDir, "$id.gif")
+                //必须开一个线程 不然生成GIF的时候Flutter UI那边直接卡死
+                thread {
+                    var init = false
+                    var index = 0
 
-                val gifEncoder = GifEncoder()
-                gifEncoder.init(
-                    width,
-                    height,
-                    gifFile.absolutePath,
-                    GifEncoder.EncodingType.ENCODING_TYPE_FAST
-                )
+                    val gifFile = File(context.externalCacheDir, "$id.gif")
 
-                var index = 0
-                ByteArrayInputStream(zipBytes).use { byteArrayInputStream ->
-                    ZipInputStream(byteArrayInputStream).use { zipInputStream ->
-                        zipInputStream.forEachEntry {
-                            val imageBytes = zipInputStream.readBytes()
-                            val bitmap =
-                                BitmapFactory.decodeByteArray(
-                                    imageBytes,
-                                    0,
-                                    imageBytes.size,
-                                )
-                            gifEncoder.encodeFrame(bitmap, delays[index++])
+                    val gifEncoder = GifEncoder()
+
+                    ByteArrayInputStream(zipBytes).use { byteArrayInputStream ->
+                        ZipInputStream(byteArrayInputStream).use { zipInputStream ->
+
+                            zipInputStream.forEachEntry {
+                                val imageBytes = zipInputStream.readBytes()
+                                val bitmap =
+                                    BitmapFactory.decodeByteArray(
+                                        imageBytes,
+                                        0,
+                                        imageBytes.size,
+                                    )
+                                if (!init) {
+                                    init = true
+                                    gifEncoder.init(
+                                        bitmap.width,
+                                        bitmap.height,
+                                        gifFile.absolutePath,
+                                        GifEncoder.EncodingType.ENCODING_TYPE_FAST
+                                    )
+                                }
+                                gifEncoder.encodeFrame(bitmap, delays[index++])
+                            }
                         }
+                        gifEncoder.close()
                     }
-                    gifEncoder.close()
+                    //在主线程中执行 (因为是@UiThread)
+                    Handler(Looper.getMainLooper()).post {
+                        gifFile.also {
+                            result.success(it.readBytes())
+                        }.delete()
+                    }
                 }
-                result.success(gifFile.readBytes())
-                gifFile.delete()
+
             }
             else -> {
                 result.notImplemented()

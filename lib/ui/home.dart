@@ -145,7 +145,7 @@ class Home extends StatelessWidget {
       onLoginSuccess: (UserAccount account) async {
         Log.i(account);
         accountModel.add(account);
-        await platformAPI.toast('登录成功');
+       platformAPI.toast('登录成功');
         model.refresh();
       },
       create: create,

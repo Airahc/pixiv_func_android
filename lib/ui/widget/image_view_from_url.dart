@@ -6,8 +6,6 @@
  * 作者:小草
  */
 
-import 'package:cached_network_image/cached_network_image.dart';
-
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/util/utils.dart';
@@ -42,7 +40,14 @@ class ImageViewFromUrl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return ExtendedImage(
+    return ExtendedImage.network(
+        Utils.replaceImageSource(url),
+      headers: {'Referer': 'https://app-api.pixiv.net/'},
+      //https://github.com/fluttercandies/extended_image/issues/355
+      //https://github.com/fluttercandies/extended_image/issues/351
+      //当图像提供者改变时，是继续显示旧图像（真），还是暂时不显示（假）
+      //防止刷新时图片闪烁
+      gaplessPlayback: true,
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
@@ -51,7 +56,11 @@ class ImageViewFromUrl extends StatelessWidget {
               child: const Center(child: CircularProgressIndicator()),
             );
           case LoadState.completed:
-            return imageBuilder?.call(state.completedWidget);
+
+            return imageBuilder?.call(ExtendedRawImage(
+              fit: BoxFit.fitWidth,
+              image: state.extendedImageInfo?.image,
+            ));
           case LoadState.failed:
             return Center(
               child: IconButton(
@@ -64,10 +73,7 @@ class ImageViewFromUrl extends StatelessWidget {
             );
         }
       },
-      image: CachedNetworkImageProvider(
-        Utils.replaceImageSource(url),
-        headers: {'Referer': 'https://app-api.pixiv.net/'},
-      ),
+
       color: color,
       colorBlendMode: colorBlendMode,
       width: width,

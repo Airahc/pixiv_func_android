@@ -38,16 +38,16 @@ class Downloader {
     } else if (message is _DownloadComplete) {
       final saveResult = await platformAPI.saveImage(message.imageBytes, message.filename);
       if (null == saveResult) {
-        await platformAPI.toast('图片已经存在');
+       platformAPI.toast('图片已经存在');
         return;
       }
       if (saveResult) {
-        await platformAPI.toast('保存成功');
+       platformAPI.toast('保存成功');
       } else {
-        await platformAPI.toast('保存失败');
+       platformAPI.toast('保存失败');
       }
     } else if (message is _DownloadError) {
-      await platformAPI.toast('下载失败');
+     platformAPI.toast('下载失败');
     }
   }
 
@@ -108,10 +108,10 @@ class Downloader {
     final filename = url.substring(url.lastIndexOf('/') + 1);
     final imageUrl = url.replaceFirst(_TARGET_HOST, settingsManager.imageSource);
     if (await platformAPI.imageIsExist(filename)) {
-      await platformAPI.toast('图片已经存在');
+     platformAPI.toast('图片已经存在');
       return;
     }
-    await platformAPI.toast('开始下载');
+   platformAPI.toast('开始下载');
     Isolate.spawn(
       _task,
       _DownloadStartProps(

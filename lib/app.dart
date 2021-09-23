@@ -31,7 +31,7 @@ class App extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
         ],
         supportedLocales: [
-          Locale('zh', 'CN'),
+          const Locale('zh', 'CN'),
         ],
         debugShowCheckedModeBanner: false,
         theme: Provider.of<ThemeModel>(context).currentTheme,
@@ -39,7 +39,7 @@ class App extends StatelessWidget {
           onWillPop: () async {
             if (null == lastPopTime || DateTime.now().difference(lastPopTime!) > Duration(seconds: 1)) {
               lastPopTime = DateTime.now();
-              await platformAPI.toast('再按一次退出');
+             platformAPI.toast('再按一次退出');
               return false;
             } else {
               return true;

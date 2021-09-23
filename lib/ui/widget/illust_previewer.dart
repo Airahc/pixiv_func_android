@@ -79,18 +79,33 @@ class IllustPreviewer extends StatelessWidget {
                                   : Container(),
                             ),
                             Positioned(
-                              top: 2,
+                              left: 2,
+                              bottom: 2,
+                              child: model.isUgoira
+                                  ? Card(
+                                      color: Colors.white12,
+                                      child: Padding(
+                                        padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                        child: Text('动图'),
+                                      ),
+                                    )
+                                  : Container(),
+                            ),
+                            Positioned(
                               right: 2,
-                              child: Card(
-                                color: Colors.white12,
-                                child: Padding(
-                                  padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                  child: Text(
-                                    '${model.illust.pageCount}',
-                                    style: TextStyle(fontSize: 20),
-                                  ),
-                                ),
-                              ),
+                              top: 2,
+                              child: model.illust.pageCount > 1
+                                  ? Card(
+                                      color: Colors.white12,
+                                      child: Padding(
+                                        padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                        child: Text(
+                                          '${model.illust.pageCount}',
+                                          style: TextStyle(fontSize: 20),
+                                        ),
+                                      ),
+                                    )
+                                  : Container(),
                             ),
                           ],
                         );
@@ -104,11 +119,13 @@ class IllustPreviewer extends StatelessWidget {
                     contentPadding: EdgeInsets.zero,
                     title: Text(
                       model.illust.title,
-                      style: TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: 15),
+                      overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
                       model.illust.user.name,
-                      style: TextStyle(fontSize: 10),
+                      style: TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
                     ),
                     trailing: model.bookmarkRequestWaiting ? RefreshProgressIndicator() : _buildBookmarkButton(model),
                   ),

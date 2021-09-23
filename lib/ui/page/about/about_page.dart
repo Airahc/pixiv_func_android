@@ -41,7 +41,7 @@ class AboutPage extends StatelessWidget {
             },
             onLongPress: () async{
               await Utils.copyToClipboard(info.htmlUrl);
-              await platformAPI.toast('已将 ${info.htmlUrl} 复制到剪切板');
+             platformAPI.toast('已将 ${info.htmlUrl} 复制到剪切板');
             },
             title: Text('打开标签页'),
             subtitle: Text('长按复制url'),
@@ -56,7 +56,7 @@ class AboutPage extends StatelessWidget {
             },
             onLongPress: () async{
               await Utils.copyToClipboard(info.browserDownloadUrl);
-              await platformAPI.toast('已将 ${info.browserDownloadUrl} 复制到剪切板');
+             platformAPI.toast('已将 ${info.browserDownloadUrl} 复制到剪切板');
             },
             title: Text('下载最新版本'),
             subtitle: Text('长按复制url'),
@@ -121,7 +121,7 @@ class AboutPage extends StatelessWidget {
                   },
                   onLongPress: () async{
                     await Utils.copyToClipboard(thisProjectGitHubUrl);
-                    await platformAPI.toast('已将 $thisProjectGitHubUrl 复制到剪切板');
+                   platformAPI.toast('已将 $thisProjectGitHubUrl 复制到剪切板');
                   },
                   title: Text(thisProjectGitHubUrl),
                   subtitle: Text('项目地址(点击前往浏览器,长按复制url)'),

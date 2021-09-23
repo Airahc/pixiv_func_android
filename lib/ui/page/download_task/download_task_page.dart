@@ -41,7 +41,10 @@ class DownloadTaskPage extends StatelessWidget {
     return Card(
       child: ListTile(
         onTap: () => PageUtils.to(context, IllustContentPage(task.illust)),
-        title: Text('${task.illust.title} (${task.filename})'),
+        title: Text(
+          '${task.illust.title}',
+          overflow: TextOverflow.ellipsis,
+        ),
         subtitle: DownloadState.Failed != task.state
             ? LinearProgressIndicator(
                 value: task.progress,

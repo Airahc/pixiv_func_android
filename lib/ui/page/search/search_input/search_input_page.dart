@@ -139,7 +139,7 @@ class SearchInputPage extends StatelessWidget {
                         PageUtils.to(context, SearchImageResultPage(results));
                       },
                       errorCallback: (dynamic e) async {
-                        await platformAPI.toast('搜索失败,或许可以重试');
+                       platformAPI.toast('搜索失败,或许可以重试');
                       },
                     ),
             child: model.searchImageWaiting ? CircularProgressIndicator() : Icon(Icons.image_search_outlined),

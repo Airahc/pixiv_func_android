@@ -7,7 +7,6 @@
  */
 
 import 'dart:typed_data';
-
 import 'package:flutter/services.dart';
 
 class PlatformAPI {
@@ -65,20 +64,16 @@ class PlatformAPI {
     return result as bool;
   }
 
-  Future<Uint8List> generateGif({
+  Future<Uint8List?> generateGif({
     required int id,
     required Uint8List zipBytes,
-    required int width,
-    required int height,
     required Int32List delays,
-  }) async {
-    final result = await _channel.invokeMethod(_methodGenerateGif, {
+  }) {
+
+    return _channel.invokeMethod<Uint8List>(_methodGenerateGif, {
       'id': id,
       'zipBytes': zipBytes,
-      'width': width,
-      'height': height,
       'delays': delays,
     });
-    return result as Uint8List;
   }
 }

@@ -5,14 +5,14 @@
  * 创建时间:2021/9/21 下午5:13
  * 作者:小草
  */
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:extended_image/extended_image.dart';
+
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/downloader/downloader.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/util/utils.dart';
 import 'package:pixiv_func_android/view_model/image_scale_model.dart';
+import 'package:extended_image/extended_image.dart';
 
 class ImageScalePage extends StatelessWidget {
   final Illust illust;
@@ -39,11 +39,10 @@ class ImageScalePage extends StatelessWidget {
               child: Column(
                 children: [
                   Expanded(
-                    child: ExtendedImage(
-                      image: CachedNetworkImageProvider(
-                        Utils.replaceImageSource(urls[i]),
-                        headers: {'Referer': 'https://app-api.pixiv.net'},
-                      ),
+                    child: ExtendedImage.network(
+                      Utils.replaceImageSource(urls[i]),
+                      headers: {'Referer': 'https://app-api.pixiv.net'},
+                      gaplessPlayback: true,
                       mode: ExtendedImageMode.gesture,
                       loadStateChanged: (ExtendedImageState state) {
                         if (state.extendedImageLoadState == LoadState.loading) {

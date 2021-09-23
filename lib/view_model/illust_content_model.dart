@@ -7,7 +7,6 @@
  */
 
 import 'dart:typed_data';
-
 import 'package:dio/dio.dart';
 import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/api/model/illusts.dart';
@@ -28,9 +27,21 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
 
   bool _bookmarkRequestWaiting = false;
 
+  double _downloadProgress = 0.0;
+
   Uint8List? _gifBytes;
 
+  bool _downloadingGif = false;
+
   bool _generatingGif = false;
+
+  bool get isBookmarked => illust.isBookmarked;
+
+  set isBookmarked(bool value) {
+    illust.isBookmarked = value;
+    _illustPreviewerModel?.isBookmarked = value;
+    notifyListeners();
+  }
 
   bool get isUgoira => 'ugoira' == illust.type;
 
@@ -48,11 +59,10 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
     notifyListeners();
   }
 
-  bool get isBookmarked => illust.isBookmarked;
+  double get downloadProgress => _downloadProgress;
 
-  set isBookmarked(bool value) {
-    illust.isBookmarked = value;
-    _illustPreviewerModel?.isBookmarked = value;
+  set downloadProgress(double value) {
+    _downloadProgress = value;
     notifyListeners();
   }
 
@@ -60,6 +70,13 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
 
   set gifBytes(Uint8List? value) {
     _gifBytes = value;
+    notifyListeners();
+  }
+
+  bool get downloadingGif => _downloadingGif;
+
+  set downloadingGif(bool value) {
+    _downloadingGif = value;
     notifyListeners();
   }
 
@@ -118,41 +135,52 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
     }
   }
 
-  Future<void> startGenerateGif() async {
-    generatingGif = true;
-    pixivAPI.getUgoiraMetadata(illust.id).then((result) async {
+  void startGenerateGif() {
+    //获取信息
+    downloadingGif = true;
+    pixivAPI.getUgoiraMetadata(illust.id).then((result) {
       final dio = Dio(BaseOptions(responseType: ResponseType.bytes));
       final ugoiraMetadata = result.ugoiraMetadata;
-      await dio.get<Uint8List>(Utils.replaceImageSource(ugoiraMetadata.zipUrls.medium)).then((response) async {
-        gifBytes = await platformAPI.generateGif(
-          id: illust.id,
-          zipBytes: response.data!,
-          width: illust.width,
-          height: illust.height,
-          delays: Int32List.fromList(ugoiraMetadata.frames.map((e) => e.delay).toList()),
-        );
-      }).catchError((e) {
-        Log.e('获取动图压缩包失败', e);
-      });
+      final url = Utils.replaceImageSource(ugoiraMetadata.zipUrls.medium);
+      //开始下载
+      dio.get<Uint8List>(url, onReceiveProgress: (count, total) => count / total).then((response) {
+       platformAPI.toast('开始生成GIF,共${ugoiraMetadata.frames.length}帧,可能需要一些时间');
+        final delays = Int32List.fromList(ugoiraMetadata.frames.map((e) => e.delay).toList());
+        generatingGif = true;
+        platformAPI
+            .generateGif(id: illust.id, zipBytes: response.data!, delays: delays)
+            .then((bytes) => gifBytes = bytes)
+            .catchError((e) {
+          Log.e('生成GIF失败', e);
+         platformAPI.toast('生成GIF失败');
+        }).whenComplete(() => generatingGif = false);
+      }).catchError((e, s) {
+        Log.e('获取动图压缩包失败', e, s);
+       platformAPI.toast('获取动图压缩包失败');
+      }).whenComplete(() => downloadingGif = false);
+
     }).catchError((e, s) {
       Log.e('获取动图信息失败', e, s);
-    }).whenComplete(() => generatingGif = false);
+     platformAPI.toast('获取动图信息失败');
+      downloadingGif = false;
+    });
   }
 
   Future<void> saveGifFile() async {
     final filename = '${illust.id}.gif';
+
     if (await platformAPI.imageIsExist(filename)) {
       platformAPI.toast('GIF图片已经存在');
     } else {
       final saveResult = await platformAPI.saveImage(gifBytes!, filename);
       if (null == saveResult) {
-        await platformAPI.toast('GIF图片已经存在');
+       platformAPI.toast('GIF图片已经存在');
         return;
       }
       if (saveResult) {
-        await platformAPI.toast('保存成功');
+       platformAPI.toast('保存成功');
       } else {
-        await platformAPI.toast('保存失败');
+       platformAPI.toast('保存失败');
       }
     }
   }

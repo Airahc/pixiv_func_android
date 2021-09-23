@@ -5,8 +5,9 @@
  * 创建时间:2021/8/25 下午7:41
  * 作者:小草
  */
+import 'package:extended_image/extended_image.dart';
 
-import 'package:flutter/cupertino.dart';
+// import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/entity/illust.dart';
@@ -113,15 +114,17 @@ class _IllustContentPageState extends State<IllustContentPage> {
                       ImageViewFromUrl(
                         model.illust.imageUrls.large,
                       ),
-                      model.generatingGif
+                      model.downloadingGif
                           ? CircularProgressIndicator()
-                          : GestureDetector(
-                              onTap: model.startGenerateGif,
-                              child: Icon(
-                                Icons.play_circle_outline_outlined,
-                                size: 70,
-                              ),
-                            ),
+                          : model.generatingGif
+                              ? CircularProgressIndicator()
+                              : GestureDetector(
+                                  onTap: model.startGenerateGif,
+                                  child: Icon(
+                                    Icons.play_circle_outline_outlined,
+                                    size: 70,
+                                  ),
+                                ),
                     ],
                   ),
                 ),
@@ -144,9 +147,32 @@ class _IllustContentPageState extends State<IllustContentPage> {
             child: Column(
               children: [
                 Container(
-                  width: model.illust.width + 0.0,
-                  height: model.illust.height + 0.0,
-                  child: Image.memory(model.gifBytes!),
+                  width: model.illust.width.toDouble(),
+                  height: model.illust.height.toDouble(),
+                  child: ExtendedImage.memory(
+                    model.gifBytes!,
+                    loadStateChanged: (state) {
+                      switch (state.extendedImageLoadState) {
+                        case LoadState.loading:
+                          return Container(
+                            padding: const EdgeInsets.all(5),
+                            child: const Center(child: CircularProgressIndicator()),
+                          );
+                        case LoadState.completed:
+                          return state.completedWidget;
+                        case LoadState.failed:
+                          return Center(
+                            child: IconButton(
+                              icon: const Icon(Icons.refresh_sharp),
+                              iconSize: 35,
+                              onPressed: () {
+                                state.reLoadImage();
+                              },
+                            ),
+                          );
+                      }
+                    },
+                  ),
                 ),
                 IconButton(
                   tooltip: '保存生成的GIF图片',
@@ -275,7 +301,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
         child: InkWell(
           onLongPress: () async {
             await Utils.copyToClipboard('${illust.id}');
-            await platformAPI.toast('已将插画ID复制到剪切板');
+           platformAPI.toast('已将插画ID复制到剪切板');
           },
           child: Text('插画ID:${illust.id}'),
         ),
@@ -444,7 +470,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
         SliverChild(
           Container(
             padding: EdgeInsets.fromLTRB(0, 25, 0, 25),
-            child: Center(child: RefreshProgressIndicator()),
+            child: Center(child: CircularProgressIndicator()),
           ),
         ),
       );
