@@ -15,12 +15,15 @@ class SearchFilter {
   bool enableDateRange;
   DateTimeRange dateTimeRange;
   int? bookmarkTotal;
+  int dateTimeRangeType;
+
   SearchFilter({
     required this.target,
     required this.sort,
     required this.enableDateRange,
     required this.dateTimeRange,
     required this.bookmarkTotal,
+    required this.dateTimeRangeType,
   });
 
   ///因为Dart直接传对线是引用类型 所以需要创建一个副本 用于编辑
@@ -30,6 +33,7 @@ class SearchFilter {
         enableDateRange: filter.enableDateRange,
         dateTimeRange: filter.dateTimeRange,
         bookmarkTotal: filter.bookmarkTotal,
+        dateTimeRangeType: filter.dateTimeRangeType,
       );
 
   factory SearchFilter.create({
@@ -47,10 +51,12 @@ class SearchFilter {
         end: DateTime(_currentDate.year, _currentDate.month, _currentDate.day),
       ),
       bookmarkTotal: null,
+      dateTimeRangeType: 0,
     );
   }
 
   String get formatStartDate => '${dateTimeRange.start.year}-${dateTimeRange.start.month}-${dateTimeRange.start.day}';
+
   String get formatEndDate => '${dateTimeRange.end.year}-${dateTimeRange.end.month}-${dateTimeRange.end.day}';
 
   @override

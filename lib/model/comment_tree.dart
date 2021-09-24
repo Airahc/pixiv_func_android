@@ -10,11 +10,12 @@ import 'package:pixiv_func_android/api/entity/comment.dart';
 
 class CommentTree {
   Comment data;
+  CommentTree? parent;
   List<CommentTree> children = [];
   bool loading = false;
   String? nextUrl;
 
-  CommentTree(this.data);
+  CommentTree({required this.data,required this.parent});
 
   bool get hasNext => null != nextUrl;
 }

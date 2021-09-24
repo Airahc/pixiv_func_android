@@ -52,8 +52,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     RadioListTile(
                       activeColor: Theme.of(context).colorScheme.primary,
-                      title: Text('使用IP直连(210.140.92.144)'),
-                      value: '210.140.92.144',
+                      title: Text('使用IP直连(210.140.92.139)'),
+                      value: '210.140.92.139',
                       groupValue: model.imageSource,
                       onChanged: (String? value) {
                         if (null != value) {

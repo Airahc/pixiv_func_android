@@ -25,7 +25,6 @@ class SearchIllustResultModel extends BaseViewStateRefreshListModel<Illust> {
   set filter(SearchFilter value) {
     if (value != _filter) {
       _filter = value;
-      notifyListeners();
       refresh();
     }
   }

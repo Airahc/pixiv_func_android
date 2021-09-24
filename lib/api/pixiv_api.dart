@@ -330,7 +330,7 @@ class PixivAPI {
         }..removeWhere((key, value) => null == value),
       ),
     );
-    final data = Comment.fromJson(jsonDecode(response.data!));
+    final data = Comment.fromJson(jsonDecode(response.data!)['comment']);
     return data;
   }
 

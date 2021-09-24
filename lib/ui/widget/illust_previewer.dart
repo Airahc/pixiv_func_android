@@ -19,7 +19,17 @@ class IllustPreviewer extends StatelessWidget {
 
   final IllustContentModel? illustContentModel;
 
-  const IllustPreviewer({Key? key, required this.illust, this.illustContentModel}) : super(key: key);
+  final bool square;
+
+  final bool showUserName;
+
+  const IllustPreviewer({
+    Key? key,
+    required this.illust,
+    this.illustContentModel,
+    this.square = false,
+    this.showUserName = true,
+  }) : super(key: key);
 
   Widget _buildBookmarkButton(IllustPreviewerModel model) {
     return IconButton(
@@ -36,104 +46,139 @@ class IllustPreviewer extends StatelessWidget {
     );
   }
 
+  static final borderRadius = BorderRadius.circular(10);
+
+  static final circularRadius = Radius.circular(10);
+
+  Widget _buildImage({
+    required String url,
+    required double width,
+    required double height,
+    required BuildContext context,
+    required IllustPreviewerModel model,
+  }) {
+    return ImageViewFromUrl(
+      model.illust.imageUrls.medium,
+      width: width,
+      height: height,
+      fit: square ? BoxFit.fill : BoxFit.fitWidth,
+      imageBuilder: (Widget imageWidget) {
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            GestureDetector(
+              onTap: () {
+                PageUtils.to(
+                  context,
+                  IllustContentPage(
+                    model.illust,
+                    parentModel: square ? null : model,
+                  ),
+                );
+              },
+              child: imageWidget,
+            ),
+            Positioned(
+              left: 2,
+              top: 2,
+              child: model.illust.tags.any((tag) => tag.name == 'R-18')
+                  ? Card(
+                      color: Colors.pinkAccent,
+                      child: Text('R-18'),
+                    )
+                  : Container(),
+            ),
+            Positioned(
+              left: 2,
+              bottom: 2,
+              child: model.isUgoira
+                  ? Card(
+                      color: Colors.white12,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                        child: Text('动图'),
+                      ),
+                    )
+                  : Container(),
+            ),
+            Positioned(
+              right: 2,
+              top: 2,
+              child: model.illust.pageCount > 1
+                  ? Card(
+                      color: Colors.white12,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                        child: Text(
+                          '${model.illust.pageCount}',
+                        ),
+                      ),
+                    )
+                  : Container(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ProviderWidget(
       model: IllustPreviewerModel(illust, illustContentModel: illustContentModel),
       builder: (BuildContext context, IllustPreviewerModel model, Widget? child) {
-        return Card(
-          child: Container(
-            padding: EdgeInsets.all(5),
+        if (square) {
+          return LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              return _buildImage(
+                url: model.illust.imageUrls.squareMedium,
+                width: constraints.maxWidth,
+                height: constraints.maxWidth,
+                context: context,
+                model: model,
+              );
+            },
+          );
+        } else {
+          return Card(
+            shape: RoundedRectangleBorder(borderRadius: borderRadius),
             child: Column(
               children: [
                 LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
                     final previewHeight = constraints.maxWidth / model.illust.width * model.illust.height;
-                    return ImageViewFromUrl(
-                      model.illust.imageUrls.medium,
-                      width: constraints.maxWidth,
-                      height: previewHeight,
-                      imageBuilder: (Widget imageWidget) {
-                        return Stack(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                PageUtils.to(
-                                  context,
-                                  IllustContentPage(
-                                    model.illust,
-                                    parentModel: model,
-                                  ),
-                                );
-                              },
-                              child: imageWidget,
-                            ),
-                            Positioned(
-                              left: 2,
-                              top: 2,
-                              child: model.illust.tags.any((tag) => tag.name == 'R-18')
-                                  ? Card(
-                                      color: Colors.pinkAccent,
-                                      child: Text('R-18'),
-                                    )
-                                  : Container(),
-                            ),
-                            Positioned(
-                              left: 2,
-                              bottom: 2,
-                              child: model.isUgoira
-                                  ? Card(
-                                      color: Colors.white12,
-                                      child: Padding(
-                                        padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                        child: Text('动图'),
-                                      ),
-                                    )
-                                  : Container(),
-                            ),
-                            Positioned(
-                              right: 2,
-                              top: 2,
-                              child: model.illust.pageCount > 1
-                                  ? Card(
-                                      color: Colors.white12,
-                                      child: Padding(
-                                        padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                        child: Text(
-                                          '${model.illust.pageCount}',
-                                          style: TextStyle(fontSize: 20),
-                                        ),
-                                      ),
-                                    )
-                                  : Container(),
-                            ),
-                          ],
-                        );
-                      },
+                    return ClipRRect(
+                      borderRadius: BorderRadius.only(topLeft: circularRadius, topRight: circularRadius),
+                      child: _buildImage(
+                        url: model.illust.imageUrls.medium,
+                        width: constraints.maxWidth,
+                        height: previewHeight,
+                        context: context,
+                        model: model,
+                      ),
                     );
                   },
                 ),
-                Container(
-                  alignment: Alignment.topLeft,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      model.illust.title,
-                      style: TextStyle(fontSize: 15),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    subtitle: Text(
-                      model.illust.user.name,
-                      style: TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: model.bookmarkRequestWaiting ? RefreshProgressIndicator() : _buildBookmarkButton(model),
+                ListTile(
+                  contentPadding: EdgeInsets.only(left: 5),
+                  title: Text(
+                    model.illust.title,
+                    style: TextStyle(fontSize: 15),
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  subtitle: showUserName
+                      ? Text(
+                          model.illust.user.name,
+                          style: TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      : null,
+                  trailing: model.bookmarkRequestWaiting ? RefreshProgressIndicator() : _buildBookmarkButton(model),
                 ),
               ],
             ),
-          ),
-        );
+          );
+        }
       },
     );
   }

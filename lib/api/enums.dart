@@ -57,6 +57,9 @@ enum SearchSort {
 
   ///时间升序(最旧)
   DATE_ASC,
+
+  ///热度降序
+  POPULAR_DESC,
 }
 
 enum SearchTarget {

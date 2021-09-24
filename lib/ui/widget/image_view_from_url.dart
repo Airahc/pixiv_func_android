@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/util/utils.dart';
 
 class ImageViewFromUrl extends StatelessWidget {
-
   final String url;
 
   final Color? color;
@@ -39,9 +38,8 @@ class ImageViewFromUrl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return ExtendedImage.network(
-        Utils.replaceImageSource(url),
+      Utils.replaceImageSource(url),
       headers: {'Referer': 'https://app-api.pixiv.net/'},
       //https://github.com/fluttercandies/extended_image/issues/355
       //https://github.com/fluttercandies/extended_image/issues/351
@@ -56,11 +54,7 @@ class ImageViewFromUrl extends StatelessWidget {
               child: const Center(child: CircularProgressIndicator()),
             );
           case LoadState.completed:
-
-            return imageBuilder?.call(ExtendedRawImage(
-              fit: BoxFit.fitWidth,
-              image: state.extendedImageInfo?.image,
-            ));
+            return imageBuilder?.call(state.completedWidget);
           case LoadState.failed:
             return Center(
               child: IconButton(

@@ -8,6 +8,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/entity/comment.dart';
+import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/model/comment_tree.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/provider/view_state.dart';
@@ -69,13 +70,27 @@ class IllustCommentPage extends StatelessWidget {
             onTap: () => PageUtils.to(context, UserPage(commentTree.data.user.id)),
             child: AvatarViewFromUrl(commentTree.data.user.profileImageUrls.medium),
           ),
+          onLongPress: () => model.repliesCommentTree = commentTree,
           title: _buildCommentContent(model, commentTree.data),
-          subtitle: Text(
-            Utils.japanDateToLocalDateString(
-              DateTime.parse(commentTree.data.date),
-            ),
-            style: TextStyle(color: Colors.white54),
-          ),
+          subtitle: accountManager.current?.user.id == commentTree.data.user.id.toString()
+              ? Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Text(
+                      Utils.japanDateToLocalDateString(DateTime.parse(commentTree.data.date)),
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                    Expanded(child: Container()),
+                    OutlinedButton(
+                      onPressed: () => model.doDeleteComment(commentTree),
+                      child: Text('删除'),
+                    )
+                  ],
+                )
+              : Text(
+                  Utils.japanDateToLocalDateString(DateTime.parse(commentTree.data.date)),
+                  style: TextStyle(color: Colors.white54),
+                ),
           trailing: commentTree.loading
               ? CircularProgressIndicator()
               : commentTree.data.hasReplies
@@ -111,30 +126,46 @@ class IllustCommentPage extends StatelessWidget {
       }
 
       return Card(
-        child: ExpansionTile(
-          leading: GestureDetector(
-            onTap: () => PageUtils.to(context, UserPage(commentTree.data.user.id)),
-            child: AvatarViewFromUrl(commentTree.data.user.profileImageUrls.medium),
-          ),
-          childrenPadding: EdgeInsets.only(left: 20),
-          children: children,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 5),
-              Text(
-                commentTree.data.user.name,
-              ),
-              SizedBox(height: 10),
-              Text(commentTree.data.comment),
-              SizedBox(height: 10),
-            ],
-          ),
-          subtitle: Text(
-            Utils.japanDateToLocalDateString(
-              DateTime.parse(commentTree.data.date),
+        child: InkWell(
+          onLongPress: () => model.repliesCommentTree = commentTree,
+          child: ExpansionTile(
+            leading: GestureDetector(
+              onTap: () => PageUtils.to(context, UserPage(commentTree.data.user.id)),
+              child: AvatarViewFromUrl(commentTree.data.user.profileImageUrls.medium),
             ),
-            style: TextStyle(color: Colors.white54),
+            childrenPadding: EdgeInsets.only(left: 20),
+            children: children,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 5),
+                Text(
+                  commentTree.data.user.name,
+                ),
+                SizedBox(height: 10),
+                Text(commentTree.data.comment),
+                SizedBox(height: 10),
+              ],
+            ),
+            subtitle: accountManager.current?.user.id == commentTree.data.user.id.toString()
+                ? Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Text(
+                        Utils.japanDateToLocalDateString(DateTime.parse(commentTree.data.date)),
+                        style: TextStyle(color: Colors.white54),
+                      ),
+                      Expanded(child: Container()),
+                      OutlinedButton(
+                        onPressed: () => model.doDeleteComment(commentTree),
+                        child: Text('删除'),
+                      )
+                    ],
+                  )
+                : Text(
+                    Utils.japanDateToLocalDateString(DateTime.parse(commentTree.data.date)),
+                    style: TextStyle(color: Colors.white54),
+                  ),
           ),
         ),
       );
@@ -166,11 +197,52 @@ class IllustCommentPage extends StatelessWidget {
           );
         }
 
-        return RefresherWidget(
-          model,
-          child: CustomScrollView(
-            slivers: slivers,
-          ),
+        return Column(
+          children: [
+            Flexible(
+              child: RefresherWidget(
+                model,
+                child: CustomScrollView(
+                  slivers: slivers,
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () => model.repliesCommentTree = null,
+                  icon: Icon(
+                    Icons.reply_sharp,
+                  ),
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: model.commentInput,
+                    decoration: InputDecoration(
+                      labelText: model.commentInputLabel,
+                      prefix: SizedBox(width: 5),
+                      suffixIcon: InkWell(
+                        onTap: () {
+                          model.commentInput.clear();
+                        },
+                        child: Icon(
+                          Icons.close_sharp,
+                          color: Colors.white54,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.only(right: 5),
+                  child: ElevatedButton(
+                    onPressed: model.doAddComment,
+                    child: Text('发送'),
+                  ),
+                ),
+              ],
+            ),
+          ],
         );
       },
     );

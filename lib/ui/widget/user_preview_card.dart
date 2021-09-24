@@ -9,20 +9,20 @@
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/entity/user_preview.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
-import 'package:pixiv_func_android/ui/page/illust/illust_content_page.dart';
 import 'package:pixiv_func_android/ui/page/user/user_page.dart';
+import 'package:pixiv_func_android/ui/widget/avatar_view_from_url.dart';
+import 'package:pixiv_func_android/ui/widget/illust_previewer.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/view_model/user_preview_model.dart';
 
-import 'avatar_view_from_url.dart';
-import 'image_view_from_url.dart';
+
 
 class UserPreviewCard extends StatelessWidget {
   final UserPreview userPreview;
 
   const UserPreviewCard(this.userPreview, {Key? key}) : super(key: key);
 
-  static const double padding = 5;
+  static const double padding = 3;
 
   @override
   Widget build(BuildContext context) {
@@ -35,21 +35,21 @@ class UserPreviewCard extends StatelessWidget {
               children: [
                 LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
-                    final width = constraints.maxWidth / 3 - padding * 2;
-                    return Row(
-                      children: model.userPreview.illusts
-                          .map((illust) => Container(
-                                padding: EdgeInsets.all(padding),
-                                child: GestureDetector(
-                                  onTap: () => PageUtils.to(context, IllustContentPage(illust)),
-                                  child: ImageViewFromUrl(
-                                    illust.imageUrls.squareMedium,
-                                    width: width,
-                                    height: width,
-                                  ),
+                    return Container(
+                      width: constraints.maxWidth,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: model.userPreview.illusts
+                            .map(
+                              (illust) => Expanded(
+                                child: Container(
+                                  padding: EdgeInsets.all(padding),
+                                  child: IllustPreviewer(illust: illust, square: true),
                                 ),
-                              ))
-                          .toList(),
+                              ),
+                            )
+                            .toList(),
+                      ),
                     );
                   },
                 ),

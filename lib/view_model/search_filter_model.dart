@@ -20,11 +20,7 @@ class SearchFilterModel extends BaseViewModel {
 
   DateTime get currentDate => DateTime.now();
 
-  int _dateTimeRangeType = 0;
-
-  int get dateTimeRangeType => _dateTimeRangeType;
-
-
+  int get dateTimeRangeType => filter.dateTimeRangeType;
 
   int get bookmarkTotalSelected => bookmarkTotalItems.indexWhere((item) => item == filter.bookmarkTotal);
 
@@ -36,8 +32,10 @@ class SearchFilterModel extends BaseViewModel {
   }
 
   set dateTimeRangeType(int value) {
-    _dateTimeRangeType = value;
-    notifyListeners();
+    if (value != filter.dateTimeRangeType) {
+      filter.dateTimeRangeType = value;
+      notifyListeners();
+    }
   }
 
   set target(SearchTarget value) {

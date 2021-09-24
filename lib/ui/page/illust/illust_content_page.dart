@@ -24,6 +24,7 @@ import 'package:pixiv_func_android/ui/page/search/search_illust_result/search_il
 import 'package:pixiv_func_android/ui/page/user/user_page.dart';
 import 'package:pixiv_func_android/ui/widget/avatar_view_from_url.dart';
 import 'package:pixiv_func_android/ui/widget/html_rich_text.dart';
+import 'package:pixiv_func_android/ui/widget/illust_previewer.dart';
 import 'package:pixiv_func_android/ui/widget/image_view_from_url.dart';
 import 'package:pixiv_func_android/ui/widget/sliver_child.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
@@ -394,8 +395,8 @@ class _IllustContentPageState extends State<IllustContentPage> {
             padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
             child: ListTile(
               onTap: model.loadFirstData,
-              title: Text('点击重新加载'),
-              subtitle: Text('加载相关推荐失败'),
+              title: Center(child: Text('点击重新加载'),),
+              subtitle: Center(child: Text('加载相关推荐失败'),),
             ),
           ),
         ),
@@ -421,13 +422,11 @@ class _IllustContentPageState extends State<IllustContentPage> {
       list.add(
         SliverGrid.count(
           crossAxisCount: 3,
-          crossAxisSpacing: 5,
-          mainAxisSpacing: 5,
           children: model.list
               .map(
                 (illust) => GestureDetector(
                   onTap: () => PageUtils.to(context, IllustContentPage(illust)),
-                  child: ImageViewFromUrl(illust.imageUrls.squareMedium),
+                  child: IllustPreviewer(illust: illust, square: true),
                 ),
               )
               .toList(),

@@ -144,7 +144,7 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
       final url = Utils.replaceImageSource(ugoiraMetadata.zipUrls.medium);
       //开始下载
       dio.get<Uint8List>(url, onReceiveProgress: (count, total) => count / total).then((response) {
-       platformAPI.toast('开始生成GIF,共${ugoiraMetadata.frames.length}帧,可能需要一些时间');
+        platformAPI.toast('开始生成GIF,共${ugoiraMetadata.frames.length}帧,可能需要一些时间', isLong: true);
         final delays = Int32List.fromList(ugoiraMetadata.frames.map((e) => e.delay).toList());
         generatingGif = true;
         platformAPI
@@ -152,16 +152,15 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
             .then((bytes) => gifBytes = bytes)
             .catchError((e) {
           Log.e('生成GIF失败', e);
-         platformAPI.toast('生成GIF失败');
+          platformAPI.toast('生成GIF失败');
         }).whenComplete(() => generatingGif = false);
       }).catchError((e, s) {
         Log.e('获取动图压缩包失败', e, s);
-       platformAPI.toast('获取动图压缩包失败');
+        platformAPI.toast('获取动图压缩包失败');
       }).whenComplete(() => downloadingGif = false);
-
     }).catchError((e, s) {
       Log.e('获取动图信息失败', e, s);
-     platformAPI.toast('获取动图信息失败');
+      platformAPI.toast('获取动图信息失败');
       downloadingGif = false;
     });
   }
@@ -174,13 +173,13 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
     } else {
       final saveResult = await platformAPI.saveImage(gifBytes!, filename);
       if (null == saveResult) {
-       platformAPI.toast('GIF图片已经存在');
+        platformAPI.toast('GIF图片已经存在');
         return;
       }
       if (saveResult) {
-       platformAPI.toast('保存成功');
+        platformAPI.toast('保存成功');
       } else {
-       platformAPI.toast('保存失败');
+        platformAPI.toast('保存失败');
       }
     }
   }

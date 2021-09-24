@@ -36,6 +36,7 @@ class UserIllust extends StatelessWidget {
                 itemBuilder: (BuildContext context, int index) => IllustPreviewer(
                   illust: model.list[index],
                   illustContentModel: illustContentModel,
+                  showUserName: false,
                 ),
                 staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
                 itemCount: model.list.length,

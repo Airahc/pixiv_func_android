@@ -11,9 +11,9 @@ import 'package:dio/dio.dart';
 import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/model/download_task.dart';
+import 'package:pixiv_func_android/util/utils.dart';
 
 class Downloader {
-  static const _TARGET_HOST = 'i.pximg.net';
 
   static int _idCount = 0;
 
@@ -106,7 +106,7 @@ class Downloader {
     int? id,
   }) async {
     final filename = url.substring(url.lastIndexOf('/') + 1);
-    final imageUrl = url.replaceFirst(_TARGET_HOST, settingsManager.imageSource);
+    final imageUrl = Utils.replaceImageSource(url);
     if (await platformAPI.imageIsExist(filename)) {
      platformAPI.toast('图片已经存在');
       return;

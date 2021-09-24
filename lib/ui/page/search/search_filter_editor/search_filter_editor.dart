@@ -8,6 +8,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/enums.dart';
+import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/model/dropdown_item.dart';
 import 'package:pixiv_func_android/model/search_filter.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
@@ -68,39 +69,76 @@ class SearchFilterEditor extends StatelessWidget {
   }
 
   Widget _buildSearchSortEdit(SearchFilterModel model) {
-    return ListTile(
-      title: Text('搜索排序'),
-      trailing: DropdownButtonHideUnderline(
-        child: DropdownMenu<SearchSort>(
-          menuItems: [
-            DropdownItem(SearchSort.DATE_DESC, '时间降序'),
-            DropdownItem(SearchSort.DATE_ASC, '时间升序'),
-          ],
-          currentValue: model.sort,
-          onChanged: (SearchSort? value) {
-            model.sort = value!;
-          },
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return Container(
+          width: constraints.maxWidth,
+          padding: EdgeInsets.only(bottom: 20),
+          child: CupertinoSlidingSegmentedControl(
+            children: <SearchSort, Widget>{
+              SearchSort.DATE_DESC: Container(
+                alignment: Alignment.center,
+                child: Text('时间降序'),
+                width: constraints.maxWidth / 3,
+              ),
+              SearchSort.DATE_ASC: Container(
+                alignment: Alignment.center,
+                child: Text('时间升序'),
+                width: constraints.maxWidth / 3,
+              ),
+              SearchSort.POPULAR_DESC: Container(
+                alignment: Alignment.center,
+                child: Text('热度降序'),
+                width: constraints.maxWidth / 3,
+              ),
+            },
+            groupValue: model.sort,
+            onValueChanged: (SearchSort? value) {
+              if (null != value) {
+                if (SearchSort.POPULAR_DESC == value && !accountManager.current!.user.isPremium) {
+                  platformAPI.toast('你不是Pixiv高级会员,所以该选项与时间降序行为一致');
+                }
+                model.sort = value;
+              }
+            },
+          ),
+        );
+      },
     );
   }
 
   Widget _buildSearchTargetEdit(SearchFilterModel model) {
-    return ListTile(
-      title: Text('搜索方式'),
-      trailing: DropdownButtonHideUnderline(
-        child: DropdownMenu<SearchTarget>(
-          menuItems: [
-            DropdownItem(SearchTarget.PARTIAL_MATCH_FOR_TAGS, '标签(部分匹配)'),
-            DropdownItem(SearchTarget.EXACT_MATCH_FOR_TAGS, '标签(完全匹配)'),
-            DropdownItem(SearchTarget.TITLE_AND_CAPTION, '标签&简介'),
-          ],
-          currentValue: model.target,
-          onChanged: (SearchTarget? value) {
-            model.target = value!;
-          },
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return Container(
+          padding: EdgeInsets.only(bottom: 20),
+          child: CupertinoSlidingSegmentedControl(
+            children: <SearchTarget, Widget>{
+              SearchTarget.PARTIAL_MATCH_FOR_TAGS: Container(
+                alignment: Alignment.center,
+                child: Text('标签(部分匹配)'),
+                width: constraints.maxWidth / 3,
+              ),
+              SearchTarget.EXACT_MATCH_FOR_TAGS: Container(
+                alignment: Alignment.center,
+                child: Text('标签(完全匹配)'),
+                width: constraints.maxWidth / 3,
+              ),
+              SearchTarget.TITLE_AND_CAPTION: Container(
+                alignment: Alignment.center,
+                child: Text('标签&简介'),
+                width: constraints.maxWidth / 3,
+              ),
+            },
+            groupValue: model.target,
+            onValueChanged: (SearchTarget? value) {
+              if (null != value) {
+                model.target = value;
+              }
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -197,24 +235,26 @@ class SearchFilterEditor extends StatelessWidget {
       model: SearchFilterModel(filter: filter),
       builder: (BuildContext context, SearchFilterModel model, Widget? child) {
         return Container(
-          height: 430,
-          padding: EdgeInsets.all(35),
+          height: 450,
+          padding: EdgeInsets.only(left: 20, right: 20, top: 20),
           child: Column(
             children: [
               _buildSearchSortEdit(model),
               _buildSearchTargetEdit(model),
-              _buildDateRangeTypeEdit(model),
-              model.dateTimeRangeType == -1 ? _buildDateRangeEdit(context, model) : Container(),
+              Divider(),
               Text(model.bookmarkTotalText),
               Slider(
                 value: model.bookmarkTotalSelected.toDouble(),
                 min: 0,
                 max: model.bookmarkTotalItems.length - 1,
-                divisions: model.bookmarkTotalItems.length -1,
+                divisions: model.bookmarkTotalItems.length - 1,
                 onChanged: (double value) {
                   model.bookmarkTotalSelected = value.round();
                 },
               ),
+              Divider(),
+              _buildDateRangeTypeEdit(model),
+              model.dateTimeRangeType == -1 ? _buildDateRangeEdit(context, model) : Container(),
               OutlinedButton(
                 onPressed: () {
                   onChanged(model.filter);

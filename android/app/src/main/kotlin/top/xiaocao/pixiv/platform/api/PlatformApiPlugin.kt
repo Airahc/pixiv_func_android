@@ -68,12 +68,15 @@ class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
                 )
             }
             methodSaveImage -> {
-                result.success(
-                    context.saveImage(
+                thread {
+                    val success = context.saveImage(
                         imageBytes = call.argument<ByteArray>("imageBytes")!!,
                         filename = call.argument<String>("filename")!!
                     )
-                )
+                    Handler(Looper.getMainLooper()).post {
+                        result.success(success)
+                    }
+                }
             }
             methodToast -> {
                 Toast.makeText(
@@ -113,6 +116,7 @@ class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
                 val delays = call.argument<IntArray>("delays")!!
 
                 //必须开一个线程 不然生成GIF的时候Flutter UI那边直接卡死
+
                 thread {
                     var init = false
                     var index = 0
@@ -146,12 +150,16 @@ class PlatformApiPlugin(private val context: Context) : FlutterPlugin,
                         }
                         gifEncoder.close()
                     }
-                    //在主线程中执行 (因为是@UiThread)
-                    Handler(Looper.getMainLooper()).post {
-                        gifFile.also {
-                            result.success(it.readBytes())
-                        }.delete()
-                    }
+
+
+                    gifFile.also {
+                        val imageBytes = gifFile.readBytes()
+                        //在主线程中执行 (因为是@UiThread)
+                        Handler(Looper.getMainLooper()).post {
+                            result.success(imageBytes)
+                        }
+                    }.delete()
+
                 }
 
             }
