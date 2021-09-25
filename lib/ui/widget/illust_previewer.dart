@@ -58,7 +58,7 @@ class IllustPreviewer extends StatelessWidget {
     required IllustPreviewerModel model,
   }) {
     return ImageViewFromUrl(
-      model.illust.imageUrls.medium,
+      url,
       width: width,
       height: height,
       fit: square ? BoxFit.fill : BoxFit.fitWidth,
