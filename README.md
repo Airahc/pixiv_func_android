@@ -1,22 +1,25 @@
-# 只是一个`Pixiv`客户端
-## _该项目与一切现有同类项目无关,请不要拿来比较_
+# 你好,色批人
+### _该项目与一切现有同类项目无关,请不要拿来比较_
 
-## _夹批搪与牲口不得使用_
+### _夹批搪与牲口不得使用_
 
 此软件开源且免费(不收取打赏) 禁止用于盈利(包括但不仅限于收取打赏)
 
-#### 我对`人`是非常友好的(😊), 如果发现Bug或者不合理的地方或者想要新增功能(我会酌情考虑要不要做)请打开一个 [Issue](https://github.com/xiao-cao-x/pixiv_func_android/issues/new) 哦
+我对`人`是非常友好的(😊), 如果发现Bug或者不合理的地方或者想要新增功能(我会酌情考虑要不要做)请打开一个 [Issue](https://github.com/xiao-cao-x/pixiv_func_android/issues/new) 哦
 
 如果你觉得我的软件好用 可以推荐给朋友
 
 前往 [Release](https://github.com/xiao-cao-x/pixiv_func_android/releases) 下载
 
+---
 
-## 支持功能如下
+一个支持免代理直连的Pixiv安卓客户端,安全无广告只需要存储权限(各位色批人放心使用,不要问安不安全 开源项目!!!)
+
+支持功能如下
 
 | 名称 | 备注 |
 | --- | --- |
-| 登录 | 用的 [WebView](https://github.com/xiao-cao-x/pixiv_func_android/blob/main/android/app/src/main/kotlin/top/xiaocao/pixiv/platform/webview/PlatformWebView.kt) 登录需要开代理(VPN) |
+| 登录 | 用的 [WebView](https://github.com/xiao-cao-x/pixiv_func_android/blob/main/android/app/src/main/kotlin/top/xiaocao/pixiv/platform/webview/PlatformWebView.kt) 暂时需要开代理(VPN),登录一次就永远(不出意外的话)不用再开代理了 |
 | 查看推荐作品 | 插画 & 漫画 |
 | 查看收藏作品 |  |
 | 查看已关注用户的最新作品  |  |
