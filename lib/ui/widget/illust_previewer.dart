@@ -153,7 +153,7 @@ class IllustPreviewer extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.only(topLeft: circularRadius, topRight: circularRadius),
                         child: _buildImage(
-                          url: Utils.getPreviewUrl(illust),
+                          url: Utils.getPreviewUrl(illust.imageUrls),
                           width: constraints.maxWidth,
                           height: previewHeight,
                           context: context,

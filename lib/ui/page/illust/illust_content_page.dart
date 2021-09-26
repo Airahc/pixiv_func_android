@@ -94,7 +94,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  ImageViewFromUrl(Utils.getPreviewUrl(model.illust)),
+                  ImageViewFromUrl(Utils.getPreviewUrl(model.illust.imageUrls)),
                   model.downloadingGif
                       ? CircularProgressIndicator()
                       : model.generatingGif
@@ -122,7 +122,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
   }
 
   Widget _buildImages(Illust illust) {
-    final previewUrl = Utils.getPreviewUrl(illust);
+
     if (1 == illust.pageCount) {
       return SliverToBoxAdapter(
         child: Hero(
@@ -130,7 +130,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
           child: _buildImageItem(
             illust.id,
             illust.title,
-            previewUrl,
+            Utils.getPreviewUrl(illust.imageUrls),
             illust.metaSinglePage.originalImageUrl!,
             illust: illust,
           ),
@@ -149,7 +149,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
                   child: _buildImageItem(
                     illust.id,
                     illust.title,
-                    previewUrl,
+                    Utils.getPreviewUrl(matePage.imageUrls),
                     matePage.imageUrls.original!,
                     illust: illust,
                   ),
@@ -158,7 +158,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
                 return _buildImageItem(
                   illust.id,
                   illust.title,
-                  previewUrl,
+                  Utils.getPreviewUrl(matePage.imageUrls),
                   matePage.imageUrls.original!,
                   illust: illust,
                 );

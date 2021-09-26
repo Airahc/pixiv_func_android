@@ -8,7 +8,7 @@
 
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:pixiv_func_android/api/entity/illust.dart';
+import 'package:pixiv_func_android/api/entity/image_urls.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 
 class Utils {
@@ -33,8 +33,8 @@ class Utils {
     return url.replaceFirst('i.pximg.net', settingsManager.imageSource);
   }
 
-  static String getPreviewUrl(Illust illust) {
-    return settingsManager.previewQuality ? illust.imageUrls.large : illust.imageUrls.medium;
+  static String getPreviewUrl(ImageUrls imageUrls) {
+    return settingsManager.previewQuality ? imageUrls.large : imageUrls.medium;
   }
 
   ///字符串是否是 twitter/用户名
