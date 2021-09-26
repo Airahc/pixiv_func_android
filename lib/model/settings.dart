@@ -9,4 +9,8 @@
 class Settings {
   bool isLightTheme = false;
   String imageSource = 'i.pixiv.cat';
+  //中等 大图
+  bool previewQuality = false;
+  //大图 原图
+  bool scaleQuality = true;
 }

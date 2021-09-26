@@ -25,6 +25,8 @@ class ImageViewFromUrl extends StatelessWidget {
 
   final Widget Function(Widget imageWidget)? imageBuilder;
 
+  final Widget? placeholderWidget;
+
   ImageViewFromUrl(
     this.url, {
     Key? key,
@@ -34,6 +36,7 @@ class ImageViewFromUrl extends StatelessWidget {
     this.height,
     this.fit,
     this.imageBuilder,
+    this.placeholderWidget,
   }) : super(key: key);
 
   @override
@@ -43,17 +46,24 @@ class ImageViewFromUrl extends StatelessWidget {
       headers: {'Referer': 'https://app-api.pixiv.net/'},
       //https://github.com/fluttercandies/extended_image/issues/355
       //https://github.com/fluttercandies/extended_image/issues/351
+      //https://github.com/fluttercandies/extended_image/issues/402
       //当图像提供者改变时，是继续显示旧图像（真），还是暂时不显示（假）
-      //防止刷新时图片闪烁
-      gaplessPlayback: true,
+      //防止刷新时图片闪烁 (降低extended_image版本到 3.0.0 这些问题都没有了)
+      // gaplessPlayback: true,
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
-            return Container(
-              padding: const EdgeInsets.all(5),
-              child: const Center(child: CircularProgressIndicator()),
-            );
+            return placeholderWidget ??
+                Container(
+                  padding: const EdgeInsets.all(5),
+                  child: const Center(child: CircularProgressIndicator()),
+                );
           case LoadState.completed:
+            // if (null == imageBuilder) {
+            //   return ExtendedRawImage(image: state.extendedImageInfo?.image, fit: fit);
+            // } else {
+            //   return imageBuilder!(ExtendedRawImage(image: state.extendedImageInfo?.image, fit: fit));
+            // }
             return imageBuilder?.call(state.completedWidget);
           case LoadState.failed:
             return Center(
@@ -72,7 +82,7 @@ class ImageViewFromUrl extends StatelessWidget {
       colorBlendMode: colorBlendMode,
       width: width,
       height: height,
-      fit: fit,
+      fit: fit ?? BoxFit.fitWidth,
     );
   }
 }

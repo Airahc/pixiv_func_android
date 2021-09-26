@@ -6,8 +6,6 @@
  * 作者:小草
  */
 import 'package:extended_image/extended_image.dart';
-
-// import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/entity/illust.dart';
@@ -26,7 +24,6 @@ import 'package:pixiv_func_android/ui/widget/avatar_view_from_url.dart';
 import 'package:pixiv_func_android/ui/widget/html_rich_text.dart';
 import 'package:pixiv_func_android/ui/widget/illust_previewer.dart';
 import 'package:pixiv_func_android/ui/widget/image_view_from_url.dart';
-import 'package:pixiv_func_android/ui/widget/sliver_child.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/util/utils.dart';
 import 'package:pixiv_func_android/view_model/illust_content_model.dart';
@@ -69,119 +66,54 @@ class _IllustContentPageState extends State<IllustContentPage> {
     String originUrl, {
     required Illust illust,
   }) {
-    return Container(
-      padding: EdgeInsets.only(bottom: 5),
-      child: Card(
-        child: Column(
-          children: [
-            GestureDetector(
-              onTap: () => PageUtils.to(
-                context,
-                ImageScalePage(
-                  illust: illust,
-                  initialPage: illust.pageCount > 1
-                      ? illust.metaPages.indexWhere((metaPage) => metaPage.imageUrls.original == originUrl)
-                      : 0,
-                ),
-              ),
-              child: ImageViewFromUrl(previewUrl),
-            ),
-            IconButton(
-              tooltip: '保存原图',
-              splashRadius: 20,
-              onPressed: () => Downloader.start(illust: widget.illust, url: originUrl),
-              icon: Icon(Icons.save_alt_outlined),
-            ),
-          ],
+    return Card(
+      child: GestureDetector(
+        onTap: () => PageUtils.to(
+          context,
+          ImageScalePage(
+            illust: illust,
+            initialPage: illust.pageCount > 1
+                ? illust.metaPages.indexWhere((metaPage) => metaPage.imageUrls.original == originUrl)
+                : 0,
+          ),
         ),
+        onLongPress: () => Downloader.start(illust: widget.illust, url: originUrl),
+        child: ImageViewFromUrl(previewUrl),
       ),
     );
   }
 
   Widget _buildUgoira(IllustContentModel model) {
     if (null == model.gifBytes) {
-      return SliverChild(
-        Container(
-          padding: EdgeInsets.only(bottom: 5),
-          child: Card(
-            child: Column(
-              children: [
-                Container(
-                  width: model.illust.width.toDouble(),
-                  height: model.illust.height.toDouble(),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      ImageViewFromUrl(
-                        model.illust.imageUrls.large,
-                      ),
-                      model.downloadingGif
+      return SliverToBoxAdapter(
+        child: GestureDetector(
+          onTap: !model.generatingGif ? model.startGenerateGif : null,
+          child: Hero(
+            tag: 'illust:${model.illust.id}',
+            child: Container(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  ImageViewFromUrl(Utils.getPreviewUrl(model.illust)),
+                  model.downloadingGif
+                      ? CircularProgressIndicator()
+                      : model.generatingGif
                           ? CircularProgressIndicator()
-                          : model.generatingGif
-                              ? CircularProgressIndicator()
-                              : GestureDetector(
-                                  onTap: model.startGenerateGif,
-                                  child: Icon(
-                                    Icons.play_circle_outline_outlined,
-                                    size: 70,
-                                  ),
-                                ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  tooltip: '保存生成的GIF图片',
-                  splashRadius: 20,
-                  onPressed: () => platformAPI.toast('请先点击生成'),
-                  icon: Icon(Icons.save_alt_outlined),
-                )
-              ],
+                          : Icon(Icons.play_circle_outline_outlined, size: 70),
+                ],
+              ),
             ),
           ),
         ),
       );
     } else {
-      return SliverChild(
-        Container(
-          padding: EdgeInsets.only(bottom: 5),
-          child: Card(
-            child: Column(
-              children: [
-                Container(
-                  width: model.illust.width.toDouble(),
-                  height: model.illust.height.toDouble(),
-                  child: ExtendedImage.memory(
-                    model.gifBytes!,
-                    loadStateChanged: (state) {
-                      switch (state.extendedImageLoadState) {
-                        case LoadState.loading:
-                          return Container(
-                            padding: const EdgeInsets.all(5),
-                            child: const Center(child: CircularProgressIndicator()),
-                          );
-                        case LoadState.completed:
-                          return state.completedWidget;
-                        case LoadState.failed:
-                          return Center(
-                            child: IconButton(
-                              icon: const Icon(Icons.refresh_sharp),
-                              iconSize: 35,
-                              onPressed: () {
-                                state.reLoadImage();
-                              },
-                            ),
-                          );
-                      }
-                    },
-                  ),
-                ),
-                IconButton(
-                  tooltip: '保存生成的GIF图片',
-                  splashRadius: 20,
-                  onPressed: model.saveGifFile,
-                  icon: Icon(Icons.save_alt_outlined),
-                ),
-              ],
+      return SliverToBoxAdapter(
+        child: GestureDetector(
+          onLongPress: model.saveGifFile,
+          child: Hero(
+            tag: 'illust:${model.illust.id}',
+            child: Container(
+              child: ExtendedImage.memory(model.gifBytes!),
             ),
           ),
         ),
@@ -190,33 +122,52 @@ class _IllustContentPageState extends State<IllustContentPage> {
   }
 
   Widget _buildImages(Illust illust) {
-    final children = <Widget>[];
+    final previewUrl = Utils.getPreviewUrl(illust);
     if (1 == illust.pageCount) {
-      children.add(
-        _buildImageItem(
-          illust.id,
-          illust.title,
-          illust.imageUrls.large,
-          illust.metaSinglePage.originalImageUrl!,
-          illust: illust,
-        ),
-      );
-    } else {
-      children.addAll(
-        illust.metaPages.map(
-          (matePage) => _buildImageItem(
+      return SliverToBoxAdapter(
+        child: Hero(
+          tag: 'illust:${illust.id}',
+          child: _buildImageItem(
             illust.id,
             illust.title,
-            matePage.imageUrls.large,
-            matePage.imageUrls.original!,
+            previewUrl,
+            illust.metaSinglePage.originalImageUrl!,
             illust: illust,
           ),
         ),
       );
+    } else {
+      bool first = true;
+      return SliverList(
+        delegate: SliverChildListDelegate(
+          illust.metaPages.map(
+            (matePage) {
+              if (first) {
+                first = false;
+                return Hero(
+                  tag: 'illust:${illust.id}',
+                  child: _buildImageItem(
+                    illust.id,
+                    illust.title,
+                    previewUrl,
+                    matePage.imageUrls.original!,
+                    illust: illust,
+                  ),
+                );
+              } else {
+                return _buildImageItem(
+                  illust.id,
+                  illust.title,
+                  previewUrl,
+                  matePage.imageUrls.original!,
+                  illust: illust,
+                );
+              }
+            },
+          ).toList(),
+        ),
+      );
     }
-    return SliverList(
-      delegate: SliverChildListDelegate(children),
-    );
   }
 
   //如果这样写 null != tag.translatedName ? [...] : [...]
@@ -289,7 +240,10 @@ class _IllustContentPageState extends State<IllustContentPage> {
                 illustContentModel: model,
               ),
             ),
-            child: AvatarViewFromUrl(illust.user.profileImageUrls.medium),
+            child: Hero(
+              tag: 'user:${illust.user.id}',
+              child: AvatarViewFromUrl(illust.user.profileImageUrls.medium),
+            ),
           ),
           //标题
           title: SelectableText(illust.title),
@@ -302,7 +256,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
         child: InkWell(
           onLongPress: () async {
             await Utils.copyToClipboard('${illust.id}');
-           platformAPI.toast('已将插画ID复制到剪切板');
+            platformAPI.toast('已将插画ID复制到剪切板');
           },
           child: Text('插画ID:${illust.id}'),
         ),
@@ -390,13 +344,17 @@ class _IllustContentPageState extends State<IllustContentPage> {
 
     if (model.viewState == ViewState.InitFailed) {
       list.add(
-        SliverChild(
-          Container(
+        SliverToBoxAdapter(
+          child: Container(
             padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
             child: ListTile(
               onTap: model.loadFirstData,
-              title: Center(child: Text('点击重新加载'),),
-              subtitle: Center(child: Text('加载相关推荐失败'),),
+              title: Center(
+                child: Text('点击重新加载'),
+              ),
+              subtitle: Center(
+                child: Text('加载相关推荐失败'),
+              ),
             ),
           ),
         ),
@@ -406,8 +364,8 @@ class _IllustContentPageState extends State<IllustContentPage> {
 
     if (ViewState.Empty == model.viewState) {
       list.add(
-        SliverChild(
-          Container(
+        SliverToBoxAdapter(
+          child: Container(
             padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
             child: Center(
               child: Text('没有任何数据'),
@@ -436,8 +394,8 @@ class _IllustContentPageState extends State<IllustContentPage> {
 
     if (model.viewState == ViewState.LoadFailed) {
       list.add(
-        SliverChild(
-          Container(
+        SliverToBoxAdapter(
+          child: Container(
             padding: EdgeInsets.all(20),
             child: ListTile(
               onTap: model.loadNextData,
@@ -450,8 +408,8 @@ class _IllustContentPageState extends State<IllustContentPage> {
     }
     if (model.viewState == ViewState.Idle && model.hasNext) {
       list.add(
-        SliverChild(
-          Container(
+        SliverToBoxAdapter(
+          child: Container(
             padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
             child: Card(
               child: ListTile(
@@ -466,8 +424,8 @@ class _IllustContentPageState extends State<IllustContentPage> {
 
     if (model.viewState == ViewState.Busy) {
       list.add(
-        SliverChild(
-          Container(
+        SliverToBoxAdapter(
+          child: Container(
             padding: EdgeInsets.fromLTRB(0, 25, 0, 25),
             child: Center(child: CircularProgressIndicator()),
           ),

@@ -9,6 +9,7 @@
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/downloader/downloader.dart';
+import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/util/utils.dart';
 import 'package:pixiv_func_android/view_model/image_scale_model.dart';
@@ -24,9 +25,15 @@ class ImageScalePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final urls = <String>[];
     if (1 == illust.pageCount) {
-      urls.add(illust.metaSinglePage.originalImageUrl!);
+      urls.add(
+        settingsManager.scaleQuality ? illust.metaSinglePage.originalImageUrl! : illust.imageUrls.large,
+      );
     } else {
-      urls.addAll(illust.metaPages.map((metaPage) => metaPage.imageUrls.original!).toList());
+      urls.addAll(
+        illust.metaPages
+            .map((metaPage) => settingsManager.scaleQuality ? metaPage.imageUrls.original! : metaPage.imageUrls.large)
+            .toList(),
+      );
     }
 
     return ProviderWidget(

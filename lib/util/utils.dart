@@ -8,6 +8,7 @@
 
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 
 class Utils {
@@ -28,8 +29,12 @@ class Utils {
     await Clipboard.setData(ClipboardData(text: data));
   }
 
-  static String replaceImageSource(String url){
+  static String replaceImageSource(String url) {
     return url.replaceFirst('i.pximg.net', settingsManager.imageSource);
+  }
+
+  static String getPreviewUrl(Illust illust) {
+    return settingsManager.previewQuality ? illust.imageUrls.large : illust.imageUrls.medium;
   }
 
   ///字符串是否是 twitter/用户名

@@ -7,15 +7,12 @@
  */
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
-
 import 'package:crypto/crypto.dart';
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
-import 'model/user_account.dart';
 import 'retry_interceptor.dart';
+import 'model/user_account.dart';
 
 class OAuthAPI {
   static const _TARGET_IP = '210.140.131.199';
@@ -69,12 +66,6 @@ class OAuthAPI {
     );
     _httpClient.interceptors.add(RetryInterceptor(_httpClient));
     // _httpClient.interceptors.add(LogInterceptor(responseBody: true));
-
-    (_httpClient.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
-        return true;
-      };
-    };
   }
 
   ///刷新token

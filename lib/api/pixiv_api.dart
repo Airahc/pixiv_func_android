@@ -7,12 +7,12 @@
  */
 
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:pixiv_func_android/util/utils.dart';
 import 'entity/comment.dart';
 import 'enums.dart';
+import 'auth_token_interceptor.dart';
+import 'retry_interceptor.dart';
 import 'model/comments.dart';
 import 'model/error_message.dart';
 import 'model/illust_detail.dart';
@@ -23,9 +23,6 @@ import 'model/ugoira_metadata.dart';
 import 'model/users.dart';
 import 'model/search.dart';
 import 'model/user_detail.dart';
-import 'auth_token_interceptor.dart';
-import 'retry_interceptor.dart';
-import 'package:pixiv_func_android/util/utils.dart';
 
 class PixivAPI {
   static const _TARGET_IP = '210.140.131.199';
@@ -55,13 +52,6 @@ class PixivAPI {
         AuthTokenInterceptor(),
       ],
     );
-
-    (httpClient.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
-        return true;
-      };
-      return client;
-    };
   }
 
   ///```kotlin

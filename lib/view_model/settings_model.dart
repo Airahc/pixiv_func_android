@@ -28,4 +28,19 @@ class SettingsModel extends BaseViewModel {
   }
 
 
+  bool get previewQuality => settingsManager.previewQuality;
+
+  set previewQuality(bool value) {
+    settingsManager.previewQuality = value;
+    notifyListeners();
+  }
+
+  bool get scaleQuality => settingsManager.scaleQuality;
+
+  set scaleQuality(bool value) {
+    settingsManager.scaleQuality = value;
+    notifyListeners();
+  }
+
+
 }

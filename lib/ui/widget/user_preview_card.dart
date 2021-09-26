@@ -15,8 +15,6 @@ import 'package:pixiv_func_android/ui/widget/illust_previewer.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/view_model/user_preview_model.dart';
 
-
-
 class UserPreviewCard extends StatelessWidget {
   final UserPreview userPreview;
 
@@ -62,7 +60,10 @@ class UserPreviewCard extends StatelessWidget {
                         parentModel: model,
                       ),
                     ),
-                    child: AvatarViewFromUrl(model.userPreview.user.profileImageUrls.medium),
+                    child: Hero(
+                      tag: 'user:${model.userPreview.user.id}',
+                      child: AvatarViewFromUrl(model.userPreview.user.profileImageUrls.medium),
+                    ),
                   ),
                   title: Text(model.userPreview.user.name),
                   trailing: model.followRequestWaiting

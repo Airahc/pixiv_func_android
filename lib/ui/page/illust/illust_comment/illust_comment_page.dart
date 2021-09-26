@@ -15,7 +15,6 @@ import 'package:pixiv_func_android/provider/view_state.dart';
 import 'package:pixiv_func_android/ui/page/user/user_page.dart';
 import 'package:pixiv_func_android/ui/widget/avatar_view_from_url.dart';
 import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
-import 'package:pixiv_func_android/ui/widget/sliver_child.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/util/utils.dart';
 import 'package:pixiv_func_android/view_model/illust_comment_model.dart';
@@ -68,7 +67,10 @@ class IllustCommentPage extends StatelessWidget {
         child: ListTile(
           leading: GestureDetector(
             onTap: () => PageUtils.to(context, UserPage(commentTree.data.user.id)),
-            child: AvatarViewFromUrl(commentTree.data.user.profileImageUrls.medium),
+            child: Hero(
+              tag: 'user:${commentTree.data.user.id}',
+              child: AvatarViewFromUrl(commentTree.data.user.profileImageUrls.medium),
+            ),
           ),
           onLongPress: () => model.repliesCommentTree = commentTree,
           title: _buildCommentContent(model, commentTree.data),
@@ -131,7 +133,10 @@ class IllustCommentPage extends StatelessWidget {
           child: ExpansionTile(
             leading: GestureDetector(
               onTap: () => PageUtils.to(context, UserPage(commentTree.data.user.id)),
-              child: AvatarViewFromUrl(commentTree.data.user.profileImageUrls.medium),
+              child: Hero(
+                tag: 'user:${commentTree.data.user.id}',
+                child: AvatarViewFromUrl(commentTree.data.user.profileImageUrls.medium),
+              ),
             ),
             childrenPadding: EdgeInsets.only(left: 20),
             children: children,
@@ -182,17 +187,6 @@ class IllustCommentPage extends StatelessWidget {
           slivers.add(
             SliverList(
               delegate: SliverChildListDelegate(_buildCommentTileList(context, model, model.list)),
-            ),
-          );
-        } else {
-          slivers.add(
-            SliverChild(
-              Container(
-                padding: EdgeInsets.only(top: 20),
-                child: Center(
-                  child: Text('没有任何数据'),
-                ),
-              ),
             ),
           );
         }

@@ -139,7 +139,15 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
     //获取信息
     downloadingGif = true;
     pixivAPI.getUgoiraMetadata(illust.id).then((result) {
-      final dio = Dio(BaseOptions(responseType: ResponseType.bytes));
+      final dio = Dio(
+        BaseOptions(
+          headers: {'Referer': 'https://app-api.pixiv.net/'},
+          responseType: ResponseType.bytes,
+          sendTimeout: 15000,
+          receiveTimeout: 15000,
+          connectTimeout: 15000,
+        ),
+      );
       final ugoiraMetadata = result.ugoiraMetadata;
       final url = Utils.replaceImageSource(ugoiraMetadata.zipUrls.medium);
       //开始下载

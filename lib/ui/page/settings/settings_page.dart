@@ -30,15 +30,9 @@ class _SettingsPageState extends State<SettingsPage> {
           return ListView(
             children: [
               Card(
-                child: Column(
+                child: ExpansionTile(
+                  title: Text('图片源', style: TextStyle(fontSize: 22)),
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(20),
-                      child: Text(
-                        '图片源',
-                        style: TextStyle(fontSize: 22),
-                      ),
-                    ),
                     RadioListTile(
                       activeColor: Theme.of(context).colorScheme.primary,
                       title: Text('使用代理图片源(i.pixiv.cat)'),
@@ -94,7 +88,65 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ],
                 ),
-              )
+              ),
+              Card(
+                child: ExpansionTile(
+                  title: Text('图片预览质量', style: TextStyle(fontSize: 22)),
+                  children: [
+                    RadioListTile(
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      title: Text('中等'),
+                      value: false,
+                      groupValue: model.previewQuality,
+                      onChanged: (bool? value) {
+                        if (null != value) {
+                          model.previewQuality = value;
+                        }
+                      },
+                    ),
+                    RadioListTile(
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      title: Text('大图'),
+                      value: true,
+                      groupValue: model.previewQuality,
+                      onChanged: (bool? value) {
+                        if (null != value) {
+                          model.previewQuality = value;
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Card(
+                child: ExpansionTile(
+                  title: Text('图片缩放质量', style: TextStyle(fontSize: 22)),
+                  children: [
+                    RadioListTile(
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      title: Text('大图'),
+                      value: false,
+                      groupValue: model.scaleQuality,
+                      onChanged: (bool? value) {
+                        if (null != value) {
+                          model.scaleQuality = value;
+                        }
+                      },
+                    ),
+                    RadioListTile(
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      title: Text('原图'),
+                      value: true,
+                      groupValue: model.scaleQuality,
+                      onChanged: (bool? value) {
+                        if (null != value) {
+                          model.scaleQuality = value;
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
             ],
           );
         },

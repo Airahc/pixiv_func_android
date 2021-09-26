@@ -72,9 +72,12 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
             context: context,
             builder: (BuildContext context) => AvatarViewer(url: user.profileImageUrls.medium),
           ),
-          child: AvatarViewFromUrl(
-            user.profileImageUrls.medium,
-            radius: 35,
+          child: Hero(
+            tag: 'user:${user.id}',
+            child: AvatarViewFromUrl(
+              user.profileImageUrls.medium,
+              radius: 35,
+            ),
           ),
         ),
         title: Text(user.name),

@@ -11,6 +11,7 @@ import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/page/illust/illust_content_page.dart';
 import 'package:pixiv_func_android/ui/widget/image_view_from_url.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
+import 'package:pixiv_func_android/util/utils.dart';
 import 'package:pixiv_func_android/view_model/illust_content_model.dart';
 import 'package:pixiv_func_android/view_model/illust_previewer_model.dart';
 
@@ -147,14 +148,17 @@ class IllustPreviewer extends StatelessWidget {
                 LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
                     final previewHeight = constraints.maxWidth / model.illust.width * model.illust.height;
-                    return ClipRRect(
-                      borderRadius: BorderRadius.only(topLeft: circularRadius, topRight: circularRadius),
-                      child: _buildImage(
-                        url: model.illust.imageUrls.medium,
-                        width: constraints.maxWidth,
-                        height: previewHeight,
-                        context: context,
-                        model: model,
+                    return Hero(
+                      tag: 'illust:${model.illust.id}',
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.only(topLeft: circularRadius, topRight: circularRadius),
+                        child: _buildImage(
+                          url: Utils.getPreviewUrl(illust),
+                          width: constraints.maxWidth,
+                          height: previewHeight,
+                          context: context,
+                          model: model,
+                        ),
                       ),
                     );
                   },

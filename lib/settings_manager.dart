@@ -26,6 +26,11 @@ class SettingsManager {
     if (null != imageSource) {
       settings.imageSource = imageSource;
     }
+
+    final previewQuality = sharedPreferences.getBool('preview_quality');
+    if (null != previewQuality) {
+      settings.previewQuality = previewQuality;
+    }
   }
 
   bool get isLightTheme => settings.isLightTheme;
@@ -40,5 +45,19 @@ class SettingsManager {
   set imageSource(String value) {
     settings.imageSource = value;
     sharedPreferences.setString('image_source', value);
+  }
+
+  bool get previewQuality => settings.previewQuality;
+
+  set previewQuality(bool value) {
+    settings.previewQuality = value;
+    sharedPreferences.setBool('preview_quality', value);
+  }
+
+  bool get scaleQuality => settings.scaleQuality;
+
+  set scaleQuality(bool value) {
+    settings.scaleQuality = value;
+    sharedPreferences.setBool('scale_quality', value);
   }
 }
