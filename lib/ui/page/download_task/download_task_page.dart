@@ -20,37 +20,31 @@ class DownloadTaskPage extends StatelessWidget {
     final Widget trailing;
 
     switch (task.state) {
-      case DownloadState.Idle:
+      case DownloadState.idle:
         trailing = Container();
         break;
-      case DownloadState.Downloading:
-        trailing = RefreshProgressIndicator();
+      case DownloadState.downloading:
+        trailing = const RefreshProgressIndicator();
         break;
-      case DownloadState.Failed:
+      case DownloadState.failed:
         trailing = IconButton(
           splashRadius: 20,
-          onPressed: () => Downloader.start(illust: task.illust, url: task.url, id: task.id),
-          icon: Icon(Icons.refresh_outlined),
+          onPressed: () => Downloader.start(illust: task.illust, url: task.originalUrl, id: task.id),
+          icon: const Icon(Icons.refresh_outlined),
         );
         break;
-      case DownloadState.Complete:
-        trailing = Icon(Icons.file_download_done);
+      case DownloadState.complete:
+        trailing = const Icon(Icons.file_download_done);
         break;
     }
 
     return Card(
       child: ListTile(
         onTap: () => PageUtils.to(context, IllustContentPage(task.illust)),
-        title: Text(
-          '${task.illust.title}',
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: DownloadState.Failed != task.state
-            ? LinearProgressIndicator(
-                value: task.progress,
-              )
-            : Text('下载失败'),
-        trailing: Container(
+        title: Text(task.illust.title, overflow: TextOverflow.ellipsis),
+        subtitle:
+            DownloadState.failed != task.state ? LinearProgressIndicator(value: task.progress) : const Text('下载失败'),
+        trailing: SizedBox(
           width: 48,
           child: trailing,
         ),
@@ -62,7 +56,7 @@ class DownloadTaskPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = Provider.of<DownloadTaskModel>(context);
     return ListView(
-      children: model.tasks.map((task) => _buildItem(context, task)).toList(),
+      children: [for (final task in model.tasks) _buildItem(context, task)],
     );
   }
 }

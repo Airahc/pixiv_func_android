@@ -12,17 +12,17 @@ import 'package:pixiv_func_android/provider/base_view_model.dart';
 
 class RankingSelectorModel extends BaseViewModel {
   final List<MapEntry<RankingTypeItem, bool>> typeItems = [
-    MapEntry(RankingTypeItem(RankingMode.DAY, '每日'), false),
-    MapEntry(RankingTypeItem(RankingMode.DAY_R18, '每日(R-18)'), false),
-    MapEntry(RankingTypeItem(RankingMode.DAY_MALE, '每日(男性欢迎)'), false),
-    MapEntry(RankingTypeItem(RankingMode.DAY_MALE_R18, '每日(男性欢迎 & R-18)'), false),
-    MapEntry(RankingTypeItem(RankingMode.DAY_FEMALE, '每日(女性欢迎)'), false),
-    MapEntry(RankingTypeItem(RankingMode.DAY_FEMALE_R18, '每日(女性欢迎 & R-18)'), false),
-    MapEntry(RankingTypeItem(RankingMode.WEEK, '每周'), false),
-    MapEntry(RankingTypeItem(RankingMode.WEEK_R18, '每周(R-18)'), false),
-    MapEntry(RankingTypeItem(RankingMode.WEEK_ORIGINAL, '每周(原创)'), false),
-    MapEntry(RankingTypeItem(RankingMode.WEEK_ROOKIE, '每周(新人)'), false),
-    MapEntry(RankingTypeItem(RankingMode.MONTH, '每月'), false),
+    MapEntry(RankingTypeItem(RankingMode.day, '每日'), false),
+    MapEntry(RankingTypeItem(RankingMode.dayR18, '每日(R-18)'), false),
+    MapEntry(RankingTypeItem(RankingMode.dayMale, '每日(男性欢迎)'), false),
+    MapEntry(RankingTypeItem(RankingMode.dayMaleR18, '每日(男性欢迎 & R-18)'), false),
+    MapEntry(RankingTypeItem(RankingMode.dayFemale, '每日(女性欢迎)'), false),
+    MapEntry(RankingTypeItem(RankingMode.dayFemaleR18, '每日(女性欢迎 & R-18)'), false),
+    MapEntry(RankingTypeItem(RankingMode.week, '每周'), false),
+    MapEntry(RankingTypeItem(RankingMode.weekR18, '每周(R-18)'), false),
+    MapEntry(RankingTypeItem(RankingMode.weekOriginal, '每周(原创)'), false),
+    MapEntry(RankingTypeItem(RankingMode.weekRookie, '每周(新人)'), false),
+    MapEntry(RankingTypeItem(RankingMode.month, '每月'), false),
   ];
 
   void onSelected(RankingTypeItem key, bool newValue) {

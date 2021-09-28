@@ -6,6 +6,7 @@
  * 作者:小草
  */
 
+import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/model/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -38,6 +39,7 @@ class SettingsManager {
   set isLightTheme(bool value) {
     settings.isLightTheme = value;
     sharedPreferences.setBool('is_light_theme', value);
+    themeModel.useLightTheme = value;
   }
 
   String get imageSource => settings.imageSource;

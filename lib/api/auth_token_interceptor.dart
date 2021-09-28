@@ -31,7 +31,7 @@ class AuthTokenInterceptor extends InterceptorsWrapper {
   Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     final token = getToken();
     if (null != token) {
-      options.headers[OAuthAPI.FIELD_NAME] = token;
+      options.headers[OAuthAPI.fieldName] = token;
     }
 
     handler.next(options);
@@ -88,7 +88,7 @@ class AuthTokenInterceptor extends InterceptorsWrapper {
         _refreshTokenLastTime = currentTime;
         final token = getToken();
         if (null != token) {
-          option.headers[OAuthAPI.FIELD_NAME] = getToken();
+          option.headers[OAuthAPI.fieldName] = getToken();
         }
       }).catchError((e) {
         Log.e('刷新AuthToken失败', e);

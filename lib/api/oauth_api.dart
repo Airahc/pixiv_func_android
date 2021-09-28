@@ -15,29 +15,29 @@ import 'retry_interceptor.dart';
 import 'model/user_account.dart';
 
 class OAuthAPI {
-  static const _TARGET_IP = '210.140.131.199';
-  static const _TARGET_HOST = 'oauth.secure.pixiv.net';
+  static const _targetIP = '210.140.131.199';
+  static const _targetHost = 'oauth.secure.pixiv.net';
 
   late final Dio _httpClient;
 
-  static const FIELD_NAME = 'Authorization';
+  static const fieldName = 'Authorization';
 
-  static const _HASH_SALT = '28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c';
+  static const _hashSalt = '28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c';
 
   ///client_id 固定不变的
-  static const _CLIENT_ID = 'MOBrBDS8blbauoSck0ZfDbtuzpyT';
+  static const _clientId = 'MOBrBDS8blbauoSck0ZfDbtuzpyT';
 
   ///client_secret 固定不变的
-  static const _CLIENT_SECRET = 'lsACyCD94FhDUtGTXi3QzcFE2uU1hqtDaKeqrdwj';
+  static const _clientSecret = 'lsACyCD94FhDUtGTXi3QzcFE2uU1hqtDaKeqrdwj';
 
   String getIsoDate() {
-    DateTime dateTime = new DateTime.now();
-    DateFormat dateFormat = new DateFormat("yyyy-MM-dd'T'HH:mm:ss'+00:00'");
+    DateTime dateTime = DateTime.now();
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss'+00:00'");
     return dateFormat.format(dateTime);
   }
 
   static String getHash(String string) {
-    var content = new Utf8Encoder().convert(string);
+    var content = const Utf8Encoder().convert(string);
     var digest = md5.convert(content);
     return digest.toString();
   }
@@ -46,18 +46,18 @@ class OAuthAPI {
     final time = getIsoDate();
     _httpClient = Dio(
       BaseOptions(
-        baseUrl: 'https://$_TARGET_IP',
+        baseUrl: 'https://$_targetIP',
         responseType: ResponseType.plain,
         contentType: Headers.formUrlEncodedContentType,
         headers: {
           'X-Client-Time': time,
-          'X-Client-Hash': getHash(time + _HASH_SALT),
+          'X-Client-Hash': getHash(time + _hashSalt),
           'User-Agent': 'PixivAndroidApp/6.21.0 (Android 7.1.2; XiaoCao)',
           'App-OS': 'android',
           'App-OS-Version': '7.0.0',
           'App-Version': '6.1.9',
           'Accept-Language': 'zh-CN',
-          'Host': _TARGET_HOST,
+          'Host': _targetHost,
         },
         connectTimeout: 6 * 1000,
         receiveTimeout: 6 * 1000,
@@ -71,8 +71,8 @@ class OAuthAPI {
   ///刷新token
   Future<UserAccount> refreshAuthToken(String refreshToken) async {
     final response = await _httpClient.post<String>('/auth/token', data: {
-      'client_id': _CLIENT_ID,
-      'client_secret': _CLIENT_SECRET,
+      'client_id': _clientId,
+      'client_secret': _clientSecret,
       'include_policy': true,
       'grant_type': 'refresh_token',
       'refresh_token': refreshToken,
@@ -86,8 +86,8 @@ class OAuthAPI {
     final response = await _httpClient.post<String>(
       '/auth/token',
       data: {
-        "client_id": _CLIENT_ID,
-        "client_secret": _CLIENT_SECRET,
+        "client_id": _clientId,
+        "client_secret": _clientSecret,
         "include_policy": true,
         "grant_type": "authorization_code",
         "code_verifier": codeVerifier,

@@ -11,6 +11,7 @@ import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/api/model/illusts.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/base_view_state_refresh_list_model.dart';
+import 'package:pixiv_func_android/util/utils.dart';
 
 
 class UserIllustModel extends BaseViewStateRefreshListModel<Illust> {
@@ -22,7 +23,7 @@ class UserIllustModel extends BaseViewStateRefreshListModel<Illust> {
 
   @override
   Future<List<Illust>> loadFirstDataRoutine() async {
-    final result = await pixivAPI.getUserIllusts(id, type);
+    final result = await pixivAPI.getUserIllusts(id, Utils.enumTypeStringToLittleHump(type));
     nextUrl = result.nextUrl;
 
     return result.illusts;

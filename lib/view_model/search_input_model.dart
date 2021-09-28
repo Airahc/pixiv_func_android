@@ -25,6 +25,13 @@ class SearchInputModel extends BaseViewModel {
 
   SearchFilter filter = SearchFilter.create();
 
+  @override
+  void dispose(){
+    wordInput.dispose();
+    super.dispose();
+  }
+
+
   SearchAutocomplete? get searchAutocomplete => _searchAutocomplete;
 
   set searchAutocomplete(SearchAutocomplete? value) {
@@ -59,8 +66,8 @@ class SearchInputModel extends BaseViewModel {
   }
 
   void startAutocomplete() {
-    Future.delayed(Duration(seconds: 1), () {
-      if (DateTime.now().difference(lastInputTime) > Duration(seconds: 1)) {
+    Future.delayed(const Duration(seconds: 1), () {
+      if (DateTime.now().difference(lastInputTime) > const Duration(seconds: 1)) {
         loadAutocomplete();
       }
     });
@@ -89,7 +96,7 @@ class SearchInputModel extends BaseViewModel {
     final list = <SearchImageResult>[];
     //td标签
     final contents = document.querySelectorAll('.resulttablecontent');
-    contents.forEach((td) {
+    for (final td in contents) {
       //一个div
       final similarityDiv = td.querySelector('.resultsimilarityinfo');
 
@@ -116,7 +123,7 @@ class SearchInputModel extends BaseViewModel {
           }
         }
       }
-    });
+    }
 
     return list;
   }
@@ -139,7 +146,7 @@ class SearchInputModel extends BaseViewModel {
           ),
         )
         ..fields.add(
-          MapEntry(
+          const MapEntry(
             'dbs[]',
             //pixiv Images
             '5',

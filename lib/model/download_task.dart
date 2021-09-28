@@ -9,29 +9,31 @@
 import 'package:pixiv_func_android/api/entity/illust.dart';
 
 enum DownloadState {
-  Idle,
-  Downloading,
-  Failed,
-  Complete,
+  idle,
+  downloading,
+  failed,
+  complete,
 }
 
 class DownloadTask {
   int id;
   Illust illust;
+  String originalUrl;
   String url;
   String filename;
   double progress;
   DownloadState state;
 
-  DownloadTask(this.id, this.illust, this.url, this.filename, this.progress, this.state);
+  DownloadTask(this.id, this.illust,this.originalUrl, this.url, this.filename, this.progress, this.state);
 
   factory DownloadTask.create({
     required int id,
     required Illust illust,
-    required String uri,
+    required String originalUrl,
+    required String url,
     required String filename,
   }) =>
-      DownloadTask(id, illust, uri, filename, 0, DownloadState.Idle);
+      DownloadTask(id, illust,originalUrl, url, filename, 0, DownloadState.idle);
 
   @override
   String toString() {

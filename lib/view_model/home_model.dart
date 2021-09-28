@@ -43,20 +43,20 @@ class HomeModel extends BaseViewModel {
   }
 
   final List<Widget> navigationPages = [
-    RecommendedPage(),
-    RankingSelectorPage(),
-    DownloadTaskPage(),
+    const RecommendedPage(),
+    const RankingSelectorPage(),
+    const DownloadTaskPage(),
   ];
 
   List<NavigationPage> get pages => [
-        NavigationPage(name: '收藏的作品', widget: BookmarkedPage()),
-        NavigationPage(name: '已关注用户的新作品', widget: FollowingNewIllustPage()),
-        NavigationPage(name: '大家的新作品', widget: NewIllustPage()),
+        NavigationPage(name: '收藏的作品', widget: const BookmarkedPage()),
+        NavigationPage(name: '已关注用户的新作品', widget: const FollowingNewIllustPage()),
+        NavigationPage(name: '大家的新作品', widget: const NewIllustPage()),
         NavigationPage(name: '关注的用户', widget: FollowingUserPage(int.parse(accountManager.current!.user.id))),
-        NavigationPage(name: '搜索', widget: SearchGuidePage()),
-        NavigationPage(name: '设置', widget: SettingsPage()),
-        NavigationPage(name: '账号', widget: AccountPage()),
-        NavigationPage(name: '关于', widget: AboutPage()),
+        NavigationPage(name: '搜索', widget: const SearchGuidePage()),
+        NavigationPage(name: '设置', widget: const SettingsPage()),
+        NavigationPage(name: '账号', widget: const AccountPage()),
+        NavigationPage(name: '关于', widget: const AboutPage()),
       ];
 
   void refresh() {

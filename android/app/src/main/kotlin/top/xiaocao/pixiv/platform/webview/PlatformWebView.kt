@@ -41,6 +41,17 @@ class PlatformWebView(
 
 
     init {
+//        if (WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) {
+//            val proxyUrl = "192.168.1.124:${12345}"
+//            val proxyConfig: ProxyConfig = ProxyConfig.Builder()
+//                .addProxyRule(proxyUrl)
+//                .addDirect()
+//                .build()
+//            ProxyController.getInstance().setProxyOverride(
+//                proxyConfig,
+//                { command -> command?.run() },
+//                { Log.i("PlatformWebView", "Set Proxy") })
+//        }
         webView.settings.apply {
             javaScriptEnabled = true
             javaScriptCanOpenWindowsAutomatically = true
@@ -130,6 +141,9 @@ class PlatformWebView(
         when (call.method) {
             PlatformWebViewPlugin.methodLoadUrl -> {
                 webView.loadUrl(call.argument<String>("url")!!)
+            }
+            PlatformWebViewPlugin.methodReload -> {
+                webView.reload()
             }
             else -> {
                 result.notImplemented()

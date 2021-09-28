@@ -11,7 +11,7 @@ import 'package:pixiv_func_android/provider/base_view_model.dart';
 import 'package:pixiv_func_android/provider/view_state.dart';
 
 abstract class BaseViewStateModel extends BaseViewModel {
-  ViewState _viewState = ViewState.Idle;
+  ViewState _viewState = ViewState.idle;
 
   ///已经初始化
   bool initialized = false;
@@ -23,16 +23,16 @@ abstract class BaseViewStateModel extends BaseViewModel {
     notifyListeners();
   }
 
-  void setIdle() => viewState = ViewState.Idle;
+  void setIdle() => viewState = ViewState.idle;
 
-  void setBusy() => viewState = ViewState.Busy;
+  void setBusy() => viewState = ViewState.busy;
 
-  void setEmpty() => viewState = ViewState.Empty;
+  void setEmpty() => viewState = ViewState.empty;
 
   void setInitFailed(dynamic e,dynamic s) {
-    viewState = ViewState.InitFailed;
+    viewState = ViewState.initFailed;
   }
 
-  void setLoadFailed() => viewState = ViewState.LoadFailed;
+  void setLoadFailed() => viewState = ViewState.loadFailed;
 
 }

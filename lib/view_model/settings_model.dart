@@ -13,6 +13,12 @@ import 'package:pixiv_func_android/provider/base_view_model.dart';
 class SettingsModel extends BaseViewModel {
   final customImageSourceInput = TextEditingController();
 
+  @override
+  void dispose(){
+    customImageSourceInput.dispose();
+    super.dispose();
+  }
+
   bool get isLightTheme => settingsManager.isLightTheme;
 
   set isLightTheme(bool value) {
@@ -41,6 +47,5 @@ class SettingsModel extends BaseViewModel {
     settingsManager.scaleQuality = value;
     notifyListeners();
   }
-
 
 }

@@ -5,11 +5,11 @@
  * 创建时间:2021/8/25 下午7:41
  * 作者:小草
  */
-import 'package:extended_image/extended_image.dart';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:pixiv_func_android/api/entity/illust.dart';
-import 'package:pixiv_func_android/api/entity/tag.dart';
 import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/downloader/downloader.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
@@ -44,14 +44,14 @@ class _IllustContentPageState extends State<IllustContentPage> {
     return FloatingActionButton(
       backgroundColor: Theme.of(context).hintColor,
       child: model.bookmarkRequestWaiting
-          ? CircularProgressIndicator()
+          ? const CircularProgressIndicator()
           : model.isBookmarked
-              ? Icon(
+              ? const Icon(
                   Icons.favorite_sharp,
                   size: 30,
                   color: Colors.pinkAccent,
                 )
-              : Icon(
+              : const Icon(
                   Icons.favorite_outline_sharp,
                   size: 30,
                 ),
@@ -90,18 +90,16 @@ class _IllustContentPageState extends State<IllustContentPage> {
           onTap: !model.generatingGif ? model.startGenerateGif : null,
           child: Hero(
             tag: 'illust:${model.illust.id}',
-            child: Container(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  ImageViewFromUrl(Utils.getPreviewUrl(model.illust.imageUrls)),
-                  model.downloadingGif
-                      ? CircularProgressIndicator()
-                      : model.generatingGif
-                          ? CircularProgressIndicator()
-                          : Icon(Icons.play_circle_outline_outlined, size: 70),
-                ],
-              ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                ImageViewFromUrl(Utils.getPreviewUrl(model.illust.imageUrls)),
+                model.downloadingGif
+                    ? const CircularProgressIndicator()
+                    : model.generatingGif
+                        ? const CircularProgressIndicator()
+                        : const Icon(Icons.play_circle_outline_outlined, size: 70),
+              ],
             ),
           ),
         ),
@@ -112,9 +110,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
           onLongPress: model.saveGifFile,
           child: Hero(
             tag: 'illust:${model.illust.id}',
-            child: Container(
-              child: ExtendedImage.memory(model.gifBytes!),
-            ),
+            child: ExtendedImage.memory(model.gifBytes!),
           ),
         ),
       );
@@ -122,7 +118,6 @@ class _IllustContentPageState extends State<IllustContentPage> {
   }
 
   Widget _buildImages(Illust illust) {
-
     if (1 == illust.pageCount) {
       return SliverToBoxAdapter(
         child: Hero(
@@ -170,145 +165,125 @@ class _IllustContentPageState extends State<IllustContentPage> {
     }
   }
 
-  //如果这样写 null != tag.translatedName ? [...] : [...]
-  //然后按Ctrl + S 热重载会失效(提示: "Reload not performed Analysis issues found")
-  //所以我把他单独拿出来了
-  ///[issue](https://github.com/flutter/flutter/issues/89043)
-  Widget _buildTagWrap(List<Tag> tags) {
-    return Wrap(
-      alignment: WrapAlignment.start,
-      runSpacing: 5,
-      spacing: 5,
-      children: tags.map(
-        (tag) {
-          final List<InlineSpan> children;
-          if (null != tag.translatedName) {
-            children = [
-              TextSpan(
-                text: '#${tag.name}  ',
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              ),
-              TextSpan(
-                text: '${tag.translatedName}',
-              ),
-            ];
-          } else {
-            children = [
-              TextSpan(
-                text: '#${tag.name}',
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              )
-            ];
-          }
-          return RichText(
-            text: TextSpan(
-              style: Theme.of(context).textTheme.bodyText2,
-              children: children,
-              recognizer: TapGestureRecognizer()
-                ..onTap = () {
-                  PageUtils.to(
-                    context,
-                    SearchIllustResultPage(
-                      word: tag.name,
-                      filter: SearchFilter.create(
-                        target: SearchTarget.EXACT_MATCH_FOR_TAGS,
-                      ),
-                    ),
-                  );
-                },
-            ),
-          );
-        },
-      ).toList(),
-    );
-  }
-
   Widget _buildDetail(IllustContentModel model) {
     final illust = model.illust;
     final children = <Widget>[];
-    children.addAll([
-      Container(
-        padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-        child: ListTile(
-          contentPadding: EdgeInsets.zero,
-          //头像
-          leading: GestureDetector(
-            onTap: () => PageUtils.to(
-              context,
-              UserPage(
-                illust.user.id,
-                illustContentModel: model,
-              ),
-            ),
-            child: Hero(
-              tag: 'user:${illust.user.id}',
-              child: AvatarViewFromUrl(illust.user.profileImageUrls.medium),
-            ),
-          ),
-          //标题
-          title: SelectableText(illust.title),
-          //用户名
-          subtitle: Text(illust.user.name),
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-        child: InkWell(
-          onLongPress: () async {
-            await Utils.copyToClipboard('${illust.id}');
-            platformAPI.toast('已将插画ID复制到剪切板');
-          },
-          child: Text('插画ID:${illust.id}'),
-        ),
-      ),
-
-      //创建时间 & 查看数量 & 收藏数量
-      Container(
-        padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-        child: Row(
-          children: [
-            RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  fontSize: 12,
+    children.addAll(
+      [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            //头像
+            leading: GestureDetector(
+              onTap: () => PageUtils.to(
+                context,
+                UserPage(
+                  illust.user.id,
+                  illustContentModel: model,
                 ),
-                children: [
-                  TextSpan(text: Utils.japanDateToLocalDateString(DateTime.parse(illust.createDate))),
-                  TextSpan(text: '  '),
-                  TextSpan(
-                    text: '${illust.totalView} ',
-                    style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                  ),
-                  TextSpan(text: '查看'),
-                  TextSpan(text: '  '),
-                  TextSpan(
-                    text: '${illust.totalBookmarks} ',
-                    style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                  ),
-                  TextSpan(text: '收藏'),
-                ],
+              ),
+              child: Hero(
+                tag: 'user:${illust.user.id}',
+                child: AvatarViewFromUrl(illust.user.profileImageUrls.medium),
               ),
             ),
-          ],
+            //标题
+            title: SelectableText(illust.title),
+            //用户名
+            subtitle: Text(illust.user.name),
+          ),
         ),
-      ),
-      Container(
-        padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-        alignment: Alignment.centerLeft,
-        child: _buildTagWrap(illust.tags),
-      ),
-    ]);
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+          child: InkWell(
+            onLongPress: () async {
+              await Utils.copyToClipboard('${illust.id}');
+              platformAPI.toast('已将插画ID复制到剪切板');
+            },
+            child: Text('插画ID:${illust.id}'),
+          ),
+        ),
+
+        //创建时间 & 查看数量 & 收藏数量
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+          child: Row(
+            children: [
+              RichText(
+                text: TextSpan(
+                  style: TextStyle(fontSize: 12, color: settingsManager.isLightTheme ? Colors.black : null),
+                  children: [
+                    TextSpan(text: Utils.japanDateToLocalDateString(DateTime.parse(illust.createDate))),
+                    const TextSpan(text: '  '),
+                    TextSpan(
+                      text: '${illust.totalView} ',
+                      style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                    ),
+                    const TextSpan(text: '查看'),
+                    const TextSpan(text: '  '),
+                    TextSpan(
+                      text: '${illust.totalBookmarks} ',
+                      style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                    ),
+                    const TextSpan(text: '收藏'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+          alignment: Alignment.centerLeft,
+          child: Wrap(alignment: WrapAlignment.start, runSpacing: 5, spacing: 5, children: [
+            for (final tag in illust.tags)
+              RichText(
+                text: TextSpan(
+                  style: Theme.of(context).textTheme.bodyText2,
+                  children: null != tag.translatedName
+                      ? [
+                          TextSpan(
+                            text: '#${tag.name}  ',
+                            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                          ),
+                          TextSpan(
+                            text: '${tag.translatedName}',
+                          ),
+                        ]
+                      : [
+                          TextSpan(
+                            text: '#${tag.name}',
+                            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                          ),
+                        ],
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      PageUtils.to(
+                        context,
+                        SearchIllustResultPage(
+                          word: tag.name,
+                          filter: SearchFilter.create(target: SearchTarget.exactMatchForTags),
+                        ),
+                      );
+                    },
+                ),
+              )
+          ]),
+        ),
+      ],
+    );
 
     if (illust.caption.isNotEmpty) {
       children.add(
-        Container(
-          padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
           child: InkWell(
             onLongPress: () => model.showOriginalCaption = !model.showOriginalCaption,
             child: Card(
               child: Container(
                 alignment: Alignment.topLeft,
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 child: HtmlRichText(
                   illust.caption,
                   showOriginal: model.showOriginalCaption,
@@ -321,12 +296,12 @@ class _IllustContentPageState extends State<IllustContentPage> {
     }
 
     children.add(
-      Container(
-        padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
         child: Card(
           child: ListTile(
             onTap: () => PageUtils.to(context, IllustCommentPage(illust.id)),
-            title: Center(
+            title: const Center(
               child: Text('查看评论'),
             ),
           ),
@@ -342,17 +317,17 @@ class _IllustContentPageState extends State<IllustContentPage> {
   List<Widget> _buildRelated(IllustContentModel model) {
     final list = <Widget>[];
 
-    if (model.viewState == ViewState.InitFailed) {
+    if (model.viewState == ViewState.initFailed) {
       list.add(
         SliverToBoxAdapter(
-          child: Container(
-            padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
             child: ListTile(
               onTap: model.loadFirstData,
-              title: Center(
+              title: const Center(
                 child: Text('点击重新加载'),
               ),
-              subtitle: Center(
+              subtitle: const Center(
                 child: Text('加载相关推荐失败'),
               ),
             ),
@@ -362,10 +337,10 @@ class _IllustContentPageState extends State<IllustContentPage> {
       return list;
     }
 
-    if (ViewState.Empty == model.viewState) {
+    if (ViewState.empty == model.viewState) {
       list.add(
-        SliverToBoxAdapter(
-          child: Container(
+        const SliverToBoxAdapter(
+          child: Padding(
             padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
             child: Center(
               child: Text('没有任何数据'),
@@ -380,41 +355,40 @@ class _IllustContentPageState extends State<IllustContentPage> {
       list.add(
         SliverGrid.count(
           crossAxisCount: 3,
-          children: model.list
-              .map(
-                (illust) => GestureDetector(
-                  onTap: () => PageUtils.to(context, IllustContentPage(illust)),
-                  child: IllustPreviewer(illust: illust, square: true),
-                ),
+          children: [
+            for (final illust in model.list)
+              GestureDetector(
+                onTap: () => PageUtils.to(context, IllustContentPage(illust)),
+                child: IllustPreviewer(illust: illust, square: true),
               )
-              .toList(),
+          ],
         ),
       );
     }
 
-    if (model.viewState == ViewState.LoadFailed) {
+    if (model.viewState == ViewState.loadFailed) {
       list.add(
         SliverToBoxAdapter(
-          child: Container(
-            padding: EdgeInsets.all(20),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
             child: ListTile(
               onTap: model.loadNextData,
-              title: Text('点击重新加载'),
-              subtitle: Text('加载相关推荐失败'),
+              title: const Text('点击重新加载'),
+              subtitle: const Text('加载相关推荐失败'),
             ),
           ),
         ),
       );
     }
-    if (model.viewState == ViewState.Idle && model.hasNext) {
+    if (model.viewState == ViewState.idle && model.hasNext) {
       list.add(
         SliverToBoxAdapter(
-          child: Container(
-            padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
             child: Card(
               child: ListTile(
                 onTap: model.loadNextData,
-                title: Center(child: Text('点击加载更多')),
+                title: const Center(child: Text('点击加载更多')),
               ),
             ),
           ),
@@ -422,10 +396,10 @@ class _IllustContentPageState extends State<IllustContentPage> {
       );
     }
 
-    if (model.viewState == ViewState.Busy) {
+    if (model.viewState == ViewState.busy) {
       list.add(
-        SliverToBoxAdapter(
-          child: Container(
+        const SliverToBoxAdapter(
+          child: Padding(
             padding: EdgeInsets.fromLTRB(0, 25, 0, 25),
             child: Center(child: CircularProgressIndicator()),
           ),
@@ -441,7 +415,8 @@ class _IllustContentPageState extends State<IllustContentPage> {
       slivers: [
         model.isUgoira ? _buildUgoira(model) : _buildImages(model.illust),
         _buildDetail(model),
-      ]..addAll(_buildRelated(model)),
+        ..._buildRelated(model),
+      ],
     );
   }
 
@@ -452,7 +427,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
       builder: (BuildContext context, IllustContentModel model, Widget? child) {
         return Scaffold(
           appBar: AppBar(
-            title: Text("插画详细"),
+            title: const Text("插画详细"),
           ),
           floatingActionButton: _buildBookmarkButton(model),
           body: _buildBody(model),

@@ -6,6 +6,7 @@
  * 作者:小草
  */
 import 'package:flutter/material.dart';
+import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/ui/page/search/recommend_user/recommend_user.dart';
 import 'package:pixiv_func_android/ui/page/search/search_input/search_input_page.dart';
 import 'package:pixiv_func_android/ui/page/search/trending_illust/trending_illust.dart';
@@ -25,19 +26,20 @@ class _SearchGuidePageState extends State<SearchGuidePage> with SingleTickerProv
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('搜索'),
+        title: const Text('搜索'),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).colorScheme.onBackground,
-        onPressed: () => PageUtils.to(context, SearchInputPage()),
-        child: Icon(Icons.search_outlined),
+        onPressed: () => PageUtils.to(context, const SearchInputPage()),
+        child: const Icon(Icons.search_outlined),
       ),
       body: Column(
         children: [
           TabBar(
+            labelColor: settingsManager.isLightTheme ? Colors.black : null,
             indicatorColor: Theme.of(context).colorScheme.primary,
             controller: _tabController,
-            tabs: [
+            tabs: const [
               Tab(
                 text: '推荐标签',
               ),
@@ -49,7 +51,7 @@ class _SearchGuidePageState extends State<SearchGuidePage> with SingleTickerProv
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: [
+              children: const [
                 TrendingIllust(),
                 RecommendUser(),
               ],

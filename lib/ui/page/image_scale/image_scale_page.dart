@@ -30,9 +30,10 @@ class ImageScalePage extends StatelessWidget {
       );
     } else {
       urls.addAll(
-        illust.metaPages
-            .map((metaPage) => settingsManager.scaleQuality ? metaPage.imageUrls.original! : metaPage.imageUrls.large)
-            .toList(),
+        [
+          for (final metaPage in illust.metaPages)
+            settingsManager.scaleQuality ? metaPage.imageUrls.original! : metaPage.imageUrls.large
+        ],
       );
     }
 
@@ -48,12 +49,12 @@ class ImageScalePage extends StatelessWidget {
                   Expanded(
                     child: ExtendedImage.network(
                       Utils.replaceImageSource(urls[i]),
-                      headers: {'Referer': 'https://app-api.pixiv.net'},
+                      headers: const {'Referer': 'https://app-api.pixiv.net'},
                       gaplessPlayback: true,
                       mode: ExtendedImageMode.gesture,
                       loadStateChanged: (ExtendedImageState state) {
                         if (state.extendedImageLoadState == LoadState.loading) {
-                          return Center(child: CircularProgressIndicator());
+                          return const Center(child: CircularProgressIndicator());
                         }
                       },
                       initGestureConfigHandler: (ExtendedImageState state) => GestureConfig(
@@ -69,7 +70,7 @@ class ImageScalePage extends StatelessWidget {
                     tooltip: '保存原图',
                     splashRadius: 20,
                     onPressed: () => Downloader.start(illust: illust, url: urls[i]),
-                    icon: Icon(Icons.save_alt_outlined),
+                    icon: const Icon(Icons.save_alt_outlined),
                   ),
                 ],
               ),

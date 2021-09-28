@@ -22,7 +22,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('设置'),
+        title: const Text('设置'),
       ),
       body: ProviderWidget(
         model: SettingsModel(),
@@ -31,11 +31,40 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               Card(
                 child: ExpansionTile(
-                  title: Text('图片源', style: TextStyle(fontSize: 22)),
+                  title: const Text('主题', style: TextStyle(fontSize: 22)),
                   children: [
                     RadioListTile(
                       activeColor: Theme.of(context).colorScheme.primary,
-                      title: Text('使用代理图片源(i.pixiv.cat)'),
+                      title: const Text('黑暗(推荐)'),
+                      value: false,
+                      groupValue: model.isLightTheme,
+                      onChanged: (bool? value) {
+                        if (null != value) {
+                          model.isLightTheme = value;
+                        }
+                      },
+                    ),
+                    RadioListTile(
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      title: const Text('明亮'),
+                      value: true,
+                      groupValue: model.isLightTheme,
+                      onChanged: (bool? value) {
+                        if (null != value) {
+                          model.isLightTheme = value;
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Card(
+                child: ExpansionTile(
+                  title: const Text('图片源', style: TextStyle(fontSize: 22)),
+                  children: [
+                    RadioListTile(
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      title: const Text('使用代理图片源(i.pixiv.cat)'),
                       value: 'i.pixiv.cat',
                       groupValue: model.imageSource,
                       onChanged: (String? value) {
@@ -46,7 +75,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     RadioListTile(
                       activeColor: Theme.of(context).colorScheme.primary,
-                      title: Text('使用IP直连(210.140.92.139)'),
+                      title: const Text('使用IP直连(210.140.92.139)'),
                       value: '210.140.92.139',
                       groupValue: model.imageSource,
                       onChanged: (String? value) {
@@ -57,7 +86,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     RadioListTile(
                       activeColor: Theme.of(context).colorScheme.primary,
-                      title: Text('使用原始图片源(i.pximg.net)'),
+                      title: const Text('使用原始图片源(i.pximg.net)'),
                       value: 'i.pximg.net',
                       groupValue: model.imageSource,
                       onChanged: (String? value) {
@@ -68,7 +97,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     RadioListTile(
                       activeColor: Theme.of(context).colorScheme.primary,
-                      title: Text('使用自定义图片源'),
+                      title: const Text('使用自定义图片源'),
                       value: model.customImageSourceInput.text,
                       groupValue: model.imageSource,
                       onChanged: (String? value) {
@@ -79,7 +108,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     ListTile(
                       title: TextField(
-                        decoration: InputDecoration(label: Text('自定义图片源')),
+                        decoration: const InputDecoration(label: Text('自定义图片源')),
                         controller: model.customImageSourceInput,
                         onChanged: (String value) {
                           model.imageSource = value;
@@ -91,11 +120,11 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               Card(
                 child: ExpansionTile(
-                  title: Text('图片预览质量', style: TextStyle(fontSize: 22)),
+                  title: const Text('图片预览质量', style: TextStyle(fontSize: 22)),
                   children: [
                     RadioListTile(
                       activeColor: Theme.of(context).colorScheme.primary,
-                      title: Text('中等'),
+                      title: const Text('中等'),
                       value: false,
                       groupValue: model.previewQuality,
                       onChanged: (bool? value) {
@@ -106,7 +135,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     RadioListTile(
                       activeColor: Theme.of(context).colorScheme.primary,
-                      title: Text('大图'),
+                      title: const Text('大图'),
                       value: true,
                       groupValue: model.previewQuality,
                       onChanged: (bool? value) {
@@ -120,11 +149,11 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               Card(
                 child: ExpansionTile(
-                  title: Text('图片缩放质量', style: TextStyle(fontSize: 22)),
+                  title: const Text('图片缩放质量', style: TextStyle(fontSize: 22)),
                   children: [
                     RadioListTile(
                       activeColor: Theme.of(context).colorScheme.primary,
-                      title: Text('大图'),
+                      title: const Text('大图'),
                       value: false,
                       groupValue: model.scaleQuality,
                       onChanged: (bool? value) {
@@ -135,7 +164,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     RadioListTile(
                       activeColor: Theme.of(context).colorScheme.primary,
-                      title: Text('原图'),
+                      title: const Text('原图'),
                       value: true,
                       groupValue: model.scaleQuality,
                       onChanged: (bool? value) {

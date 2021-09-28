@@ -7,46 +7,43 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/base_view_model.dart';
 
 class ThemeModel extends BaseViewModel {
-  static final _darkTheme = ThemeData(
-    colorScheme: ColorScheme(
-      primary: const Color(0xffea638c),
+  static final _darkTheme = ThemeData.dark().copyWith(
+    colorScheme: const ColorScheme(
+      primary: Color(0xffea638c),
       primaryVariant: Colors.pinkAccent,
       secondary: Colors.pinkAccent,
-      secondaryVariant: const Color(0xffea638c),
-      surface: const Color(0xff303235),
-      background: const Color(0xff282c2f),
+      secondaryVariant: Color(0xffea638c),
+      surface: Color(0xff303235),
+      background: Color(0xff282c2f),
       error: Colors.red,
-      onPrimary: const Color(0xffffd9da),
-      onSecondary: const Color(0xffffd9da),
+      onPrimary: Color(0xffffd9da),
+      onSecondary: Color(0xffffd9da),
       onSurface: Colors.white70,
-      onBackground: const Color(0xff191a1a),
+      onBackground: Color(0xff191a1a),
       onError: Colors.deepOrange,
       brightness: Brightness.dark,
-    ),
-    brightness: Brightness.dark,
+    )
   );
 
-  static final _lightTheme = ThemeData(
-    colorScheme: ColorScheme(
-      primary: const Color(0xffea638c),
+  static final _lightTheme = ThemeData.light().copyWith(
+    colorScheme: const ColorScheme(
+      primary: Color(0xffea638c),
       primaryVariant: Colors.deepOrangeAccent,
       secondary: Colors.pinkAccent,
-      secondaryVariant: const Color(0xffea638c),
-      surface: const Color(0xff40444d),
-      background: const Color(0xff40444d),
+      secondaryVariant: Color(0xffea638c),
+      surface: Color(0xff40444d),
+      background: Color(0xff40444d),
       error: Colors.red,
-      onPrimary: const Color(0xffffd9da),
-      onSecondary: const Color(0xffffd9da),
-      onSurface: const Color(0xff191a1a),
-      onBackground: const Color(0xff191a1a),
+      onPrimary: Color(0xffffd9da),
+      onSecondary: Color(0xffffd9da),
+      onSurface: Color(0xff191a1a),
+      onBackground: Color(0xff191a1a),
       onError: Colors.red,
       brightness: Brightness.light,
     ),
-    brightness: Brightness.light,
   );
 
   var _currentTheme = _darkTheme;
@@ -59,21 +56,18 @@ class ThemeModel extends BaseViewModel {
 
   ThemeData get currentTheme => _currentTheme;
 
-  void useDarkTheme() async {
-    if (_darkTheme == _currentTheme) {
-      return;
+  set useLightTheme(bool value) {
+    if (value) {
+      if (_lightTheme == _currentTheme) {
+        return;
+      }
+      _currentTheme = _lightTheme;
+    } else {
+      if (_darkTheme == _currentTheme) {
+        return;
+      }
+      _currentTheme = _darkTheme;
     }
-    settingsManager.isLightTheme = false;
-    _currentTheme = _darkTheme;
-    notifyListeners();
-  }
-
-  void useLightTheme() async {
-    if (_lightTheme == _currentTheme) {
-      return;
-    }
-    settingsManager.isLightTheme = true;
-    _currentTheme = _lightTheme;
     notifyListeners();
   }
 }

@@ -10,65 +10,65 @@
 
 enum RankingMode {
   ///天
-  DAY,
+  day,
 
   ///天 R18
-  DAY_R18,
+  dayR18,
 
   ///天 男性欢迎
-  DAY_MALE,
+  dayMale,
 
   ///天 男性欢迎 R18
-  DAY_MALE_R18,
+  dayMaleR18,
 
   ///天 女性欢迎
-  DAY_FEMALE,
+  dayFemale,
 
   ///天 女性欢迎 R18
-  DAY_FEMALE_R18,
+  dayFemaleR18,
 
   ///周
-  WEEK,
+  week,
 
   ///周 R18
-  WEEK_R18,
+  weekR18,
 
   ///周(原创)
-  WEEK_ORIGINAL,
+  weekOriginal,
 
   ///周(新人)
-  WEEK_ROOKIE,
+  weekRookie,
 
   ///月
-  MONTH,
+  month,
 }
 
 enum WorkType {
   ///插画
-  ILLUST,
+  illust,
 
   ///漫画
-  MANGA,
+  manga,
 }
 
 enum SearchSort {
   ///时间降序(最新)
-  DATE_DESC,
+  dateDesc,
 
   ///时间升序(最旧)
-  DATE_ASC,
+  dateAsc,
 
   ///热度降序
-  POPULAR_DESC,
+  popularDesc,
 }
 
 enum SearchTarget {
   ///标签(部分匹配)
-  PARTIAL_MATCH_FOR_TAGS,
+  partialMatchForTags,
 
   ///标签(完全匹配)
-  EXACT_MATCH_FOR_TAGS,
+  exactMatchForTags,
 
   ///标签&简介
-  TITLE_AND_CAPTION,
+  titleAndCaption,
 }

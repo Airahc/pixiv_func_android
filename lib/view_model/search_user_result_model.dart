@@ -11,7 +11,7 @@ import 'package:pixiv_func_android/api/model/users.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/base_view_state_refresh_list_model.dart';
 
-class SearchUserResultModel extends BaseViewStateRefreshListModel {
+class SearchUserResultModel extends BaseViewStateRefreshListModel<UserPreview> {
   final String word;
 
   SearchUserResultModel(this.word);

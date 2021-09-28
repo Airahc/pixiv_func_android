@@ -37,11 +37,11 @@ class IllustPreviewer extends StatelessWidget {
       splashRadius: 20,
       onPressed: model.bookmarkStateChange,
       icon: model.isBookmarked
-          ? Icon(
+          ? const Icon(
               Icons.favorite_sharp,
               color: Colors.pinkAccent,
             )
-          : Icon(
+          : const Icon(
               Icons.favorite_outline_sharp,
             ),
     );
@@ -49,7 +49,7 @@ class IllustPreviewer extends StatelessWidget {
 
   static final borderRadius = BorderRadius.circular(10);
 
-  static final circularRadius = Radius.circular(10);
+  static const circularRadius = Radius.circular(10);
 
   Widget _buildImage({
     required String url,
@@ -79,43 +79,41 @@ class IllustPreviewer extends StatelessWidget {
               },
               child: imageWidget,
             ),
-            Positioned(
-              left: 2,
-              top: 2,
-              child: model.illust.tags.any((tag) => tag.name == 'R-18')
-                  ? Card(
-                      color: Colors.pinkAccent,
-                      child: Text('R-18'),
-                    )
-                  : Container(),
+            Visibility(
+              visible: model.isR18,
+              child:  Positioned(
+                left: 2,
+                top: 2,
+                child: Card(color: Colors.pink.shade300, child: const Padding(
+                  padding: EdgeInsets.all(1.5),
+                  child: Text('R-18'),
+                )),
+              ),
             ),
-            Positioned(
-              left: 2,
-              bottom: 2,
-              child: model.isUgoira
-                  ? Card(
-                      color: Colors.white12,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                        child: Text('动图'),
-                      ),
-                    )
-                  : Container(),
+            Visibility(
+              visible: model.isUgoira,
+              child: const Positioned(
+                left: 2,
+                bottom: 2,
+                child: Card(
+                  color: Colors.white12,
+                  child: Padding(padding: EdgeInsets.fromLTRB(5, 0, 5, 0), child: Text('动图')),
+                ),
+              ),
             ),
-            Positioned(
-              right: 2,
-              top: 2,
-              child: model.illust.pageCount > 1
-                  ? Card(
-                      color: Colors.white12,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                        child: Text(
-                          '${model.illust.pageCount}',
-                        ),
-                      ),
-                    )
-                  : Container(),
+            Visibility(
+              visible: model.illust.pageCount > 1,
+              child: Positioned(
+                right: 2,
+                top: 2,
+                child: Card(
+                  color: Colors.white12,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                    child: Text('${model.illust.pageCount}'),
+                  ),
+                ),
+              ),
             ),
           ],
         );
@@ -151,7 +149,7 @@ class IllustPreviewer extends StatelessWidget {
                     return Hero(
                       tag: 'illust:${model.illust.id}',
                       child: ClipRRect(
-                        borderRadius: BorderRadius.only(topLeft: circularRadius, topRight: circularRadius),
+                        borderRadius: const BorderRadius.only(topLeft: circularRadius, topRight: circularRadius),
                         child: _buildImage(
                           url: Utils.getPreviewUrl(illust.imageUrls),
                           width: constraints.maxWidth,
@@ -164,20 +162,21 @@ class IllustPreviewer extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  contentPadding: EdgeInsets.only(left: 5),
+                  contentPadding: const EdgeInsets.only(left: 5),
                   title: Text(
                     model.illust.title,
-                    style: TextStyle(fontSize: 15),
+                    style: const TextStyle(fontSize: 15),
                     overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: showUserName
                       ? Text(
                           model.illust.user.name,
-                          style: TextStyle(fontSize: 12),
+                          style: const TextStyle(fontSize: 12),
                           overflow: TextOverflow.ellipsis,
                         )
                       : null,
-                  trailing: model.bookmarkRequestWaiting ? RefreshProgressIndicator() : _buildBookmarkButton(model),
+                  trailing:
+                      model.bookmarkRequestWaiting ? const RefreshProgressIndicator() : _buildBookmarkButton(model),
                 ),
               ],
             ),

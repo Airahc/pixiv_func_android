@@ -7,35 +7,30 @@
  */
 
 import 'dart:io';
-
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:pixiv_func_android/app.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
-import 'package:pixiv_func_android/view_model/theme_model.dart';
-import 'package:provider/provider.dart';
+
 
 Future<void> main() async {
   HttpOverrides.global = MyHttpOverrides();
   //一定要初始化
   WidgetsFlutterBinding.ensureInitialized();
-  (ExtendedNetworkImageProvider.httpClient as HttpClient).badCertificateCallback =
-      (X509Certificate cert, String host, int port) {
-    return true;
-  };
+
 
   await init();
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => ThemeModel(settingsManager.isLightTheme)),
+        ChangeNotifierProvider(create: (context) => themeModel),
         ChangeNotifierProvider(create: (context) => accountModel),
         ChangeNotifierProvider(create: (context) => homeModel),
         ChangeNotifierProvider(create: (context) => downloadTaskModel),
       ],
-      child: App(),
+      child: const App(),
     ),
   );
 

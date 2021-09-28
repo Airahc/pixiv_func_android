@@ -22,30 +22,33 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RefreshConfiguration(
-      headerBuilder: () => MaterialClassicHeader(color: Provider.of<ThemeModel>(context).currentTheme.colorScheme.primary),
-      footerBuilder: () => RefresherFooter(),
+      headerBuilder: () => MaterialClassicHeader(
+        backgroundColor: settingsManager.isLightTheme ? const Color(0xff343639) : null,
+        color: Provider.of<ThemeModel>(context).currentTheme.colorScheme.primary,
+      ),
+      footerBuilder: () => const RefresherFooter(),
       hideFooterWhenNotFull: false,
       child: MaterialApp(
-        localizationsDelegates: [
+        localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
         ],
-        supportedLocales: [
-          const Locale('zh', 'CN'),
+        supportedLocales: const [
+          Locale('zh', 'CN'),
         ],
         debugShowCheckedModeBanner: false,
         theme: Provider.of<ThemeModel>(context).currentTheme,
         home: WillPopScope(
           onWillPop: () async {
-            if (null == lastPopTime || DateTime.now().difference(lastPopTime!) > Duration(seconds: 1)) {
+            if (null == lastPopTime || DateTime.now().difference(lastPopTime!) > const Duration(seconds: 1)) {
               lastPopTime = DateTime.now();
-             platformAPI.toast('再按一次退出');
+              platformAPI.toast('再按一次退出');
               return false;
             } else {
               return true;
             }
           },
-          child: Home(),
+          child: const Home(),
         ),
       ),
     );

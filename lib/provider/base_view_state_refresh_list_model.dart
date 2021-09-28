@@ -18,6 +18,14 @@ abstract class BaseViewStateRefreshListModel<T> extends BaseViewStateListModel<T
 
   bool _showToTop = false;
 
+  @override
+  void dispose() {
+    cancelTask();
+    refreshController.dispose();
+    scrollController.dispose();
+    super.dispose();
+  }
+
   bool get showToTop => _showToTop;
 
   set showToTop(bool value) {
@@ -40,18 +48,12 @@ abstract class BaseViewStateRefreshListModel<T> extends BaseViewStateListModel<T
     }
   }
 
-  @override
-  void dispose() {
-    cancelTask();
-    super.dispose();
-  }
-
   void scrollToTop() {
     if (scrollController.hasClients) {
       if (scrollController.offset != 0) {
         scrollController.animateTo(
           0,
-          duration: Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 500),
           curve: Curves.easeInQuad,
         );
       }

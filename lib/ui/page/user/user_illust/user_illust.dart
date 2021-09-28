@@ -38,7 +38,7 @@ class UserIllust extends StatelessWidget {
                   illustContentModel: illustContentModel,
                   showUserName: false,
                 ),
-                staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
+                staggeredTileBuilder: (int index) => const StaggeredTile.fit(1),
                 itemCount: model.list.length,
               )
             ],

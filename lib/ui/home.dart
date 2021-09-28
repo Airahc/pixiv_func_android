@@ -19,7 +19,7 @@ class Home extends StatelessWidget {
   Widget _buildAppBody(BuildContext context, HomeModel model) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pixiv Func'),
+        title: const Text('Pixiv Func'),
       ),
       body: IndexedStack(
         index: model.currentPage,
@@ -28,7 +28,7 @@ class Home extends StatelessWidget {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: model.currentPage,
         onTap: (int index) => model.currentPage = index,
-        items: [
+        items: const [
           BottomNavigationBarItem(
             label: '推荐作品',
             icon: Icon(Icons.alt_route_outlined),
@@ -44,13 +44,13 @@ class Home extends StatelessWidget {
         ],
       ),
       drawer: Drawer(
-        child: Container(
-          padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
           child: ListView(
             children: model.pages
                 .map(
                   (page) => Card(
-                    margin: EdgeInsets.all(1),
+                    margin: const EdgeInsets.all(1),
                     child: ListTile(
                       title: Text(page.name),
                       onTap: () {
@@ -70,46 +70,46 @@ class Home extends StatelessWidget {
   Widget _buildGuideBody(BuildContext context, HomeModel model) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pixiv Func'),
+        title: const Text('Pixiv Func'),
       ),
       body: Column(
         children: [
-          SizedBox(height: 100),
+          const SizedBox(height: 100),
           ListTile(
             title: Row(
               children: [
-                Text('该软件使用'),
+                const Text('该软件使用'),
                 Image.asset(
                   'assets/dart-logo.png',
                   width: 30,
                   height: 30,
                 ),
-                Text('与'),
+                const Text('与'),
                 Image.asset(
                   'assets/kotlin-logo.png',
                   width: 30,
                   height: 30,
                 ),
-                Text('开发 开源且免费'),
+                const Text('开发 开源且免费'),
               ],
             ),
-            subtitle: Text('禁止用于商业用途(包括收取打赏)'),
+            subtitle: const Text('禁止用于商业用途(包括收取打赏)'),
           ),
-          ListTile(
+          const ListTile(
             title: Text('请打开你的代理(VPN)然后进行登录操作'),
             subtitle: Text('登录完关掉就可以免代理直连'),
           ),
-          Divider(),
+          const Divider(),
           Card(
             child: ListTile(
               onTap: model.agreementAccepted ? () => _login(context, model) : null,
-              title: Center(child: Text('登录')),
+              title: const Center(child: Text('登录')),
             ),
           ),
           Card(
             child: ListTile(
               onTap: model.agreementAccepted ? () => _login(context, model, true) : null,
-              title: Center(child: Text('注册')),
+              title: const Center(child: Text('注册')),
             ),
           ),
           Card(
@@ -124,7 +124,7 @@ class Home extends StatelessWidget {
               title: RichText(
                 text: TextSpan(
                   children: [
-                    TextSpan(text: '我同意并接受'),
+                    const TextSpan(text: '我同意并接受'),
                     TextSpan(
                       text: '夹批搪与牲口不得使用此软件',
                       style: TextStyle(color: Theme.of(context).colorScheme.primary),

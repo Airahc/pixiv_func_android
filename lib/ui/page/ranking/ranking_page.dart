@@ -7,6 +7,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:pixiv_func_android/instance_setup.dart';
 
 import 'package:pixiv_func_android/model/ranking_type_item.dart';
 import 'package:pixiv_func_android/ui/page/ranking/ranking_content.dart';
@@ -24,35 +25,35 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
   late final TabController _tabController = TabController(length: widget.typeItems.length, vsync: this);
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('排行榜'),
+        title: const Text('排行榜'),
       ),
       body: Column(
         children: [
           TabBar(
             isScrollable: true,
             controller: _tabController,
+            labelColor: settingsManager.isLightTheme ? Colors.black : null,
             indicatorColor: Theme.of(context).colorScheme.primary,
-            tabs: widget.typeItems
-                .map(
-                  (item) => Tab(
-                    text: item.name,
-                  ),
+            tabs: [
+              for (final item in widget.typeItems)
+                Tab(
+                  text: item.name,
                 )
-                .toList(),
+            ],
           ),
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: widget.typeItems
-                  .map(
-                    (item) => RankingContent(
-                      item.mode,
-                    ),
-                  )
-                  .toList(),
+              children: [for (final item in widget.typeItems) RankingContent(item.mode)],
             ),
           ),
         ],

@@ -10,7 +10,7 @@ import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/ui/widget/image_view_from_url.dart';
 
 class AvatarViewFromUrl extends StatelessWidget {
-  static const _TARGET_HOST = 'i.pximg.net';
+  static const _targetHost = 'i.pximg.net';
 
   final String url;
   final double? radius;
@@ -20,7 +20,7 @@ class AvatarViewFromUrl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = url.replaceFirst(_TARGET_HOST, settingsManager.imageSource);
+    final imageUrl = url.replaceFirst(_targetHost, settingsManager.imageSource);
 
     return ClipOval(
       child: ImageViewFromUrl(

@@ -13,7 +13,7 @@ import 'package:pixiv_func_android/settings_manager.dart';
 import 'package:pixiv_func_android/view_model/account_model.dart';
 import 'package:pixiv_func_android/view_model/download_task_model.dart';
 import 'package:pixiv_func_android/view_model/home_model.dart';
-
+import 'package:pixiv_func_android/view_model/theme_model.dart';
 import 'account_manager.dart';
 
 AccountManager accountManager = AccountManager();
@@ -21,10 +21,10 @@ SettingsManager settingsManager = SettingsManager();
 PixivAPI pixivAPI = PixivAPI();
 OAuthAPI oAuthAPI = OAuthAPI();
 PlatformAPI platformAPI = PlatformAPI();
+ThemeModel themeModel = ThemeModel(settingsManager.isLightTheme);
 AccountModel accountModel = AccountModel();
 DownloadTaskModel downloadTaskModel = DownloadTaskModel();
 HomeModel homeModel = HomeModel();
-
 
 Future<void> init() async {
   await accountManager.load();

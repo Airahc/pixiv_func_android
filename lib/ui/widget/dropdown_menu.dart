@@ -13,25 +13,27 @@ class DropdownMenu<T> extends StatelessWidget {
   final T currentValue;
   final ValueChanged<T?> onChanged;
 
-  DropdownMenu({
+  const DropdownMenu({
     Key? key,
     required this.menuItems,
     required this.currentValue,
     required this.onChanged,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
     return DropdownButton(
-      items: menuItems.map((e) {
-        return DropdownMenuItem<T>(
-          child: Text(
-            e.label,
-            style: currentValue == e.value ? TextStyle(color: Theme.of(context).colorScheme.primary) : null,
-          ),
-          value: e.value,
-        );
-      }).toList(),
+      items: [
+        for (final item in menuItems)
+          DropdownMenuItem<T>(
+            child: Text(
+              item.label,
+              style: currentValue == item.value ? TextStyle(color: Theme.of(context).colorScheme.primary) : null,
+            ),
+            value: item.value,
+          )
+      ],
       value: currentValue,
       onChanged: onChanged,
     );

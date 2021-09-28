@@ -12,12 +12,19 @@ import 'package:pixiv_func_android/api/entity/image_urls.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 
 class Utils {
-  /// 枚举类型(的值)转小写字符串
-  /// WorkType.ILLUST => 'illust'
-  static String enumTypeStringToLowerCase<T extends Enum>(T type) {
+  /// 枚举类型(的值)转小驼峰字符串
+  /// SearchTarget.partialMatchForTags => 'partial_match_for_tags'
+  /// 用于API
+  static String enumTypeStringToLittleHump<T extends Enum>(T type) {
     final typeString = type.toString();
-    final typeRuntimeTypeString = type.runtimeType.toString();
-    return typeString.replaceFirst('$typeRuntimeTypeString.', '').toLowerCase();
+
+    final typeValueString = typeString.substring(typeString.indexOf('.') + 1);
+    return typeValueString.replaceAllMapped(
+      RegExp(r'[A-Z]'),
+      (match) {
+        return '_${match.input.substring(match.start, match.end)}';
+      },
+    ).toLowerCase();
   }
 
   ///日本时间转中国时间

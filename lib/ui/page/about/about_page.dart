@@ -27,7 +27,7 @@ class AboutPage extends StatelessWidget {
         ),
         Card(
           child: Container(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             alignment: Alignment.topLeft,
             child: HtmlRichText(info.body),
           ),
@@ -43,8 +43,8 @@ class AboutPage extends StatelessWidget {
               await Utils.copyToClipboard(info.htmlUrl);
              platformAPI.toast('已将 ${info.htmlUrl} 复制到剪切板');
             },
-            title: Text('打开标签页'),
-            subtitle: Text('长按复制url'),
+            title: const Text('打开标签页'),
+            subtitle: const Text('长按复制url'),
           ),
         ),
         Card(
@@ -58,8 +58,8 @@ class AboutPage extends StatelessWidget {
               await Utils.copyToClipboard(info.browserDownloadUrl);
              platformAPI.toast('已将 ${info.browserDownloadUrl} 复制到剪切板');
             },
-            title: Text('下载最新版本'),
-            subtitle: Text('长按复制url'),
+            title: const Text('下载最新版本'),
+            subtitle: const Text('长按复制url'),
           ),
         ),
       ],
@@ -72,23 +72,23 @@ class AboutPage extends StatelessWidget {
       model: AboutModel(),
       builder: (BuildContext context, AboutModel model, Widget? child) {
         final Widget releaseInfoWidget;
-        if (ViewState.Busy == model.viewState) {
-          releaseInfoWidget = Container(
+        if (ViewState.busy == model.viewState) {
+          releaseInfoWidget = const Padding(
             padding: EdgeInsets.all(20),
             child: Center(
               child: CircularProgressIndicator(),
             ),
           );
-        } else if (ViewState.Idle == model.viewState) {
+        } else if (ViewState.idle == model.viewState) {
           if (null == model.releaseInfo) {
             releaseInfoWidget = Container();
           } else {
             releaseInfoWidget = _buildReleaseInfo(model.releaseInfo!);
           }
-        } else if (ViewState.InitFailed == model.viewState) {
+        } else if (ViewState.initFailed == model.viewState) {
           releaseInfoWidget = ListTile(
             onTap: model.loadLatestReleaseInfo,
-            title: Center(
+            title: const Center(
               child: Text('加载失败发行版信息失败,点击重新加载'),
             ),
           );
@@ -98,7 +98,7 @@ class AboutPage extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text('关于'),
+            title: const Text('关于'),
           ),
           body: ListView(
             children: [
@@ -107,12 +107,12 @@ class AboutPage extends StatelessWidget {
                   'assets/xiaocao.png',
                   width: 50,
                 ),
-                title: Text('这是小草的个人玩具项目'),
-                subtitle: Text('夹批搪与牲口不得使用此软件'),
+                title: const Text('这是小草的个人玩具项目'),
+                subtitle: const Text('夹批搪与牲口不得使用此软件'),
               ),
-              Divider(),
+              const Divider(),
               Card(
-                margin: EdgeInsets.all(0),
+                margin: EdgeInsets.zero,
                 child: ListTile(
                   onTap: () async {
                     if (!await platformAPI.urlLaunch(thisProjectGitHubUrl)) {
@@ -123,41 +123,41 @@ class AboutPage extends StatelessWidget {
                     await Utils.copyToClipboard(thisProjectGitHubUrl);
                    platformAPI.toast('已将 $thisProjectGitHubUrl 复制到剪切板');
                   },
-                  title: Text(thisProjectGitHubUrl),
-                  subtitle: Text('项目地址(点击前往浏览器,长按复制url)'),
+                  title: const Text(thisProjectGitHubUrl),
+                  subtitle: const Text('项目地址(点击前往浏览器,长按复制url)'),
                 ),
               ),
-              Divider(),
+              const Divider(),
               ListTile(
                 title: Row(
                   children: [
-                    Text('该软件使用'),
+                    const Text('该软件使用'),
                     Image.asset(
                       'assets/dart-logo.png',
                       width: 30,
                       height: 30,
                     ),
-                    Text('与'),
+                    const Text('与'),
                     Image.asset(
                       'assets/kotlin-logo.png',
                       width: 30,
                       height: 30,
                     ),
-                    Text('开发 开源且免费'),
+                    const Text('开发 开源且免费'),
                   ],
                 ),
-                subtitle: Text('禁止用于盈利(包括但不仅限于收取打赏)'),
+                subtitle: const Text('禁止用于盈利(包括但不仅限于收取打赏)'),
               ),
-              Divider(),
-              ListTile(
+              const Divider(),
+              const ListTile(
                 title: Text('该项目与一切现有同类项目无关'),
                 subtitle: Text('请不要拿来比较'),
               ),
-              Divider(),
+              const Divider(),
               ListTile(
                 title: Text('当前版本:${null != model.appVersion ? model.appVersion! : '正在获取...'}'),
               ),
-              Divider(),
+              const Divider(),
               releaseInfoWidget,
             ],
           ),

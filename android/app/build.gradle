@@ -69,4 +69,5 @@ flutter {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation files("libs/androidndkgif-0.3.3.aar")
+    implementation 'androidx.webkit:webkit:1.4.0'
 }

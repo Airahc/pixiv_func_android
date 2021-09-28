@@ -37,8 +37,8 @@ class SearchFilter {
       );
 
   factory SearchFilter.create({
-    SearchTarget target = SearchTarget.PARTIAL_MATCH_FOR_TAGS,
-    SearchSort sort = SearchSort.DATE_DESC,
+    SearchTarget target = SearchTarget.partialMatchForTags,
+    SearchSort sort = SearchSort.dateDesc,
     bool enableDateLimit = false,
   }) {
     final DateTime _currentDate = DateTime.now();

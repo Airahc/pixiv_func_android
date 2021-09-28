@@ -23,9 +23,17 @@ class IllustCommentModel extends BaseViewStateRefreshListModel<CommentTree> {
 
   final TextEditingController commentInput = TextEditingController();
 
+  @override
+  void dispose(){
+    commentInput.dispose();
+    super.dispose();
+  }
+
+
   CommentTree? _repliesCommentTree;
 
   CommentTree? get repliesCommentTree => _repliesCommentTree;
+
 
   set repliesCommentTree(CommentTree? value) {
     _repliesCommentTree = value;
@@ -112,7 +120,6 @@ class IllustCommentModel extends BaseViewStateRefreshListModel<CommentTree> {
   void doDeleteComment(
     CommentTree commentTree,
   ) {
-    print('1');
     pixivAPI.deleteComment(commentTree.data.id).then((value) {
       if (null == commentTree.parent) {
         list.removeWhere((element) => commentTree.data.id == element.data.id);

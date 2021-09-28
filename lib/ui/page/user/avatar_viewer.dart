@@ -17,7 +17,7 @@ class AvatarViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Container(
+      child: SizedBox(
         height: 350,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -29,7 +29,7 @@ class AvatarViewer extends StatelessWidget {
               tooltip: '保存原图',
               splashRadius: 20,
               onPressed: () => Downloader.start(url: url),
-              icon: Icon(Icons.save_alt_outlined),
+              icon: const Icon(Icons.save_alt_outlined),
             ),
           ],
         ),

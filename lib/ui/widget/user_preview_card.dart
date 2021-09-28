@@ -24,59 +24,50 @@ class UserPreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: ProviderWidget(
-        model: UserPreviewModel(userPreview),
-        builder: (BuildContext context, UserPreviewModel model, Widget? child) {
-          return Card(
-            child: Column(
-              children: [
-                LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                    return Container(
-                      width: constraints.maxWidth,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: model.userPreview.illusts
-                            .map(
-                              (illust) => Expanded(
-                                child: Container(
-                                  padding: EdgeInsets.all(padding),
-                                  child: IllustPreviewer(illust: illust, square: true),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: GestureDetector(
-                    onTap: () => PageUtils.to(
-                      context,
-                      UserPage(
-                        model.userPreview.user.id,
-                        parentModel: model,
-                      ),
+    return ProviderWidget(
+      model: UserPreviewModel(userPreview),
+      builder: (BuildContext context, UserPreviewModel model, Widget? child) {
+        return Card(
+          child: Column(
+            children: [
+              LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  final itemWidth = constraints.maxWidth / 3 - padding;
+                  return SizedBox(
+                    width: constraints.maxWidth,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        for (final illust in model.userPreview.illusts)
+                          Container(
+                            padding: const EdgeInsets.all(padding),
+                            width: itemWidth,
+                            child: IllustPreviewer(illust: illust, square: true),
+                          )
+                      ],
                     ),
-                    child: Hero(
-                      tag: 'user:${model.userPreview.user.id}',
-                      child: AvatarViewFromUrl(model.userPreview.user.profileImageUrls.medium),
-                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: GestureDetector(
+                  onTap: () => PageUtils.to(context, UserPage(model.userPreview.user.id, parentModel: model)),
+                  child: Hero(
+                    tag: 'user:${model.userPreview.user.id}',
+                    child: AvatarViewFromUrl(model.userPreview.user.profileImageUrls.medium),
                   ),
-                  title: Text(model.userPreview.user.name),
-                  trailing: model.followRequestWaiting
-                      ? RefreshProgressIndicator()
-                      : model.isFollowed
-                          ? ElevatedButton(onPressed: model.onFollowStateChange, child: Text('已关注'))
-                          : OutlinedButton(onPressed: model.onFollowStateChange, child: Text('关注')),
                 ),
-              ],
-            ),
-          );
-        },
-      ),
+                title: Text(model.userPreview.user.name),
+                trailing: model.followRequestWaiting
+                    ? const RefreshProgressIndicator()
+                    : model.isFollowed
+                        ? ElevatedButton(onPressed: model.onFollowStateChange, child: const Text('已关注'))
+                        : OutlinedButton(onPressed: model.onFollowStateChange, child: const Text('关注')),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

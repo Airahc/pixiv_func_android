@@ -27,7 +27,7 @@ class ImageViewFromUrl extends StatelessWidget {
 
   final Widget? placeholderWidget;
 
-  ImageViewFromUrl(
+  const ImageViewFromUrl(
     this.url, {
     Key? key,
     this.color,
@@ -43,41 +43,33 @@ class ImageViewFromUrl extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExtendedImage.network(
       Utils.replaceImageSource(url),
-      headers: {'Referer': 'https://app-api.pixiv.net/'},
+      headers: const {'Referer': 'https://app-api.pixiv.net/'},
       //https://github.com/fluttercandies/extended_image/issues/355
       //https://github.com/fluttercandies/extended_image/issues/351
       //https://github.com/fluttercandies/extended_image/issues/402
       //当图像提供者改变时，是继续显示旧图像（真），还是暂时不显示（假）
       //防止刷新时图片闪烁 (降低extended_image版本到 3.0.0 这些问题都没有了)
-      // gaplessPlayback: true,
+      gaplessPlayback: true,
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
             return placeholderWidget ??
-                Container(
-                  padding: const EdgeInsets.all(5),
-                  child: const Center(child: CircularProgressIndicator()),
+                const Padding(
+                  padding: EdgeInsets.all(5),
+                  child: Center(child: CircularProgressIndicator()),
                 );
           case LoadState.completed:
-            // if (null == imageBuilder) {
-            //   return ExtendedRawImage(image: state.extendedImageInfo?.image, fit: fit);
-            // } else {
-            //   return imageBuilder!(ExtendedRawImage(image: state.extendedImageInfo?.image, fit: fit));
-            // }
             return imageBuilder?.call(state.completedWidget);
           case LoadState.failed:
             return Center(
               child: IconButton(
                 icon: const Icon(Icons.refresh_sharp),
                 iconSize: 35,
-                onPressed: () {
-                  state.reLoadImage();
-                },
+                onPressed: state.reLoadImage,
               ),
             );
         }
       },
-
       color: color,
       colorBlendMode: colorBlendMode,
       width: width,

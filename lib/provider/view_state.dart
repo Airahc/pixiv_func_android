@@ -7,9 +7,9 @@
  */
 
 enum ViewState {
-  Idle,
-  Busy,
-  Empty,
-  InitFailed,
-  LoadFailed,
+  idle,
+  busy,
+  empty,
+  initFailed,
+  loadFailed,
 }

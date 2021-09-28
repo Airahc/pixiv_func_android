@@ -23,13 +23,13 @@ class FollowingNewIllustPage extends StatelessWidget {
       builder: (BuildContext context, FollowingNewIllustModel model, Widget? child) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('已经关注用户的新作品'),
+            title: const Text('已经关注用户的新作品'),
           ),
           body: Column(
             children: [
               SegmentBar(
-                items: ['全部', '公开', '私有'],
-                values: [null, true, false],
+                items: const ['全部', '公开', '私有'],
+                values: const [null, true, false],
                 onSelected: (bool? value) {
                   model.restrict = value;
                 },
@@ -43,7 +43,7 @@ class FollowingNewIllustPage extends StatelessWidget {
                       SliverStaggeredGrid.countBuilder(
                         crossAxisCount: 2,
                         itemBuilder: (BuildContext context, int index) => IllustPreviewer(illust: model.list[index]),
-                        staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
+                        staggeredTileBuilder: (int index) => const StaggeredTile.fit(1),
                         itemCount: model.list.length,
                       )
                     ],

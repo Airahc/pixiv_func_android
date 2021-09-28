@@ -18,16 +18,17 @@ class ProviderWidget<T extends BaseViewModel> extends StatefulWidget {
   final bool autoDispose;
   final bool autoKeep;
 
-  ProviderWidget({
+  const ProviderWidget({
     Key? key,
     required this.model,
     required this.builder,
     this.child,
     this.onModelReady,
-    this.autoDispose: true,
-    this.autoKeep: false,
+    this.autoDispose = true,
+    this.autoKeep = false,
   }) : super(key: key);
 
+  @override
   _ProviderWidgetState<T> createState() => _ProviderWidgetState<T>();
 }
 

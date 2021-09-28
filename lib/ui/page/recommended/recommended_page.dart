@@ -26,8 +26,8 @@ class RecommendedPage extends StatelessWidget {
         return Column(
           children: [
             SegmentBar(
-              items: ['插画', '漫画'],
-              values: [WorkType.ILLUST, WorkType.MANGA],
+              items: const ['插画', '漫画'],
+              values: const [WorkType.illust, WorkType.manga],
               onSelected: (WorkType value) => model.type = value,
               selectedValue: model.type,
             ),
@@ -39,7 +39,7 @@ class RecommendedPage extends StatelessWidget {
                     SliverStaggeredGrid.countBuilder(
                       crossAxisCount: 2,
                       itemBuilder: (BuildContext context, int index) => IllustPreviewer(illust: model.list[index]),
-                      staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
+                      staggeredTileBuilder: (int index) => const StaggeredTile.fit(1),
                       itemCount: model.list.length,
                     )
                   ],

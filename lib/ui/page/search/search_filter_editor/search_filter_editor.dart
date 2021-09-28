@@ -19,7 +19,7 @@ class SearchFilterEditor extends StatelessWidget {
   final SearchFilter filter;
   final ValueChanged<SearchFilter> onChanged;
 
-  SearchFilterEditor({Key? key, required this.filter, required this.onChanged}) : super(key: key);
+  const SearchFilterEditor({Key? key, required this.filter, required this.onChanged}) : super(key: key);
 
   void _openStartDatePicker(BuildContext context, SearchFilterModel model) {
     showDatePicker(
@@ -73,29 +73,29 @@ class SearchFilterEditor extends StatelessWidget {
       builder: (BuildContext context, BoxConstraints constraints) {
         return Container(
           width: constraints.maxWidth,
-          padding: EdgeInsets.only(bottom: 20),
+          padding: const EdgeInsets.only(bottom: 20),
           child: CupertinoSlidingSegmentedControl(
             children: <SearchSort, Widget>{
-              SearchSort.DATE_DESC: Container(
+              SearchSort.dateDesc: Container(
                 alignment: Alignment.center,
-                child: Text('时间降序'),
+                child: const Text('时间降序'),
                 width: constraints.maxWidth / 3,
               ),
-              SearchSort.DATE_ASC: Container(
+              SearchSort.dateAsc: Container(
                 alignment: Alignment.center,
-                child: Text('时间升序'),
+                child: const Text('时间升序'),
                 width: constraints.maxWidth / 3,
               ),
-              SearchSort.POPULAR_DESC: Container(
+              SearchSort.popularDesc: Container(
                 alignment: Alignment.center,
-                child: Text('热度降序'),
+                child: const Text('热度降序'),
                 width: constraints.maxWidth / 3,
               ),
             },
             groupValue: model.sort,
             onValueChanged: (SearchSort? value) {
               if (null != value) {
-                if (SearchSort.POPULAR_DESC == value && !accountManager.current!.user.isPremium) {
+                if (SearchSort.popularDesc == value && !accountManager.current!.user.isPremium) {
                   platformAPI.toast('你不是Pixiv高级会员,所以该选项与时间降序行为一致');
                 }
                 model.sort = value;
@@ -110,23 +110,23 @@ class SearchFilterEditor extends StatelessWidget {
   Widget _buildSearchTargetEdit(SearchFilterModel model) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        return Container(
-          padding: EdgeInsets.only(bottom: 20),
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 20),
           child: CupertinoSlidingSegmentedControl(
             children: <SearchTarget, Widget>{
-              SearchTarget.PARTIAL_MATCH_FOR_TAGS: Container(
+              SearchTarget.partialMatchForTags: Container(
                 alignment: Alignment.center,
-                child: Text('标签(部分匹配)'),
+                child: const Text('标签(部分匹配)'),
                 width: constraints.maxWidth / 3,
               ),
-              SearchTarget.EXACT_MATCH_FOR_TAGS: Container(
+              SearchTarget.exactMatchForTags: Container(
                 alignment: Alignment.center,
-                child: Text('标签(完全匹配)'),
+                child: const Text('标签(完全匹配)'),
                 width: constraints.maxWidth / 3,
               ),
-              SearchTarget.TITLE_AND_CAPTION: Container(
+              SearchTarget.titleAndCaption: Container(
                 alignment: Alignment.center,
-                child: Text('标签&简介'),
+                child: const Text('标签&简介'),
                 width: constraints.maxWidth / 3,
               ),
             },
@@ -144,7 +144,7 @@ class SearchFilterEditor extends StatelessWidget {
 
   Widget _buildDateRangeTypeEdit(SearchFilterModel model) {
     return ListTile(
-      title: Text('时间范围'),
+      title: const Text('时间范围'),
       trailing: DropdownButtonHideUnderline(
         child: DropdownMenu<int>(
           menuItems: [
@@ -168,31 +168,31 @@ class SearchFilterEditor extends StatelessWidget {
                 break;
               case 1:
                 model.dateTimeRange = DateTimeRange(
-                  start: model.currentDate.subtract(Duration(days: 1)),
+                  start: model.currentDate.subtract(const Duration(days: 1)),
                   end: model.currentDate,
                 );
                 break;
               case 2:
                 model.dateTimeRange = DateTimeRange(
-                  start: model.currentDate.subtract(Duration(days: 7)),
+                  start: model.currentDate.subtract(const Duration(days: 7)),
                   end: model.currentDate,
                 );
                 break;
               case 3:
                 model.dateTimeRange = DateTimeRange(
-                  start: model.currentDate.subtract(Duration(days: 30)),
+                  start: model.currentDate.subtract(const Duration(days: 30)),
                   end: model.currentDate,
                 );
                 break;
               case 4:
                 model.dateTimeRange = DateTimeRange(
-                  start: model.currentDate.subtract(Duration(days: 182)),
+                  start: model.currentDate.subtract(const Duration(days: 182)),
                   end: model.currentDate,
                 );
                 break;
               case 5:
                 model.dateTimeRange = DateTimeRange(
-                  start: model.currentDate.subtract(Duration(days: 365)),
+                  start: model.currentDate.subtract(const Duration(days: 365)),
                   end: model.currentDate,
                 );
                 break;
@@ -204,8 +204,8 @@ class SearchFilterEditor extends StatelessWidget {
   }
 
   Widget _buildDateRangeEdit(BuildContext context, SearchFilterModel model) {
-    return Container(
-      padding: EdgeInsets.only(top: 20, bottom: 20),
+    return Padding(
+      padding: const EdgeInsets.only(top: 20, bottom: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -216,7 +216,7 @@ class SearchFilterEditor extends StatelessWidget {
               style: Theme.of(context).textTheme.headline5,
             ),
           ),
-          Text(' 到 '),
+          const Text(' 到 '),
           InkWell(
             onTap: () => _openEndDatePicker(context, model),
             child: Text(
@@ -236,12 +236,12 @@ class SearchFilterEditor extends StatelessWidget {
       builder: (BuildContext context, SearchFilterModel model, Widget? child) {
         return Container(
           height: 450,
-          padding: EdgeInsets.only(left: 20, right: 20, top: 20),
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
           child: Column(
             children: [
               _buildSearchSortEdit(model),
               _buildSearchTargetEdit(model),
-              Divider(),
+              const Divider(),
               Text(model.bookmarkTotalText),
               Slider(
                 value: model.bookmarkTotalSelected.toDouble(),
@@ -252,15 +252,18 @@ class SearchFilterEditor extends StatelessWidget {
                   model.bookmarkTotalSelected = value.round();
                 },
               ),
-              Divider(),
+              const Divider(),
               _buildDateRangeTypeEdit(model),
-              model.dateTimeRangeType == -1 ? _buildDateRangeEdit(context, model) : Container(),
+              Visibility(
+                visible: model.dateTimeRangeType == -1,
+                child: _buildDateRangeEdit(context, model),
+              ),
               OutlinedButton(
                 onPressed: () {
                   onChanged(model.filter);
                   Navigator.of(context).pop();
                 },
-                child: Text('确定'),
+                child: const Text('确定'),
               ),
             ],
           ),

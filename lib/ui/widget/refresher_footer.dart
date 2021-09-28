@@ -18,25 +18,25 @@ class RefresherFooter extends StatelessWidget {
         final Widget body;
         switch (mode) {
           case LoadStatus.idle:
-            body = Text("上拉,加载更多");
+            body = const Text("上拉,加载更多");
             break;
           case LoadStatus.canLoading:
-            body = Text("松手,加载更多");
+            body = const Text("松手,加载更多");
             break;
           case LoadStatus.loading:
-            body = CircularProgressIndicator();
+            body = const CircularProgressIndicator();
             break;
           case LoadStatus.noMore:
-            body = Text("没有更多数据啦");
+            body = const Text("没有更多数据啦");
             break;
           case LoadStatus.failed:
-            body = Text('加载失败');
+            body = const Text('加载失败,请重试');
             break;
           default:
             body = Container();
             break;
         }
-        return Container(height: 55.0, child: Center(child: body));
+        return SizedBox(height: 55.0, child: Center(child: body));
       },
     );
   }

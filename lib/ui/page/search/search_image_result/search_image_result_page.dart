@@ -19,10 +19,10 @@ class SearchImageResultPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('搜索图片'),
+        title: const Text('搜索图片'),
       ),
       body: ListView(
-        children: results.map((result) => SearchImageResultItem(result)).toList(),
+        children: [for (final result in results) SearchImageResultItem(result)],
       ),
     );
   }

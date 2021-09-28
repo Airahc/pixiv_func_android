@@ -50,7 +50,7 @@ class _AccountPageState extends State<AccountPage> {
 
             homeModel.refresh();
           },
-          icon: Icon(Icons.delete_forever_outlined),
+          icon: const Icon(Icons.delete_forever_outlined),
         ),
       ),
     );
@@ -61,9 +61,9 @@ class _AccountPageState extends State<AccountPage> {
     final model = Provider.of<AccountModel>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('账号管理'),
+        title: const Text('账号管理'),
         actions: [
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           IconButton(
             tooltip: '登录一个账号',
             onPressed: () {
@@ -75,13 +75,13 @@ class _AccountPageState extends State<AccountPage> {
                 },
               );
             },
-            icon: Icon(Icons.login),
+            icon: const Icon(Icons.login),
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
         ],
       ),
       body: ListView(
-        children: model.accounts.map((e) => _buildAccountListTile(model, e)).toList(),
+        children: [for (final account in model.accounts) _buildAccountListTile(model, account)],
       ),
     );
   }

@@ -19,6 +19,8 @@ class IllustPreviewerModel extends BaseViewModel {
   IllustPreviewerModel(this.illust, {IllustContentModel? illustContentModel})
       : _illustContentModel = illustContentModel;
 
+  bool get isR18 => illust.tags.any((tag) => tag.name == 'R-18');
+
   bool get isUgoira => 'ugoira' == illust.type;
 
   bool _bookmarkRequestWaiting = false;

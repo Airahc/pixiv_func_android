@@ -8,9 +8,6 @@
 
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:pixiv_func_android/util/utils.dart';
-import 'entity/comment.dart';
-import 'enums.dart';
 import 'auth_token_interceptor.dart';
 import 'retry_interceptor.dart';
 import 'model/comments.dart';
@@ -23,13 +20,14 @@ import 'model/ugoira_metadata.dart';
 import 'model/users.dart';
 import 'model/search.dart';
 import 'model/user_detail.dart';
+import 'entity/comment.dart';
 
 class PixivAPI {
-  static const _TARGET_IP = '210.140.131.199';
-  static const _TARGET_HOST = 'app-api.pixiv.net';
+  static const _targetIP = '210.140.131.199';
+  static const _targetHost = 'app-api.pixiv.net';
   final Dio httpClient = Dio(
     BaseOptions(
-      baseUrl: 'https://$_TARGET_IP',
+      baseUrl: 'https://$_targetIP',
       responseType: ResponseType.plain,
       headers: {
         'User-Agent': 'PixivAndroidApp/6.21.1 (Android 7.1.2; XiaoCao)',
@@ -37,7 +35,7 @@ class PixivAPI {
         'App-OS-Version': '7.1.2',
         'App-Version': '6.21.1',
         'Accept-Language': 'zh',
-        'Host': _TARGET_HOST
+        'Host': _targetHost
       },
       connectTimeout: 5 * 1000,
       receiveTimeout: 5 * 1000,
@@ -60,7 +58,7 @@ class PixivAPI {
   ///}
   ///```
   Future<T> next<T>(String url) async {
-    final response = await httpClient.get<String>(url.replaceFirst(_TARGET_HOST, _TARGET_IP));
+    final response = await httpClient.get<String>(url.replaceFirst(_targetHost, _targetIP));
 
     final responseData = response.data!;
 
@@ -113,14 +111,14 @@ class PixivAPI {
 
   ///获取用户的插画 <br/>
   ///[userId] - 用户ID <br/>
-  ///[type] - 类型
-  Future<Illusts> getUserIllusts(int userId, WorkType type) async {
+  ///[type] - 类型([WorkType])
+  Future<Illusts> getUserIllusts(int userId, String type) async {
     final response = await httpClient.get<String>(
       '/v1/user/illusts',
       queryParameters: {
         'filter': 'for_android',
         'user_id': userId,
-        'type': Utils.enumTypeStringToLowerCase(type),
+        'type': type,
       },
     );
     final data = Illusts.fromJson(jsonDecode(response.data!));
@@ -129,9 +127,9 @@ class PixivAPI {
 
   ///获取推荐作品 <br/>
   ///[type] - 类型([WorkType])
-  Future<Illusts> getRecommendedIllusts(WorkType type) async {
+  Future<Illusts> getRecommendedIllusts(String type) async {
     final response = await httpClient.get<String>(
-      '/v1/${Utils.enumTypeStringToLowerCase(type)}/recommended',
+      '/v1/$type/recommended',
       queryParameters: {
         'filter': 'for_android',
       },
@@ -142,12 +140,12 @@ class PixivAPI {
 
   ///获取推荐作品 <br/>
   ///[mode] - 方式([RankingMode])
-  Future<Illusts> getRanking(RankingMode mode) async {
+  Future<Illusts> getRanking(String mode) async {
     final response = await httpClient.get<String>(
       '/v1/illust/ranking',
       queryParameters: {
         'filter': 'for_android',
-        'mode': Utils.enumTypeStringToLowerCase(mode),
+        'mode': mode,
       },
     );
     final data = Illusts.fromJson(jsonDecode(response.data!));
@@ -215,12 +213,12 @@ class PixivAPI {
 
   ///获取最近发布的插画 <br/>
   ///[type] - 类型([WorkType])
-  Future<Illusts> getNewIllusts(WorkType type) async {
+  Future<Illusts> getNewIllusts(String type) async {
     final response = await httpClient.get<String>(
       '/v1/illust/new',
       queryParameters: {
         'filter': 'for_android',
-        'content_type': Utils.enumTypeStringToLowerCase(type),
+        'content_type': type,
       },
     );
     final data = Illusts.fromJson(jsonDecode(response.data!));
@@ -360,8 +358,8 @@ class PixivAPI {
   ///[bookmarkTotal] - 收藏数量 100, 250, 500, 1000, 5000, 10000, 20000, 30000, 50000
   Future<Search> searchIllust(
     String word,
-    SearchSort sort,
-    SearchTarget target, {
+    String sort,
+    String target, {
     String? startDate,
     String? endDate,
     int? bookmarkTotal,
@@ -373,8 +371,8 @@ class PixivAPI {
         'include_translated_tag_results': true,
         'merge_plain_keyword_results': true,
         'word': null != bookmarkTotal ? '$word ${bookmarkTotal}users入り' : word,
-        'sort': Utils.enumTypeStringToLowerCase(sort),
-        'search_target': Utils.enumTypeStringToLowerCase(target),
+        'sort': sort,
+        'search_target': target,
         'start_date': startDate,
         'end_date': endDate,
       }..removeWhere((key, value) => null == value),

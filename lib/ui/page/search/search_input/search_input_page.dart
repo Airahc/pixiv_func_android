@@ -30,7 +30,7 @@ class SearchInputPage extends StatelessWidget {
         ListTile(
           onTap: () => PageUtils.to(context, SearchUserResultPage(model.inputAsString)),
           title: Text(model.inputAsString),
-          subtitle: Text('搜索用户'),
+          subtitle: const Text('搜索用户'),
         ),
       );
     }
@@ -41,18 +41,18 @@ class SearchInputPage extends StatelessWidget {
           ListTile(
             onTap: () => PageUtils.to(context, IllustPage(model.inputAsNumber)),
             title: Text('${model.inputAsNumber}'),
-            subtitle: Text('插画ID'),
+            subtitle: const Text('插画ID'),
           ),
           ListTile(
             onTap: () => PageUtils.to(context, UserPage(model.inputAsNumber)),
             title: Text('${model.inputAsNumber}'),
-            subtitle: Text('用户ID'),
+            subtitle: const Text('用户ID'),
           )
         ],
       );
     }
-    model.searchAutocomplete?.tags.forEach(
-      (tag) {
+    if (null != model.searchAutocomplete) {
+      for (var tag in model.searchAutocomplete!.tags) {
         children.add(
           ListTile(
             onTap: () => _toSearchIllust(context, model, tag.name),
@@ -60,8 +60,8 @@ class SearchInputPage extends StatelessWidget {
             subtitle: null != tag.translatedName ? Text(tag.translatedName!) : null,
           ),
         );
-      },
-    );
+      }
+    }
 
     return ListView(children: children);
   }
@@ -82,14 +82,14 @@ class SearchInputPage extends StatelessWidget {
       decoration: InputDecoration(
         hintText: '搜索关键字或ID',
         border: InputBorder.none,
-        prefix: SizedBox(width: 5),
+        prefix: const SizedBox(width: 5),
         suffixIcon: InkWell(
           onTap: () {
             model.wordInput.clear();
             model.searchAutocomplete = null;
             model.cancelTask();
           },
-          child: Icon(
+          child: const Icon(
             Icons.close_sharp,
             color: Colors.white54,
           ),
@@ -126,7 +126,7 @@ class SearchInputPage extends StatelessWidget {
               IconButton(
                 tooltip: '打开搜索过滤编辑器',
                 onPressed: () => _openSearchFilterEditor(context, model),
-                icon: Icon(Icons.filter_alt_outlined),
+                icon: const Icon(Icons.filter_alt_outlined),
               ),
             ],
           ),
@@ -139,10 +139,11 @@ class SearchInputPage extends StatelessWidget {
                         PageUtils.to(context, SearchImageResultPage(results));
                       },
                       errorCallback: (dynamic e) async {
-                       platformAPI.toast('搜索失败,或许可以重试');
+                        platformAPI.toast('搜索失败,或许可以重试');
                       },
                     ),
-            child: model.searchImageWaiting ? CircularProgressIndicator() : Icon(Icons.image_search_outlined),
+            child:
+                model.searchImageWaiting ? const CircularProgressIndicator() : const Icon(Icons.image_search_outlined),
           ),
           body: _buildBody(context, model),
         );

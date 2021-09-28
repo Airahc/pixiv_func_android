@@ -14,12 +14,13 @@ class SegmentBar<T> extends StatelessWidget {
   final void Function(T) onSelected;
   final T selectedValue;
 
-  SegmentBar({
+  const SegmentBar({
+    Key? key,
     required this.items,
     required this.values,
     required this.onSelected,
     required this.selectedValue,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +35,8 @@ class SegmentBar<T> extends StatelessWidget {
     final list = <Widget>[];
     for (var i = 0; i < items.length; i++) {
       list.add(
-        Container(
-          padding: EdgeInsets.only(top: 8, bottom: 8),
+        Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
           child: _buildItem(items[i], values[i]),
         ),
       );
@@ -45,7 +46,7 @@ class SegmentBar<T> extends StatelessWidget {
 
   Widget _buildItem(String item, T value) {
     if (selectedValue == value) {
-      return Container(
+      return SizedBox(
         height: 34,
         child: ElevatedButton(
           onPressed: () => onSelected.call(value),
@@ -53,7 +54,7 @@ class SegmentBar<T> extends StatelessWidget {
         ),
       );
     } else {
-      return Container(
+      return SizedBox(
         height: 34,
         child: OutlinedButton(
           onPressed: () => onSelected.call(value),

@@ -20,22 +20,23 @@ class RefresherWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
-          child: SmartRefresher(
-            scrollController: model.scrollController,
-            controller: model.refreshController,
-            primary: false,
-            enablePullDown: true,
-            enablePullUp: model.initialized,
-            onRefresh: model.refreshRoutine,
-            onLoading: model.nextRoutine,
-            child: child,
-          ),
+        SmartRefresher(
+          scrollController: model.scrollController,
+          controller: model.refreshController,
+          primary: false,
+          enablePullDown: true,
+          enablePullUp: model.initialized,
+          onRefresh: model.refreshRoutine,
+          onLoading: model.nextRoutine,
+          child: child,
         ),
-        Positioned(
-          bottom: 10,
-          left: MediaQuery.of(context).size.width / 2 - 12,
-          child: model.showToTop ? ScrollToTopButton(model) : Container(),
+        Visibility(
+          visible: model.showToTop,
+          child: Positioned(
+            bottom: 10,
+            left: MediaQuery.of(context).size.width / 2 - 12,
+            child: ScrollToTopButton(model),
+          ),
         ),
       ],
     );

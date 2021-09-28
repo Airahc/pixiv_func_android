@@ -47,7 +47,7 @@ class SearchIllustResultPage extends StatelessWidget {
               IconButton(
                 tooltip: '打开搜索过滤编辑器',
                 onPressed: () => _openSearchFilterEditor(context, model),
-                icon: Icon(Icons.filter_alt_outlined),
+                icon: const Icon(Icons.filter_alt_outlined),
               ),
             ],
           ),
@@ -58,7 +58,7 @@ class SearchIllustResultPage extends StatelessWidget {
                 SliverStaggeredGrid.countBuilder(
                   crossAxisCount: 2,
                   itemBuilder: (BuildContext context, int index) => IllustPreviewer(illust: model.list[index]),
-                  staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
+                  staggeredTileBuilder: (int index) => const StaggeredTile.fit(1),
                   itemCount: model.list.length,
                 )
               ],

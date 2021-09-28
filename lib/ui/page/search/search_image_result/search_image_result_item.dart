@@ -27,18 +27,18 @@ class SearchImageResultItem extends StatelessWidget {
       model: SearchImageResultItemModel(result.illustId),
       builder: (BuildContext context, SearchImageResultItemModel model, Widget? child) {
         final Widget child;
-        if (ViewState.InitFailed == model.viewState) {
+        if (ViewState.initFailed == model.viewState) {
           child = Center(
             child: ListTile(
               onTap: model.loadData,
-              title: Center(
+              title: const Center(
                 child: Text('加载失败,点击重新加载'),
               ),
             ),
           );
-        } else if (ViewState.Busy == model.viewState) {
-          child = Center(child: CircularProgressIndicator());
-        } else if (ViewState.Empty == model.viewState) {
+        } else if (ViewState.busy == model.viewState) {
+          child = const Center(child: CircularProgressIndicator());
+        } else if (ViewState.empty == model.viewState) {
           child = ListTile(
             title: Center(
               child: Text('插画ID:${result.illustId}不存在'),
@@ -56,14 +56,14 @@ class SearchImageResultItem extends StatelessWidget {
                 width: 60,
                 height: 60,
               ),
-              title: Text('${illust.title}'),
-              subtitle: Text('${illust.user.name}'),
+              title: Text(illust.title),
+              subtitle: Text(illust.user.name),
               trailing: Text('相似度:${result.similarityText}'),
             );
           }
         }
 
-        return Card(child: Container(height: 70, child: child));
+        return Card(child: SizedBox(height: 70, child: child));
       },
       onModelReady: (SearchImageResultItemModel model) => model.loadData(),
     );

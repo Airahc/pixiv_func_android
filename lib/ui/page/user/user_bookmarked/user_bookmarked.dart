@@ -31,7 +31,7 @@ class UserBookmarked extends StatelessWidget {
               SliverStaggeredGrid.countBuilder(
                 crossAxisCount: 2,
                 itemBuilder: (BuildContext context, int index) => IllustPreviewer(illust: model.list[index]),
-                staggeredTileBuilder: (int index) => StaggeredTile.fit(1),
+                staggeredTileBuilder: (int index) => const StaggeredTile.fit(1),
                 itemCount: model.list.length,
               )
             ],

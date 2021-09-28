@@ -28,7 +28,7 @@ class SearchUserResultPage extends StatelessWidget {
           body: RefresherWidget(
             model,
             child: ListView(
-              children: model.list.map((e) => UserPreviewCard(e)).toList(),
+              children: [for (final userPreview in model.list) UserPreviewCard(userPreview)],
             ),
           ),
         );

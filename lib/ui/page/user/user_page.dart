@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/api/model/user_detail.dart';
+import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/provider/view_state.dart';
 import 'package:pixiv_func_android/ui/page/following_user/following_user_page.dart';
@@ -37,6 +38,12 @@ class UserPage extends StatefulWidget {
 class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin {
   late final TabController _tabController = TabController(length: 4, vsync: this);
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   Widget _buildFlexibleSpaceBar(UserModel model) {
     final String? backgroundImageUrl = model.userDetail?.profile.backgroundImageUrl;
     final UserDetail detail = model.userDetail!;
@@ -45,21 +52,17 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
     if (null != backgroundImageUrl) {
       children.add(
         Expanded(
-          child: Container(
-            child: ImageViewFromUrl(
-              backgroundImageUrl,
-              fit: BoxFit.fill,
-            ),
+          child: ImageViewFromUrl(
+            backgroundImageUrl,
+            fit: BoxFit.fill,
           ),
         ),
       );
     } else {
       children.add(
-        Expanded(
-          child: Container(
-            child: Center(
-              child: Text('没有背景图片'),
-            ),
+        const Expanded(
+          child: Center(
+            child: Text('没有背景图片'),
           ),
         ),
       );
@@ -86,13 +89,21 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
           child: Text('${detail.profile.totalFollowUsers}关注'),
         ),
         trailing: model.followRequestWaiting
-            ? RefreshProgressIndicator()
+            ? const RefreshProgressIndicator()
             : model.isFollowed
-                ? ElevatedButton(onPressed: () => model.onFollowStateChange(widget.parentModel), child: Text('已关注'))
-                : OutlinedButton(onPressed: () => model.onFollowStateChange(widget.parentModel), child: Text('关注')),
+                ? ElevatedButton(
+                    onPressed: () => model.onFollowStateChange(widget.parentModel), child: const Text('已关注'))
+                : OutlinedButton(
+                    onPressed: () => model.onFollowStateChange(widget.parentModel), child: const Text('关注')),
       ),
     );
-    return FlexibleSpaceBar(background: Column(children: children),collapseMode: CollapseMode.pin,);
+    return FlexibleSpaceBar(
+      background: Container(
+        color: Theme.of(context).cardColor,
+        child: Column(children: children),
+      ),
+      collapseMode: CollapseMode.pin,
+    );
   }
 
   @override
@@ -100,26 +111,24 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
     return ProviderWidget(
       model: UserModel(widget.id),
       builder: (BuildContext context, UserModel model, Widget? child) {
-        if (ViewState.Busy == model.viewState) {
+        if (ViewState.busy == model.viewState) {
           return Scaffold(
-            appBar: AppBar(title: Text('用户')),
-            body: Center(child: CircularProgressIndicator()),
+            appBar: AppBar(title: const Text('用户')),
+            body: const Center(child: CircularProgressIndicator()),
           );
-        } else if (ViewState.InitFailed == model.viewState) {
+        } else if (ViewState.initFailed == model.viewState) {
           return Scaffold(
-            appBar: AppBar(title: Text('用户')),
+            appBar: AppBar(title: const Text('用户')),
             body: Center(
               child: ListTile(
                 onTap: model.loadData,
-                title: Center(
-                  child: Text('加载失败,点击重新加载'),
-                ),
+                title: const Center(child: Text('加载失败,点击重新加载')),
               ),
             ),
           );
-        } else if (ViewState.Empty == model.viewState) {
+        } else if (ViewState.empty == model.viewState) {
           return Scaffold(
-            appBar: AppBar(title: Text('用户')),
+            appBar: AppBar(title: const Text('用户')),
             body: Center(
               child: ListTile(
                 title: Center(
@@ -132,26 +141,25 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
         return Scaffold(
           body: ExtendedNestedScrollView(
             onlyOneScrollInBody: true,
-            pinnedHeaderSliverHeightBuilder: () =>
-            MediaQuery.of(context).padding.top + kToolbarHeight + 46.0,
+            pinnedHeaderSliverHeightBuilder: () => MediaQuery.of(context).padding.top + kToolbarHeight + 46.0,
             headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
               return [
                 SliverAppBar(
                   pinned: true,
-                  // elevation: 0.0,
-                  // forceElevated: innerBoxIsScrolled,
+                  forceElevated: innerBoxIsScrolled,
                   expandedHeight: 320,
-                  title: Text('用户'),
+                  title: const Text('用户'),
                   flexibleSpace: _buildFlexibleSpaceBar(model),
                 ),
                 SliverPersistentHeader(
                   pinned: true,
                   delegate: TabBarDelegate(
                     child: TabBar(
+                      labelColor: settingsManager.isLightTheme ? Colors.black : null,
                       indicatorColor: Theme.of(context).colorScheme.secondary,
                       controller: _tabController,
                       onTap: (int index) => model.index = index,
-                      tabs: [
+                      tabs: const [
                         Tab(
                           text: '资料',
                         ),
@@ -170,17 +178,14 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
                 ),
               ];
             },
-            body: Container(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-
-                  null != model.userDetail ? UserDetails(model) : Container(),
-                  UserIllust(id: widget.id, type: WorkType.ILLUST, illustContentModel: widget.illustContentModel),
-                  UserIllust(id: widget.id, type: WorkType.MANGA, illustContentModel: widget.illustContentModel),
-                  UserBookmarked(widget.id),
-                ],
-              ),
+            body: TabBarView(
+              controller: _tabController,
+              children: [
+                Visibility(visible: null != model.userDetail, child: UserDetails(model)),
+                UserIllust(id: widget.id, type: WorkType.illust, illustContentModel: widget.illustContentModel),
+                UserIllust(id: widget.id, type: WorkType.manga, illustContentModel: widget.illustContentModel),
+                UserBookmarked(widget.id),
+              ],
             ),
           ),
         );
@@ -197,14 +202,14 @@ class TabBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(child: this.child, color: Theme.of(context).cardColor);
+    return Container(child: child, color: Theme.of(context).cardColor);
   }
 
   @override
-  double get maxExtent => this.child.preferredSize.height;
+  double get maxExtent => child.preferredSize.height;
 
   @override
-  double get minExtent => this.child.preferredSize.height;
+  double get minExtent => child.preferredSize.height;
 
   @override
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) => false;

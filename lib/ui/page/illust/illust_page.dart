@@ -21,26 +21,26 @@ class IllustPage extends StatelessWidget {
     return ProviderWidget(
       model: IllustModel(id),
       builder: (BuildContext context, IllustModel model, Widget? child) {
-        if (ViewState.Busy == model.viewState) {
+        if (ViewState.busy == model.viewState) {
           return Scaffold(
-            appBar: AppBar(title: Text('用户')),
-            body: Center(child: CircularProgressIndicator()),
+            appBar: AppBar(title: const Text('用户')),
+            body: const Center(child: CircularProgressIndicator()),
           );
-        } else if (ViewState.InitFailed == model.viewState) {
+        } else if (ViewState.initFailed == model.viewState) {
           return Scaffold(
-            appBar: AppBar(title: Text('用户')),
+            appBar: AppBar(title: const Text('用户')),
             body: Center(
               child: ListTile(
                 onTap: model.loadData,
-                title: Center(
+                title: const Center(
                   child: Text('加载失败,点击重新加载'),
                 ),
               ),
             ),
           );
-        } else if (ViewState.Empty == model.viewState) {
+        } else if (ViewState.empty == model.viewState) {
           return Scaffold(
-            appBar: AppBar(title: Text('插画详细')),
+            appBar: AppBar(title: const Text('插画详细')),
             body: Center(
               child: ListTile(
                 title: Center(
@@ -53,7 +53,7 @@ class IllustPage extends StatelessWidget {
 
         if (!model.initialized) {
           return Scaffold(
-            appBar: AppBar(title: Text('插画详细')),
+            appBar: AppBar(title: const Text('插画详细')),
             body: Center(
               child: ListTile(
                 title: Center(

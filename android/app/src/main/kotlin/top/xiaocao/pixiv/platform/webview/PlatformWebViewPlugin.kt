@@ -17,6 +17,7 @@ class PlatformWebViewPlugin : FlutterPlugin {
         const val pluginName = "xiaocao/platform/web_view"
 
         const val methodLoadUrl = "loadUrl"
+        const val methodReload = "reload"
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {

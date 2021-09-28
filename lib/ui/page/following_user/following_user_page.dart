@@ -26,13 +26,13 @@ class FollowingUserPage extends StatelessWidget {
       builder: (BuildContext context, FollowingUserModel model, Widget? child) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('关注的用户'),
+            title: const Text('关注的用户'),
           ),
           body: Column(
             children: [
               SegmentBar(
-                items: ['公开', '私有'],
-                values: [true, false],
+                items: const ['公开', '私有'],
+                values: const [true, false],
                 onSelected: (bool value) {
                   model.restrict = value;
                 },
@@ -42,7 +42,7 @@ class FollowingUserPage extends StatelessWidget {
                 child: RefresherWidget(
                   model,
                   child: ListView(
-                    children: model.list.map((e) => UserPreviewCard(e)).toList(),
+                    children: [for (final userPreview in model.list) UserPreviewCard(userPreview)],
                   ),
                 ),
               ),

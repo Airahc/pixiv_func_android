@@ -23,6 +23,7 @@ class _PlatformWebViewState extends State<PlatformWebView> {
   static const _pluginName = 'xiaocao/platform/web_view';
 
   static const _methodLoadUrl = 'loadUrl';
+  static const _methodReload = 'reload';
 
   late final MethodChannel _channel;
 
@@ -30,19 +31,19 @@ class _PlatformWebViewState extends State<PlatformWebView> {
 
   @override
   void initState() {
-    BasicMessageChannel(
+    const BasicMessageChannel(
       '$_pluginName/result',
       StandardMessageCodec(),
-    )..setMessageHandler(
+    ).setMessageHandler(
         (dynamic message) async {
           widget.onMessageHandler(context, message);
         },
       );
 
-    BasicMessageChannel(
+    const BasicMessageChannel(
       '$_pluginName/progress',
       StandardMessageCodec(),
-    )..setMessageHandler(
+    ).setMessageHandler(
         (dynamic message) async {
           if (message is int) {
             setState(() {
@@ -65,17 +66,29 @@ class _PlatformWebViewState extends State<PlatformWebView> {
       //不设置这个点输入框的时候 键盘会直接弹回很难输入进去东西
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text('PlatformWebView'),
-        bottom: PreferredSize(
-          child: LinearProgressIndicator(value: _progress),
-          preferredSize: Size.fromHeight(20),
-        ),
+        title: const Text('PlatformWebView'),
+        actions: [
+          IconButton(
+            onPressed: () => _channel.invokeMethod(_methodReload),
+            icon: const Icon(Icons.refresh_outlined),
+          )
+        ],
       ),
-      body: AndroidView(
-        viewType: _pluginName,
-        creationParams: {},
-        creationParamsCodec: const StandardMessageCodec(),
-        onPlatformViewCreated: onViewCreated,
+      body: Column(
+        children: [
+          Visibility(
+            visible: _progress < 1.0,
+            child: LinearProgressIndicator(value: _progress),
+          ),
+          Expanded(
+            child: AndroidView(
+              viewType: _pluginName,
+              creationParams: const {},
+              creationParamsCodec: const StandardMessageCodec(),
+              onPlatformViewCreated: onViewCreated,
+            ),
+          )
+        ],
       ),
     );
   }

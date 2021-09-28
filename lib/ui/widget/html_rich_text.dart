@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as html show parseFragment;
 import 'package:html/dom.dart' as html;
 import 'package:pixiv_func_android/instance_setup.dart';
+import 'package:pixiv_func_android/log/log.dart';
 import 'package:pixiv_func_android/ui/page/illust/illust_page.dart';
 import 'package:pixiv_func_android/ui/page/user/user_page.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
@@ -28,11 +29,11 @@ class HtmlRichText extends StatefulWidget {
 }
 
 class _HtmlRichTextState extends State<HtmlRichText> {
-  static const _A_TAG_STYLE = TextStyle(color: Colors.blue);
-  static const _A_TAG_STRONG_STYLE = TextStyle(color: Colors.blue, fontSize: 25);
-  static const _STRONG_TAG_STYLE = TextStyle(fontSize: 25);
-  static const _KNOWN_STRONG_LINK_STYLE = TextStyle(fontSize: 25, color: Colors.pinkAccent);
-  static const _KNOWN_LINK_STYLE = TextStyle(color: Colors.pinkAccent);
+  static const _aTagStyle = TextStyle(color: Colors.blue);
+  static const _aTagStrongStyle = TextStyle(color: Colors.blue, fontSize: 25);
+  static const _strongTagStyle = TextStyle(fontSize: 25);
+  static const _knownStrongLinkStyle = TextStyle(fontSize: 25, color: Colors.pinkAccent);
+  static const _knownLinkStyle = TextStyle(color: Colors.pinkAccent);
 
   TextSpan _buildNode(html.Node node, {bool isStrong = false}) {
     if (node.nodeType == html.Node.TEXT_NODE) {
@@ -40,7 +41,7 @@ class _HtmlRichTextState extends State<HtmlRichText> {
     } else if (node.nodeType == html.Node.ELEMENT_NODE) {
       switch (node.toString()) {
         case '<html br>':
-          return TextSpan(text: '\n');
+          return const TextSpan(text: '\n');
         case '<html a>':
           final href = node.attributes['href']!;
           final text = node.text!;
@@ -49,11 +50,11 @@ class _HtmlRichTextState extends State<HtmlRichText> {
             final twitterUsername = Utils.findTwitterUsernameByUrl(href);
             return TextSpan(
               text: 'Twitter:$twitterUsername',
-              style: isStrong ? _KNOWN_STRONG_LINK_STYLE : _KNOWN_LINK_STYLE,
+              style: isStrong ? _knownStrongLinkStyle : _knownLinkStyle,
               recognizer: TapGestureRecognizer()
                 ..onTap = () async {
                   if (!await platformAPI.urlLaunch('twitter://user?screen_name=$twitterUsername')) {
-                    print('没有Twitter APK');
+                    Log.d('没有Twitter APK');
                     await platformAPI.urlLaunch(href);
                   }
                 },
@@ -63,7 +64,7 @@ class _HtmlRichTextState extends State<HtmlRichText> {
             final illustId = Utils.findIllustIdByUrl(href);
             return TextSpan(
               text: '插画ID:$illustId',
-              style: isStrong ? _KNOWN_STRONG_LINK_STYLE : _KNOWN_LINK_STYLE,
+              style: isStrong ? _knownStrongLinkStyle : _knownLinkStyle,
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
                   PageUtils.to(context, IllustPage(illustId));
@@ -74,7 +75,7 @@ class _HtmlRichTextState extends State<HtmlRichText> {
             final userId = Utils.findUserIdByUrl(href);
             return TextSpan(
               text: '用户ID:$userId',
-              style: isStrong ? _KNOWN_STRONG_LINK_STYLE : _KNOWN_LINK_STYLE,
+              style: isStrong ? _knownStrongLinkStyle : _knownLinkStyle,
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
                   PageUtils.to(context, UserPage(userId));
@@ -84,7 +85,7 @@ class _HtmlRichTextState extends State<HtmlRichText> {
 
           return TextSpan(
             text: text,
-            style: isStrong ? _A_TAG_STRONG_STYLE : _A_TAG_STYLE,
+            style: isStrong ? _aTagStrongStyle : _aTagStyle,
             recognizer: TapGestureRecognizer()
               ..onTap = () async {
                 await platformAPI.urlLaunch(href);
@@ -102,18 +103,18 @@ class _HtmlRichTextState extends State<HtmlRichText> {
             final twitterUsername = Utils.findTwitterUsernameByText(text);
             return TextSpan(
               text: 'Twitter:$twitterUsername',
-              style: _KNOWN_STRONG_LINK_STYLE,
+              style: _knownStrongLinkStyle,
               recognizer: TapGestureRecognizer()
                 ..onTap = () async {
                   if (!await platformAPI.urlLaunch('twitter://user?screen_name=$twitterUsername')) {
-                    print('没有Twitter APK');
+                    Log.d('没有Twitter APK');
                     await platformAPI.urlLaunch('https://mobile.twitter.com/$twitterUsername');
                   }
                 },
             );
           }
 
-          return TextSpan(text: text, style: _STRONG_TAG_STYLE);
+          return TextSpan(text: text, style: _strongTagStyle);
       }
     }
 
@@ -129,8 +130,8 @@ class _HtmlRichTextState extends State<HtmlRichText> {
     } else {
       return RichText(
         text: TextSpan(
-          style: TextStyle(fontSize: 16),
-          children: htmlDocument.nodes.map((node) => _buildNode(node)).toList(),
+          style: TextStyle(fontSize: 16, color: settingsManager.isLightTheme ? Colors.black : null),
+          children: [for (final node in htmlDocument.nodes) _buildNode(node)],
         ),
       );
     }

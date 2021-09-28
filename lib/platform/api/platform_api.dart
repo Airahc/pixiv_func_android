@@ -18,7 +18,7 @@ class PlatformAPI {
   final _methodGetAppVersion = 'getAppVersion';
   final _methodUrlLaunch = 'urlLaunch';
   final _methodGenerateGif = 'generateGif';
-  final _channel = MethodChannel(_pluginName);
+  final _channel = const MethodChannel(_pluginName);
 
   Future<bool> imageIsExist(String filename) async {
     final result = await _channel.invokeMethod(_methodImageIsExist, {

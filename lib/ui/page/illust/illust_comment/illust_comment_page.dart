@@ -25,24 +25,24 @@ class IllustCommentPage extends StatelessWidget {
   const IllustCommentPage(this.id, {Key? key}) : super(key: key);
 
   List<Widget> _buildCommentTileList(BuildContext context, IllustCommentModel model, List<CommentTree> commentTrees) {
-    return commentTrees.map((commentTree) => _buildCommentTile(context, model, commentTree)).toList();
+    return [for (final commentTree in commentTrees) _buildCommentTile(context, model, commentTree)];
   }
 
   Widget _buildCommentContent(IllustCommentModel model, Comment comment) {
-    final commentContent = <Widget>[SizedBox(height: 5)];
+    final commentContent = <Widget>[const SizedBox(height: 5)];
     commentContent.addAll(
       [
         Text(
           comment.user.name,
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
       ],
     );
     if (null != comment.stamp) {
       commentContent.addAll(
         [
           Image.asset('assets/stamps/stamp-${comment.stamp!.stampId}.jpg'),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
         ],
       );
     }
@@ -50,7 +50,7 @@ class IllustCommentPage extends StatelessWidget {
       commentContent.addAll(
         [
           Text(comment.comment),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
         ],
       );
     }
@@ -80,25 +80,25 @@ class IllustCommentPage extends StatelessWidget {
                   children: [
                     Text(
                       Utils.japanDateToLocalDateString(DateTime.parse(commentTree.data.date)),
-                      style: TextStyle(color: Colors.white54),
+                      style: const TextStyle(color: Colors.white54),
                     ),
                     Expanded(child: Container()),
                     OutlinedButton(
                       onPressed: () => model.doDeleteComment(commentTree),
-                      child: Text('删除'),
+                      child: const Text('删除'),
                     )
                   ],
                 )
               : Text(
                   Utils.japanDateToLocalDateString(DateTime.parse(commentTree.data.date)),
-                  style: TextStyle(color: Colors.white54),
+                  style: const TextStyle(color: Colors.white54),
                 ),
           trailing: commentTree.loading
-              ? CircularProgressIndicator()
+              ? const CircularProgressIndicator()
               : commentTree.data.hasReplies
                   ? OutlinedButton(
                       onPressed: () => model.loadFirstReplies(commentTree),
-                      child: Text('加载回复'),
+                      child: const Text('加载回复'),
                     )
                   : null,
         ),
@@ -108,19 +108,19 @@ class IllustCommentPage extends StatelessWidget {
 
       if (commentTree.loading) {
         children.add(
-          Container(
+          const Padding(
             padding: EdgeInsets.fromLTRB(0, 30, 0, 30),
             child: Center(child: CircularProgressIndicator()),
           ),
         );
       } else if (commentTree.hasNext) {
         children.add(
-          Container(
-            padding: EdgeInsets.fromLTRB(0, 30, 0, 30),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
             child: Card(
               child: ListTile(
                 onTap: () => model.loadNextReplies(commentTree),
-                title: Center(child: Text('点击加载更多')),
+                title: const Center(child: Text('点击加载更多')),
               ),
             ),
           ),
@@ -138,38 +138,27 @@ class IllustCommentPage extends StatelessWidget {
                 child: AvatarViewFromUrl(commentTree.data.user.profileImageUrls.medium),
               ),
             ),
-            childrenPadding: EdgeInsets.only(left: 20),
+            childrenPadding: const EdgeInsets.only(left: 20),
             children: children,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 5),
-                Text(
-                  commentTree.data.user.name,
-                ),
-                SizedBox(height: 10),
-                Text(commentTree.data.comment),
-                SizedBox(height: 10),
-              ],
-            ),
+            title: _buildCommentContent(model, commentTree.data),
             subtitle: accountManager.current?.user.id == commentTree.data.user.id.toString()
                 ? Row(
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       Text(
                         Utils.japanDateToLocalDateString(DateTime.parse(commentTree.data.date)),
-                        style: TextStyle(color: Colors.white54),
+                        style: const TextStyle(color: Colors.white54),
                       ),
                       Expanded(child: Container()),
                       OutlinedButton(
                         onPressed: () => model.doDeleteComment(commentTree),
-                        child: Text('删除'),
+                        child: const Text('删除'),
                       )
                     ],
                   )
                 : Text(
                     Utils.japanDateToLocalDateString(DateTime.parse(commentTree.data.date)),
-                    style: TextStyle(color: Colors.white54),
+                    style: const TextStyle(color: Colors.white54),
                   ),
           ),
         ),
@@ -183,7 +172,7 @@ class IllustCommentPage extends StatelessWidget {
       builder: (BuildContext context, IllustCommentModel model, Widget? child) {
         final List<Widget> slivers = [];
 
-        if (ViewState.Empty != model.viewState) {
+        if (ViewState.empty != model.viewState) {
           slivers.add(
             SliverList(
               delegate: SliverChildListDelegate(_buildCommentTileList(context, model, model.list)),
@@ -205,7 +194,7 @@ class IllustCommentPage extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: () => model.repliesCommentTree = null,
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.reply_sharp,
                   ),
                 ),
@@ -214,12 +203,12 @@ class IllustCommentPage extends StatelessWidget {
                     controller: model.commentInput,
                     decoration: InputDecoration(
                       labelText: model.commentInputLabel,
-                      prefix: SizedBox(width: 5),
+                      prefix: const SizedBox(width: 5),
                       suffixIcon: InkWell(
                         onTap: () {
                           model.commentInput.clear();
                         },
-                        child: Icon(
+                        child: const Icon(
                           Icons.close_sharp,
                           color: Colors.white54,
                         ),
@@ -227,11 +216,11 @@ class IllustCommentPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.only(right: 5),
+                Padding(
+                  padding: const EdgeInsets.only(right: 5),
                   child: ElevatedButton(
                     onPressed: model.doAddComment,
-                    child: Text('发送'),
+                    child: const Text('发送'),
                   ),
                 ),
               ],
@@ -246,7 +235,7 @@ class IllustCommentPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('插画的评论'),
+        title: const Text('插画的评论'),
       ),
       body: _buildBody(),
     );

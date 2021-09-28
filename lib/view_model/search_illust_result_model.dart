@@ -11,6 +11,7 @@ import 'package:pixiv_func_android/api/model/illusts.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/model/search_filter.dart';
 import 'package:pixiv_func_android/provider/base_view_state_refresh_list_model.dart';
+import 'package:pixiv_func_android/util/utils.dart';
 
 class SearchIllustResultModel extends BaseViewStateRefreshListModel<Illust> {
   final String _word;
@@ -33,8 +34,8 @@ class SearchIllustResultModel extends BaseViewStateRefreshListModel<Illust> {
   Future<List<Illust>> loadFirstDataRoutine() async {
     final result = await pixivAPI.searchIllust(
       _word,
-      filter.sort,
-      filter.target,
+      Utils.enumTypeStringToLittleHump(filter.sort),
+      Utils.enumTypeStringToLittleHump(filter.target),
       startDate: filter.enableDateRange ? filter.formatStartDate : null,
       endDate: filter.enableDateRange ? filter.formatEndDate : null,
       bookmarkTotal: filter.bookmarkTotal,

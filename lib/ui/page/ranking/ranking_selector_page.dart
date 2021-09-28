@@ -7,6 +7,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/page/ranking/ranking_page.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
@@ -22,27 +23,28 @@ class RankingSelectorPage extends StatelessWidget {
       builder: (BuildContext context, RankingSelectorModel model, Widget? child) {
         return Column(
           children: [
-            Container(
-              padding: EdgeInsets.all(5),
+            Padding(
+              padding: const EdgeInsets.all(5),
               child: Wrap(
                 spacing: 5,
-                children: model.typeItems
-                    .map((e) => ChoiceChip(
-                  selectedColor: Theme.of(context).colorScheme.primary,
-                  labelStyle:
-                  TextStyle(fontSize: 15, color: !e.value ? Theme.of(context).colorScheme.primary : null),
-                  label: Text(e.key.name),
-                  selected: e.value,
-                  onSelected: (bool value) => model.onSelected(e.key, value),
-                ))
-                    .toList(),
+                children: [
+                  for (final item in model.typeItems)
+                    ChoiceChip(
+                      selectedColor: Theme.of(context).colorScheme.primary,
+                      labelStyle:
+                          TextStyle(fontSize: 15, color: !item.value ? Theme.of(context).colorScheme.primary : null),
+                      label: Text(item.key.name),
+                      selected: item.value,
+                      onSelected: (bool value) => model.onSelected(item.key, value),
+                    )
+                ],
               ),
             ),
-            Container(
-              padding: EdgeInsets.only(top: 10, bottom: 10),
+            Padding(
+              padding: const EdgeInsets.only(top: 10, bottom: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                children: const [
                   Text('选择你要查看的排行榜类型'),
                   SizedBox(width: 5),
                   Tooltip(
@@ -55,12 +57,16 @@ class RankingSelectorPage extends StatelessWidget {
                 ],
               ),
             ),
-            OutlinedButton(
-              onPressed: () => PageUtils.to(
-                context,
-                RankingPage(model.typeItems.where((e) => e.value).map((e) => e.key).toList()),
-              ),
-              child: Text('确定'),
+            ElevatedButton(
+              onPressed: () {
+                final typeItems = model.typeItems.where((item) => item.value).map((e) => e.key).toList();
+                if (typeItems.isNotEmpty) {
+                  PageUtils.to(context, RankingPage(typeItems));
+                } else {
+                  platformAPI.toast('至少选择一项');
+                }
+              },
+              child: const Text('确定'),
             )
           ],
         );
