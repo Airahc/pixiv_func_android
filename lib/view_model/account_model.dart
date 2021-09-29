@@ -52,6 +52,7 @@ class AccountModel extends BaseViewModel {
     BuildContext context, {
     required void Function(UserAccount account) onLoginSuccess,
     bool create = false,
+    bool useLocalReverseProxy = true,
   }) {
     final s = oAuthAPI.randomString(128);
 
@@ -62,6 +63,7 @@ class AccountModel extends BaseViewModel {
     PageUtils.to(
       context,
       PlatformWebView(
+        useLocalReverseProxy: useLocalReverseProxy,
         url: url,
         onMessageHandler: (BuildContext context, dynamic message) async {
           final map = message as Map;

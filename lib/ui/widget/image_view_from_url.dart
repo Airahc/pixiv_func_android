@@ -41,6 +41,7 @@ class ImageViewFromUrl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final filename = url.substring(url.lastIndexOf('/') + 1);
     return ExtendedImage.network(
       Utils.replaceImageSource(url),
       headers: const {'Referer': 'https://app-api.pixiv.net/'},
@@ -50,6 +51,8 @@ class ImageViewFromUrl extends StatelessWidget {
       //当图像提供者改变时，是继续显示旧图像（真），还是暂时不显示（假）
       //防止刷新时图片闪烁 (降低extended_image版本到 3.0.0 这些问题都没有了)
       gaplessPlayback: true,
+      cacheKey: filename,
+      printError: false,
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:

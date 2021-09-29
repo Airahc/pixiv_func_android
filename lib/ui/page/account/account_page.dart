@@ -29,7 +29,7 @@ class _AccountPageState extends State<AccountPage> {
           model.select(account.id);
         },
         title: Text(
-          account.name,
+          '${account.name}(${account.mailAddress})',
           style: account.id == accountManager.current?.user.id
               ? TextStyle(
                   color: Theme.of(context).colorScheme.primary,
@@ -67,13 +67,30 @@ class _AccountPageState extends State<AccountPage> {
           IconButton(
             tooltip: '登录一个账号',
             onPressed: () {
-              model.login(
-                context,
-                onLoginSuccess: (UserAccount account) {
-                  Log.i(account);
-                  model.add(account);
+              showDialog<bool>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('登录'),
+                    content: const Text('是否启用本地反向代理(IP直连)?'),
+                    actions: [
+                      OutlinedButton(onPressed: () => Navigator.pop<bool>(context, true), child: const Text('使用')),
+                      OutlinedButton(onPressed: () => Navigator.pop<bool>(context, false), child: const Text('不使用')),
+                    ],
+                  );
                 },
-              );
+              ).then((value) {
+                if (null != value) {
+                  model.login(
+                    context,
+                    onLoginSuccess: (UserAccount account) {
+                      Log.i(account);
+                      model.add(account);
+                    },
+                    useLocalReverseProxy: value,
+                  );
+                }
+              });
             },
             icon: const Icon(Icons.login),
           ),

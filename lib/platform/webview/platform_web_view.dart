@@ -12,8 +12,14 @@ import 'package:flutter/services.dart';
 class PlatformWebView extends StatefulWidget {
   final String url;
   final Future<dynamic> Function(BuildContext context, dynamic message) onMessageHandler;
+  final bool useLocalReverseProxy;
 
-  const PlatformWebView({Key? key, required this.url, required this.onMessageHandler}) : super(key: key);
+  const PlatformWebView({
+    Key? key,
+    this.useLocalReverseProxy = true,
+    required this.url,
+    required this.onMessageHandler,
+  }) : super(key: key);
 
   @override
   _PlatformWebViewState createState() => _PlatformWebViewState();
@@ -35,23 +41,23 @@ class _PlatformWebViewState extends State<PlatformWebView> {
       '$_pluginName/result',
       StandardMessageCodec(),
     ).setMessageHandler(
-        (dynamic message) async {
-          widget.onMessageHandler(context, message);
-        },
-      );
+      (dynamic message) async {
+        widget.onMessageHandler(context, message);
+      },
+    );
 
     const BasicMessageChannel(
       '$_pluginName/progress',
       StandardMessageCodec(),
     ).setMessageHandler(
-        (dynamic message) async {
-          if (message is int) {
-            setState(() {
-              _progress = message / 100;
-            });
-          }
-        },
-      );
+      (dynamic message) async {
+        if (message is int) {
+          setState(() {
+            _progress = message / 100;
+          });
+        }
+      },
+    );
     super.initState();
   }
 
@@ -83,7 +89,7 @@ class _PlatformWebViewState extends State<PlatformWebView> {
           Expanded(
             child: AndroidView(
               viewType: _pluginName,
-              creationParams: const {},
+              creationParams: {'useLocalReverseProxy': widget.useLocalReverseProxy},
               creationParamsCodec: const StandardMessageCodec(),
               onPlatformViewCreated: onViewCreated,
             ),

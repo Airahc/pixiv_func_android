@@ -108,7 +108,7 @@ class Home extends StatelessWidget {
           ),
           Card(
             child: ListTile(
-              onTap: model.agreementAccepted ? () => _login(context, model, true) : null,
+              onTap: model.agreementAccepted ? () => _login(context, model, create: true) : null,
               title: const Center(child: Text('注册')),
             ),
           ),
@@ -139,17 +139,34 @@ class Home extends StatelessWidget {
     );
   }
 
-  void _login(BuildContext context, HomeModel model, [bool create = false]) {
-    accountModel.login(
-      context,
-      onLoginSuccess: (UserAccount account) async {
-        Log.i(account);
-        accountModel.add(account);
-       platformAPI.toast('登录成功');
-        model.refresh();
+  void _login(BuildContext context, HomeModel model, {bool create = false}) {
+    showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('登录'),
+          content: const Text('是否启用本地反向代理(IP直连)?'),
+          actions: [
+            OutlinedButton(onPressed: () => Navigator.pop<bool>(context, true), child: const Text('使用')),
+            OutlinedButton(onPressed: () => Navigator.pop<bool>(context, false), child: const Text('不使用')),
+          ],
+        );
       },
-      create: create,
-    );
+    ).then((value) {
+      if (null != value) {
+        accountModel.login(
+          context,
+          onLoginSuccess: (UserAccount account) async {
+            Log.i(account);
+            accountModel.add(account);
+            platformAPI.toast('登录成功');
+            model.refresh();
+          },
+          create: create,
+          useLocalReverseProxy: value,
+        );
+      }
+    });
   }
 
   @override

@@ -80,20 +80,25 @@ class SearchInputPage extends StatelessWidget {
         }
       },
       decoration: InputDecoration(
+        fillColor: Theme.of(context).backgroundColor,
+        filled: true,
+        
         hintText: '搜索关键字或ID',
         border: InputBorder.none,
         prefix: const SizedBox(width: 5),
-        suffixIcon: InkWell(
+        suffixIcon: model.inputAsString.isNotEmpty
+            ? InkWell(
           onTap: () {
             model.wordInput.clear();
             model.searchAutocomplete = null;
             model.cancelTask();
           },
           child: const Icon(
-            Icons.close_sharp,
+            Icons.clear_outlined,
             color: Colors.white54,
           ),
-        ),
+        )
+            : null,
       ),
     );
   }

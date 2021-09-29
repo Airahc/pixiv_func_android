@@ -15,6 +15,11 @@ import android.view.View
 import android.webkit.*
 import io.flutter.plugin.common.*
 import io.flutter.plugin.platform.PlatformView
+import PixivLocalReverseProxy.PixivLocalReverseProxy
+import android.util.Log
+import androidx.webkit.ProxyConfig
+import androidx.webkit.ProxyController
+import androidx.webkit.WebViewFeature
 
 @SuppressLint("SetJavaScriptEnabled")
 class PlatformWebView(
@@ -25,6 +30,9 @@ class PlatformWebView(
 ) : PlatformView, MethodChannel.MethodCallHandler, BasicMessageChannel.MessageHandler<Any> {
 
     private val webView = WebView(context)
+
+    private val useLocalReverseProxy: Boolean =
+        (arguments as Map<*, *>)["useLocalReverseProxy"] as Boolean
 
     private val messageChannel: BasicMessageChannel<Any> =
         BasicMessageChannel(
@@ -40,18 +48,31 @@ class PlatformWebView(
         )
 
 
+
+
+
+    override fun onFlutterViewAttached(flutterView: View) {
+//        Log.i("Info","onFlutterViewAttached")
+        if (useLocalReverseProxy) {
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) {
+                PixivLocalReverseProxy.startServer("12345")
+                val proxyUrl = "127.0.0.1:12345"
+                val proxyConfig: ProxyConfig = ProxyConfig.Builder()
+                    .addProxyRule(proxyUrl)
+                    .addDirect()
+                    .build()
+                ProxyController.getInstance().setProxyOverride(
+                    proxyConfig,
+                    { command -> command?.run() },
+                ) {
+                    Log.i("PlatformWebView", "Set Proxy")
+                }
+            }
+        }
+        super.onFlutterViewAttached(flutterView)
+    }
+
     init {
-//        if (WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) {
-//            val proxyUrl = "192.168.1.124:${12345}"
-//            val proxyConfig: ProxyConfig = ProxyConfig.Builder()
-//                .addProxyRule(proxyUrl)
-//                .addDirect()
-//                .build()
-//            ProxyController.getInstance().setProxyOverride(
-//                proxyConfig,
-//                { command -> command?.run() },
-//                { Log.i("PlatformWebView", "Set Proxy") })
-//        }
         webView.settings.apply {
             javaScriptEnabled = true
             javaScriptCanOpenWindowsAutomatically = true
@@ -119,14 +140,13 @@ class PlatformWebView(
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
                 progressMessageChannel.send(newProgress)
                 super.onProgressChanged(view, newProgress)
-
             }
         }
 
         MethodChannel(
             binaryMessenger,
             "${PlatformWebViewPlugin.pluginName}$viewId"
-        ).also { it.setMethodCallHandler(this) }
+        ).setMethodCallHandler(this)
     }
 
     override fun getView(): View {
@@ -134,6 +154,19 @@ class PlatformWebView(
     }
 
     override fun dispose() {
+//        Log.i("Info","dispose")
+        if (useLocalReverseProxy) {
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) {
+                ProxyController.getInstance().clearProxyOverride(
+                    { command -> command?.run() },
+                ) {
+                    Log.i("PlatformWebView", "Clear Proxy")
+                }
+                PixivLocalReverseProxy.stopServer()
+            }
+
+        }
+        super.onFlutterViewDetached()
         webView.destroy()
     }
 

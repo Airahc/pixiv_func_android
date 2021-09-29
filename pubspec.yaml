@@ -1,7 +1,7 @@
 name: pixiv_func_android
 description: Pixiv Android 客户端
 
-version: 0.4.0
+version: 0.5.0
 publish_to: node
 environment:
   sdk: ">=2.14.0 <3.0.0"

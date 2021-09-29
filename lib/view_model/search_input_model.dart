@@ -26,11 +26,10 @@ class SearchInputModel extends BaseViewModel {
   SearchFilter filter = SearchFilter.create();
 
   @override
-  void dispose(){
+  void dispose() {
     wordInput.dispose();
     super.dispose();
   }
-
 
   SearchAutocomplete? get searchAutocomplete => _searchAutocomplete;
 
@@ -74,6 +73,9 @@ class SearchInputModel extends BaseViewModel {
   }
 
   void loadAutocomplete() {
+    if (inputAsString.isEmpty) {
+      return;
+    }
     cancelTask();
     searchAutocomplete = null;
     _cancelableTask = CancelableOperation.fromFuture(pixivAPI.searchAutocomplete(inputAsString));
