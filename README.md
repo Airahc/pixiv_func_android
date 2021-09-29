@@ -13,13 +13,11 @@
 
 ---
 
-一个支持免代理直连的Pixiv安卓客户端,安全无广告只需要存储权限(各位色批人放心使用,不要问安不安全 开源项目!!!)
-
 支持功能如下
 
 | 名称 | 备注 |
 | --- | --- |
-| 登录 | 用的 [WebView](https://github.com/xiao-cao-x/pixiv_func_android/blob/main/android/app/src/main/kotlin/top/xiaocao/pixiv/platform/webview/PlatformWebView.kt) 暂时需要开代理(VPN),登录一次就永远(不出意外的话)不用再开代理了 |
+| 登录 | 用的 [WebView](https://github.com/xiao-cao-x/pixiv_func_android/blob/main/android/app/src/main/kotlin/top/xiaocao/pixiv/platform/webview/PlatformWebView.kt) 支持免代理直连(本地反向代理) |
 | 查看推荐作品 | 插画 & 漫画 |
 | 查看收藏作品 |  |
 | 查看已关注用户的最新作品  |  |
@@ -34,7 +32,19 @@
 | 保存原图到系统相册 | 可以查看下载任务 |
 | 关注和取消关注(用户) |  |
 | 收藏和取消收藏(插画 漫画) |  |
+---
 
+# 关于免代理直连:
+1. API是强制开启的,图片源可以自选选择
+2. 登录(PlatformWebView) 可以选择是否启用(本地反向代理绑定`12345`端口注意不要占用)
+
+# 关于直连失效
+1. 与运营商有关
+2. 与地区有关
+3. 可能间歇性的失效
+4. 如果无法直连请开代理
+5. 并不是"直连这个功能等于没有"(选自某牲口发言),请好好说话 
+---
 
 <details>
  <summary>菜单</summary>
