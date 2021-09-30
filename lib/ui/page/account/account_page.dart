@@ -74,8 +74,8 @@ class _AccountPageState extends State<AccountPage> {
                     title: const Text('登录'),
                     content: const Text('是否启用本地反向代理(IP直连)?'),
                     actions: [
-                      OutlinedButton(onPressed: () => Navigator.pop<bool>(context, true), child: const Text('使用')),
-                      OutlinedButton(onPressed: () => Navigator.pop<bool>(context, false), child: const Text('不使用')),
+                      OutlinedButton(onPressed: () => Navigator.pop<bool>(context, true), child: const Text('启用')),
+                      OutlinedButton(onPressed: () => Navigator.pop<bool>(context, false), child: const Text('不启用')),
                     ],
                   );
                 },

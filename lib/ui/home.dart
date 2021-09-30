@@ -96,8 +96,8 @@ class Home extends StatelessWidget {
             subtitle: const Text('禁止用于商业用途(包括收取打赏)'),
           ),
           const ListTile(
-            title: Text('请打开你的代理(VPN)然后进行登录操作'),
-            subtitle: Text('登录完关掉就可以免代理直连'),
+            title: Text('如果无法正常直连是需要开代理(VPN)的'),
+            subtitle: Text('开代理请点不启用按钮'),
           ),
           const Divider(),
           Card(
@@ -147,8 +147,8 @@ class Home extends StatelessWidget {
           title: const Text('登录'),
           content: const Text('是否启用本地反向代理(IP直连)?'),
           actions: [
-            OutlinedButton(onPressed: () => Navigator.pop<bool>(context, true), child: const Text('使用')),
-            OutlinedButton(onPressed: () => Navigator.pop<bool>(context, false), child: const Text('不使用')),
+            OutlinedButton(onPressed: () => Navigator.pop<bool>(context, true), child: const Text('启用')),
+            OutlinedButton(onPressed: () => Navigator.pop<bool>(context, false), child: const Text('不启用')),
           ],
         );
       },
