@@ -24,12 +24,15 @@ class IllustPreviewer extends StatelessWidget {
 
   final bool showUserName;
 
+  final String? heroTag;
+
   const IllustPreviewer({
     Key? key,
     required this.illust,
     this.illustContentModel,
     this.square = false,
     this.showUserName = true,
+    this.heroTag,
   }) : super(key: key);
 
   Widget _buildBookmarkButton(IllustPreviewerModel model) {
@@ -74,6 +77,7 @@ class IllustPreviewer extends StatelessWidget {
                   IllustContentPage(
                     model.illust,
                     parentModel: square ? null : model,
+                    heroTag: heroTag,
                   ),
                 );
               },
@@ -81,13 +85,15 @@ class IllustPreviewer extends StatelessWidget {
             ),
             Visibility(
               visible: model.isR18,
-              child:  Positioned(
+              child: Positioned(
                 left: 2,
                 top: 2,
-                child: Card(color: Colors.pink.shade300, child: const Padding(
-                  padding: EdgeInsets.all(1.5),
-                  child: Text('R-18'),
-                )),
+                child: Card(
+                    color: Colors.pink.shade300,
+                    child: const Padding(
+                      padding: EdgeInsets.all(1.5),
+                      child: Text('R-18'),
+                    )),
               ),
             ),
             Visibility(
@@ -146,8 +152,9 @@ class IllustPreviewer extends StatelessWidget {
                 LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
                     final previewHeight = constraints.maxWidth / model.illust.width * model.illust.height;
+
                     return Hero(
-                      tag: 'illust:${model.illust.id}',
+                      tag: null != heroTag ? heroTag! : 'illust:${model.illust.id}',
                       child: ClipRRect(
                         borderRadius: const BorderRadius.only(topLeft: circularRadius, topRight: circularRadius),
                         child: _buildImage(

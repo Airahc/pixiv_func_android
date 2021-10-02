@@ -34,7 +34,7 @@ class RankingContent extends StatelessWidget {
                 itemBuilder: (BuildContext context, int index) => IllustPreviewer(illust: model.list[index]),
                 staggeredTileBuilder: (int index) => const StaggeredTile.fit(1),
                 itemCount: model.list.length,
-              )
+              ),
             ],
           ),
         );

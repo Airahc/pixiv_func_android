@@ -32,6 +32,16 @@ class SettingsManager {
     if (null != previewQuality) {
       settings.previewQuality = previewQuality;
     }
+
+    final scaleQuality = sharedPreferences.getBool('scale_quality');
+    if (null != scaleQuality) {
+      settings.scaleQuality = scaleQuality;
+    }
+
+    final enableBrowsingHistory = sharedPreferences.getBool('enable_browsing_history');
+    if (null != enableBrowsingHistory) {
+      settings.enableBrowsingHistory = enableBrowsingHistory;
+    }
   }
 
   bool get isLightTheme => settings.isLightTheme;
@@ -61,5 +71,12 @@ class SettingsManager {
   set scaleQuality(bool value) {
     settings.scaleQuality = value;
     sharedPreferences.setBool('scale_quality', value);
+  }
+
+  bool get enableBrowsingHistory => settings.enableBrowsingHistory;
+
+  set enableBrowsingHistory(bool value) {
+    settings.enableBrowsingHistory = value;
+    sharedPreferences.setBool('enable_browsing_history', value);
   }
 }

@@ -20,7 +20,6 @@ class AccountManager {
   late final SharedPreferences sharedPreferences;
 
   Future<void> load() async {
-
     sharedPreferences = await SharedPreferences.getInstance();
     final tempAccounts = sharedPreferences.getStringList(_dataKeyName);
     if (null == tempAccounts) {
@@ -88,4 +87,8 @@ class AccountManager {
   }
 
   List<UserAccount> get accounts => _accounts;
+
+  bool get isEmpty => accounts.isEmpty;
+
+  bool get isNotEmpty => accounts.isNotEmpty;
 }

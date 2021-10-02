@@ -21,7 +21,15 @@ class IllustContentModel extends BaseViewStateListModel<Illust> {
   final IllustPreviewerModel? _illustPreviewerModel;
 
   IllustContentModel(this.illust, {IllustPreviewerModel? illustPreviewerModel})
-      : _illustPreviewerModel = illustPreviewerModel;
+      : _illustPreviewerModel = illustPreviewerModel {
+    if (settingsManager.enableBrowsingHistory) {
+      browsingHistoryManager.exist(illust.id).then((exist) {
+        if (!exist) {
+          browsingHistoryManager.insert(illust);
+        }
+      });
+    }
+  }
 
   bool _showOriginalCaption = false;
 

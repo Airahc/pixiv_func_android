@@ -47,20 +47,19 @@ class Home extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
           child: ListView(
-            children: model.pages
-                .map(
-                  (page) => Card(
-                    margin: const EdgeInsets.all(1),
-                    child: ListTile(
-                      title: Text(page.name),
-                      onTap: () {
-                        PageUtils.back(context);
-                        PageUtils.to(context, page.widget);
-                      },
-                    ),
+            children: [
+              for (final page in model.pages)
+                Card(
+                  margin: const EdgeInsets.all(1),
+                  child: ListTile(
+                    title: Text(page.name),
+                    onTap: () {
+                      PageUtils.back(context);
+                      PageUtils.to(context, page.widget);
+                    },
                   ),
                 )
-                .toList(),
+            ],
           ),
         ),
       ),
@@ -172,7 +171,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = Provider.of<HomeModel>(context);
-    if (-1 == accountManager.index) {
+    if (accountManager.isEmpty) {
       return _buildGuideBody(context, model);
     } else {
       return _buildAppBody(context, model);

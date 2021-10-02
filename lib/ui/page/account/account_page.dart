@@ -10,6 +10,7 @@ import 'package:pixiv_func_android/api/entity/local_user.dart';
 import 'package:pixiv_func_android/api/model/user_account.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/log/log.dart';
+import 'package:pixiv_func_android/ui/widget/avatar_view_from_url.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/view_model/account_model.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +38,7 @@ class _AccountPageState extends State<AccountPage> {
               : null,
         ),
         subtitle: Text('${account.account}(${account.id})'),
+        leading: AvatarViewFromUrl(account.profileImageUrls.px50x50),
         trailing: IconButton(
           tooltip: '移除这个账号',
           splashRadius: 40,
@@ -47,7 +49,6 @@ class _AccountPageState extends State<AccountPage> {
                 PageUtils.back(context);
               },
             );
-
             homeModel.refresh();
           },
           icon: const Icon(Icons.delete_forever_outlined),

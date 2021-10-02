@@ -12,7 +12,7 @@ import 'package:pixiv_func_android/ui/widget/image_view_from_url.dart';
 class AvatarViewer extends StatelessWidget {
   final String url;
 
-  const AvatarViewer({Key? key, required this.url}) : super(key: key);
+  const AvatarViewer(this.url, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

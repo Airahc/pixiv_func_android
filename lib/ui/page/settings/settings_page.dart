@@ -176,6 +176,18 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 ),
               ),
+              Card(
+                child: CheckboxListTile(
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  value: model.enableBrowsingHistory,
+                  title: const Text('启用浏览历史记录'),
+                  onChanged: (bool? value) {
+                    if (null != value) {
+                      model.enableBrowsingHistory = value;
+                    }
+                  },
+                ),
+              )
             ],
           );
         },

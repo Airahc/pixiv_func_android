@@ -39,9 +39,11 @@ class Illust {
   int sanityLevel;
   @JsonKey(name: 'x_restrict')
   int xRestrict;
+
   ///当[pageCount]等于1时 图片的originalImageUrl存在这里
   @JsonKey(name: 'meta_single_page')
   MetaSinglePage metaSinglePage;
+
   ///当[pageCount]大于1时 图片的[ImageUrls]存在这里
   @JsonKey(name: 'meta_pages')
   List<MetaPage> metaPages;
@@ -54,9 +56,11 @@ class Illust {
   bool visible;
   @JsonKey(name: 'is_muted')
   bool isMuted;
+
   ///这个字段必须在获取 "detail" 的时候才有值
   @JsonKey(name: 'total_comments')
   int? totalComments;
+
   Illust(
     this.id,
     this.title,
@@ -80,6 +84,7 @@ class Illust {
     this.isBookmarked,
     this.visible,
     this.isMuted,
+    this.totalComments,
   );
 
   factory Illust.fromJson(Map<String, dynamic> json) => _$IllustFromJson(json);

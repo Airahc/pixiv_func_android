@@ -14,9 +14,7 @@ Illust _$IllustFromJson(Map<String, dynamic> json) => Illust(
       json['caption'] as String,
       json['restrict'] as int,
       User.fromJson(json['user'] as Map<String, dynamic>),
-      (json['tags'] as List<dynamic>)
-          .map((e) => Tag.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      (json['tags'] as List<dynamic>).map((e) => Tag.fromJson(e as Map<String, dynamic>)).toList(),
       (json['tools'] as List<dynamic>).map((e) => e as String).toList(),
       json['create_date'] as String,
       json['page_count'] as int,
@@ -25,15 +23,14 @@ Illust _$IllustFromJson(Map<String, dynamic> json) => Illust(
       json['sanity_level'] as int,
       json['x_restrict'] as int,
       MetaSinglePage.fromJson(json['meta_single_page'] as Map<String, dynamic>),
-      (json['meta_pages'] as List<dynamic>)
-          .map((e) => MetaPage.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      (json['meta_pages'] as List<dynamic>).map((e) => MetaPage.fromJson(e as Map<String, dynamic>)).toList(),
       json['total_view'] as int,
       json['total_bookmarks'] as int,
       json['is_bookmarked'] as bool,
       json['visible'] as bool,
       json['is_muted'] as bool,
-    )..totalComments = json['total_comments'] as int?;
+      json['total_comments'] as int?,
+    );
 
 Map<String, dynamic> _$IllustToJson(Illust instance) => <String, dynamic>{
       'id': instance.id,

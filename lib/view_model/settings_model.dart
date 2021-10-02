@@ -48,4 +48,11 @@ class SettingsModel extends BaseViewModel {
     notifyListeners();
   }
 
+  bool get enableBrowsingHistory => settingsManager.enableBrowsingHistory;
+
+  set enableBrowsingHistory(bool value) {
+    settingsManager.enableBrowsingHistory = value;
+    notifyListeners();
+  }
+
 }

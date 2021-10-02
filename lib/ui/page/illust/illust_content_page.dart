@@ -32,8 +32,8 @@ import 'package:pixiv_func_android/view_model/illust_previewer_model.dart';
 class IllustContentPage extends StatefulWidget {
   final Illust illust;
   final IllustPreviewerModel? parentModel;
-
-  const IllustContentPage(this.illust, {Key? key, this.parentModel}) : super(key: key);
+  final String? heroTag;
+  const IllustContentPage(this.illust, {Key? key, this.parentModel,this.heroTag}) : super(key: key);
 
   @override
   _IllustContentPageState createState() => _IllustContentPageState();
@@ -89,7 +89,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
         child: GestureDetector(
           onTap: !model.generatingGif ? model.startGenerateGif : null,
           child: Hero(
-            tag: 'illust:${model.illust.id}',
+            tag: null != widget.heroTag ?  widget.heroTag! : 'illust:${model.illust.id}',
             child: Stack(
               alignment: Alignment.center,
               children: [
@@ -109,7 +109,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
         child: GestureDetector(
           onLongPress: model.saveGifFile,
           child: Hero(
-            tag: 'illust:${model.illust.id}',
+            tag: null != widget.heroTag ?  widget.heroTag! : 'illust:${model.illust.id}',
             child: ExtendedImage.memory(model.gifBytes!),
           ),
         ),
@@ -121,7 +121,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
     if (1 == illust.pageCount) {
       return SliverToBoxAdapter(
         child: Hero(
-          tag: 'illust:${illust.id}',
+          tag: null != widget.heroTag ?  widget.heroTag! : 'illust:${illust.id}',
           child: _buildImageItem(
             illust.id,
             illust.title,
@@ -140,7 +140,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
               if (first) {
                 first = false;
                 return Hero(
-                  tag: 'illust:${illust.id}',
+                  tag: null != widget.heroTag ?  widget.heroTag! : 'illust:${illust.id}',
                   child: _buildImageItem(
                     illust.id,
                     illust.title,

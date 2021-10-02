@@ -73,7 +73,7 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
         leading: GestureDetector(
           onTap: () => showDialog(
             context: context,
-            builder: (BuildContext context) => AvatarViewer(url: user.profileImageUrls.medium),
+            builder: (BuildContext context) => AvatarViewer(user.profileImageUrls.medium),
           ),
           child: Hero(
             tag: 'user:${user.id}',
