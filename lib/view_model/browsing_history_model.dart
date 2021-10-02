@@ -12,7 +12,7 @@ import 'package:pixiv_func_android/log/log.dart';
 import 'package:pixiv_func_android/provider/base_view_model.dart';
 
 class BrowsingHistoryModel extends BaseViewModel {
-  static const _limit = 2;
+  static const _limit = 30;
 
   final List<Illust> list = [];
 

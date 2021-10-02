@@ -19,7 +19,7 @@ import 'package:sqflite/sqflite.dart';
 
 class BrowsingHistoryManager {
   late final Database _database;
-  static const _databaseName = 'local_browsing_history_database6.db';
+  static const _databaseName = 'local_browsing_history_database.db';
   static const _tableName = 'local_browsing_history';
 
   Future<void> init() async {
