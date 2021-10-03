@@ -49,6 +49,9 @@ enum WorkType {
 
   ///漫画
   manga,
+
+  ///小说
+  novel,
 }
 
 enum SearchSort {

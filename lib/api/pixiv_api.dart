@@ -8,6 +8,7 @@
 
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:pixiv_func_android/api/model/novels.dart';
 import 'auth_token_interceptor.dart';
 import 'retry_interceptor.dart';
 import 'model/comments.dart';
@@ -67,6 +68,9 @@ class PixivAPI {
     }
     if (T == Illusts) {
       return Illusts.fromJson(jsonDecode(responseData)) as T;
+    }
+    if (T == Novels) {
+      return Novels.fromJson(jsonDecode(responseData)) as T;
     }
     if (T == Users) {
       return Users.fromJson(jsonDecode(responseData)) as T;
@@ -135,6 +139,19 @@ class PixivAPI {
       },
     );
     final data = Illusts.fromJson(jsonDecode(response.data!));
+    return data;
+  }
+
+  ///获取推荐小说
+  Future<Novels> getRecommendedNovels() async {
+    final response = await httpClient.get<String>(
+      '/v1/novel/recommended',
+      queryParameters: {
+        'include_ranking_novels': false,
+        'include_privacy_policy': false,
+      },
+    );
+    final data = Novels.fromJson(jsonDecode(response.data!));
     return data;
   }
 
@@ -254,6 +271,18 @@ class PixivAPI {
 
     final data = IllustDetail.fromJson(jsonDecode(response.data!));
     return data;
+  }
+
+  ///获取小说HTML页面 <br/>
+  ///[illustId] - 插画ID
+  Future<String> getNovelHtml(int illustId) async {
+    final response = await httpClient.get<String>(
+      '/webview/v1/novel',
+      queryParameters: {
+        'id': illustId,
+      },
+    );
+    return response.data!;
   }
 
   ///获取动图
@@ -396,13 +425,14 @@ class PixivAPI {
 
   ///收藏插画 <br/>
   ///[illustId] - 插画ID <br/>
-  ///[restrict] 为ture获取公开的(public) 反之不公开(private)
-  Future<void> bookmarkAdd(int illustId, {bool restrict = true}) async {
+  ///[restrict] 为ture获取公开的(public) 反之不公开(private) <br/>
+  ///[isNovel] 小说
+  Future<void> bookmarkAdd(int illustId, {bool restrict = true, bool isNovel = false}) async {
     await httpClient.post<String>(
-      '/v2/illust/bookmark/add',
+      '/v2/${isNovel ? 'novel' : 'illust'}/bookmark/add',
       data: FormData.fromMap(
         {
-          'illust_id': illustId,
+          '${isNovel ? 'novel' : 'illust'}_id': illustId,
           'restrict': restrict ? 'public' : 'private',
         },
       ),
@@ -410,13 +440,14 @@ class PixivAPI {
   }
 
   ///取消收藏插画 <br/>
-  ///[illustId] - 插画ID
-  Future<void> bookmarkDelete(int illustId) async {
+  ///[illustId] - 插画ID <br/>
+  ///[isNovel] 小说
+  Future<void> bookmarkDelete(int illustId, {bool isNovel = false}) async {
     await httpClient.post<String>(
-      '/v1/illust/bookmark/delete',
+      '/v1/${isNovel ? 'novel' : 'illust'}/bookmark/delete',
       data: FormData.fromMap(
         {
-          'illust_id': illustId,
+          '${isNovel ? 'novel' : 'illust'}_id': illustId,
         },
       ),
     );

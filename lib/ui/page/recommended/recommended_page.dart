@@ -6,17 +6,30 @@
  * 作者:小草
  */
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
-import 'package:pixiv_func_android/ui/widget/illust_previewer.dart';
-import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
-import 'package:pixiv_func_android/ui/widget/segment_bar.dart';
+import 'package:pixiv_func_android/ui/page/recommended/recommended_illust_content.dart';
+import 'package:pixiv_func_android/ui/page/recommended/recommended_novel_content.dart';
 import 'package:pixiv_func_android/view_model/recommended_model.dart';
 
 class RecommendedPage extends StatelessWidget {
   const RecommendedPage({Key? key}) : super(key: key);
+
+  final contents = const [
+    RecommendedIllustContent(
+      WorkType.illust,
+      key: Key('RecommendedIllustContent(WorkType.illust)'),
+    ),
+    RecommendedIllustContent(
+      WorkType.manga,
+      key: Key('RecommendedIllustContent(WorkType.manga)'),
+    ),
+    RecommendedNovelContent(
+      key: Key('RecommendedNovelContent()'),
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -25,25 +38,42 @@ class RecommendedPage extends StatelessWidget {
       builder: (BuildContext context, RecommendedModel model, Widget? child) {
         return Column(
           children: [
-            SegmentBar(
-              items: const ['插画', '漫画'],
-              values: const [WorkType.illust, WorkType.manga],
-              onSelected: (WorkType value) => model.type = value,
-              selectedValue: model.type,
+            LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return SizedBox(
+                  width: constraints.maxWidth,
+                  child: CupertinoSlidingSegmentedControl(
+                    children: <WorkType, Widget>{
+                      WorkType.illust: Container(
+                        alignment: Alignment.center,
+                        child: const Text('插画'),
+                        width: constraints.maxWidth / 3,
+                      ),
+                      WorkType.manga: Container(
+                        alignment: Alignment.center,
+                        child: const Text('漫画'),
+                        width: constraints.maxWidth / 3,
+                      ),
+                      WorkType.novel: Container(
+                        alignment: Alignment.center,
+                        child: const Text('小说'),
+                        width: constraints.maxWidth / 3,
+                      ),
+                    },
+                    groupValue: model.type,
+                    onValueChanged: (WorkType? value) {
+                      if (null != value) {
+                        model.type = value;
+                      }
+                    },
+                  ),
+                );
+              },
             ),
             Expanded(
-              child: RefresherWidget(
-                model,
-                child: CustomScrollView(
-                  slivers: [
-                    SliverStaggeredGrid.countBuilder(
-                      crossAxisCount: 2,
-                      itemBuilder: (BuildContext context, int index) => IllustPreviewer(illust: model.list[index]),
-                      staggeredTileBuilder: (int index) => const StaggeredTile.fit(1),
-                      itemCount: model.list.length,
-                    )
-                  ],
-                ),
+              child: IndexedStack(
+                index: model.type.index,
+                children: contents,
               ),
             ),
           ],

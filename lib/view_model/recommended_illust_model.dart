@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021. by xiao-cao-x, All rights reserved
  * 项目名称:pixiv_func_android
- * 文件名称:recommended_model.dart
- * 创建时间:2021/8/25 上午10:21
+ * 文件名称:recommended_illust_model.dart
+ * 创建时间:2021/10/3 下午4:26
  * 作者:小草
  */
 
@@ -13,17 +13,10 @@ import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/base_view_state_refresh_list_model.dart';
 import 'package:pixiv_func_android/util/utils.dart';
 
-class RecommendedModel extends BaseViewStateRefreshListModel<Illust> {
-  WorkType _type = WorkType.illust;
+class RecommendedIllustModel extends BaseViewStateRefreshListModel<Illust> {
+  WorkType type;
 
-  WorkType get type => _type;
-
-  set type(WorkType value) {
-    if (value != _type) {
-      _type = value;
-      notifyListeners();
-    }
-  }
+  RecommendedIllustModel(this.type);
 
   @override
   Future<List<Illust>> loadFirstDataRoutine() async {

@@ -6,12 +6,12 @@
  * 作者:小草
  */
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/widget/illust_previewer.dart';
 import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
-import 'package:pixiv_func_android/ui/widget/segment_bar.dart';
 import 'package:pixiv_func_android/view_model/bookmarked_model.dart';
 
 class BookmarkedPage extends StatelessWidget {
@@ -28,13 +28,32 @@ class BookmarkedPage extends StatelessWidget {
           ),
           body: Column(
             children: [
-              SegmentBar(
-                items: const ['公开', '私有'],
-                values: const [true, false],
-                onSelected: (bool value) {
-                  model.restrict = value;
+              LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return SizedBox(
+                    width: constraints.maxWidth,
+                    child: CupertinoSlidingSegmentedControl(
+                      children: <bool, Widget>{
+                        true: Container(
+                          alignment: Alignment.center,
+                          child: const Text('公开'),
+                          width: constraints.maxWidth / 2,
+                        ),
+                        false: Container(
+                          alignment: Alignment.center,
+                          child: const Text('私有'),
+                          width: constraints.maxWidth / 2,
+                        ),
+                      },
+                      groupValue: model.restrict,
+                      onValueChanged: (bool? value) {
+                        if (null != value) {
+                          model.restrict = value;
+                        }
+                      },
+                    ),
+                  );
                 },
-                selectedValue: model.restrict,
               ),
               Expanded(
                 child: RefresherWidget(

@@ -5,12 +5,12 @@
  * 创建时间:2021/8/29 下午12:02
  * 作者:小草
  */
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/widget/illust_previewer.dart';
 import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
-import 'package:pixiv_func_android/ui/widget/segment_bar.dart';
 import 'package:pixiv_func_android/view_model/following_new_illust_model.dart';
 
 class FollowingNewIllustPage extends StatelessWidget {
@@ -27,13 +27,41 @@ class FollowingNewIllustPage extends StatelessWidget {
           ),
           body: Column(
             children: [
-              SegmentBar(
-                items: const ['全部', '公开', '私有'],
-                values: const [null, true, false],
-                onSelected: (bool? value) {
-                  model.restrict = value;
+              LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return SizedBox(
+                    width: constraints.maxWidth,
+                    child: CupertinoSlidingSegmentedControl(
+                      children: <int, Widget>{
+                        0: Container(
+                          alignment: Alignment.center,
+                          child: const Text('全部'),
+                          width: constraints.maxWidth / 3,
+                        ),
+                        1: Container(
+                          alignment: Alignment.center,
+                          child: const Text('公开'),
+                          width: constraints.maxWidth / 3,
+                        ),
+                        2: Container(
+                          alignment: Alignment.center,
+                          child: const Text('私有'),
+                          width: constraints.maxWidth / 3,
+                        ),
+                      },
+                      groupValue: null == model.restrict
+                          ? 0
+                          : model.restrict!
+                              ? 1
+                              : 2,
+                      onValueChanged: (int? value) {
+                        if (null != value) {
+                          model.restrict = [null, true, false][value];
+                        }
+                      },
+                    ),
+                  );
                 },
-                selectedValue: model.restrict,
               ),
               Expanded(
                 child: RefresherWidget(
