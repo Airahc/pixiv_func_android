@@ -18,8 +18,8 @@ class BookmarkDetail{
   String restrict;
 
   BookmarkDetail(this.isBookmarked, this.tags, this.restrict);
-  factory BookmarkDetail.fromJson(Map<String, dynamic> json) =>
-      _$BookmarkDetailFromJson(json);
+
+  factory BookmarkDetail.fromJson(Map<String, dynamic> json) => _$BookmarkDetailFromJson(json);
 
   Map<String, dynamic> toJson() => _$BookmarkDetailToJson(this);
 }

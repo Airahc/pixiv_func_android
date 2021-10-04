@@ -8,6 +8,7 @@
 
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:pixiv_func_android/api/model/bookmark_tags.dart';
 import 'package:pixiv_func_android/api/model/novels.dart';
 import 'auth_token_interceptor.dart';
 import 'retry_interceptor.dart';
@@ -78,6 +79,9 @@ class PixivAPI {
     if (T == Search) {
       return Search.fromJson(jsonDecode(responseData)) as T;
     }
+    if (T == BookmarkTags) {
+      return BookmarkTags.fromJson(jsonDecode(responseData)) as T;
+    }
     throw Exception('类型错误');
   }
 
@@ -97,19 +101,33 @@ class PixivAPI {
     return data;
   }
 
-  ///获取用户详细信息 <br/>
+  ///获取用户收藏的插画 <br/>
   ///[userId] - 用户ID <br/>
   ///[restrict] - 为ture获取公开的(public) 反之不公开(private)
-  Future<Illusts> getUserBookmarks(int userId, {bool restrict = true}) async {
+  Future<Illusts> getUserIllustBookmarks(int userId, {bool restrict = true}) async {
     final response = await httpClient.get<String>(
       '/v1/user/bookmarks/illust',
       queryParameters: {
-        'filter': 'for_android',
         'user_id': userId,
         'restrict': restrict ? 'public' : 'private',
       },
     );
     final data = Illusts.fromJson(jsonDecode(response.data!));
+    return data;
+  }
+
+  ///获取用户收藏的小说 <br/>
+  ///[userId] - 用户ID <br/>
+  ///[restrict] - 为ture获取公开的(public) 反之不公开(private)
+  Future<Novels> getUserNovelBookmarks(int userId, {bool restrict = true}) async {
+    final response = await httpClient.get<String>(
+      '/v1/user/bookmarks/novel',
+      queryParameters: {
+        'user_id': userId,
+        'restrict': restrict ? 'public' : 'private',
+      },
+    );
+    final data = Novels.fromJson(jsonDecode(response.data!));
     return data;
   }
 
@@ -266,6 +284,8 @@ class PixivAPI {
       queryParameters: {
         'filter': 'for_android',
         'illust_id': illustId,
+        'include_ranking_illusts': false,
+        'include_privacy_policy': false,
       },
     );
 
@@ -423,17 +443,32 @@ class PixivAPI {
     return data;
   }
 
+  Future<BookmarkTags> getBookmarkTags(int userId, {bool restrict = true, bool isNovel = false}) async {
+    final response = await httpClient.get<String>(
+      '/v1/user/bookmark-tags/${isNovel ? 'novel' : 'illust'}',
+      queryParameters: {
+        'user_id': userId,
+        'restrict': restrict ? 'public' : 'private',
+      },
+    );
+    final data = BookmarkTags.fromJson(jsonDecode(response.data!));
+    return data;
+  }
+
   ///收藏插画 <br/>
   ///[illustId] - 插画ID <br/>
+  ///[tags] - 标签(自己添加的) <br/>
   ///[restrict] 为ture获取公开的(public) 反之不公开(private) <br/>
   ///[isNovel] 小说
-  Future<void> bookmarkAdd(int illustId, {bool restrict = true, bool isNovel = false}) async {
+  Future<void> bookmarkAdd(int illustId,
+      {List<String> tags = const [], bool restrict = true, bool isNovel = false}) async {
     await httpClient.post<String>(
       '/v2/${isNovel ? 'novel' : 'illust'}/bookmark/add',
       data: FormData.fromMap(
         {
           '${isNovel ? 'novel' : 'illust'}_id': illustId,
           'restrict': restrict ? 'public' : 'private',
+          'tags': tags,
         },
       ),
     );

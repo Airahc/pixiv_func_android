@@ -14,7 +14,7 @@ import 'package:pixiv_func_android/provider/base_view_model.dart';
 class SearchFilterModel extends BaseViewModel {
   SearchFilter filter;
 
-  SearchFilterModel({required SearchFilter filter}) : filter = SearchFilter.copy(filter);
+  SearchFilterModel(SearchFilter filter) : filter = SearchFilter.copy(filter);
 
   SearchTarget get target => filter.target;
 

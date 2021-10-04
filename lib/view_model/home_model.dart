@@ -50,7 +50,7 @@ class HomeModel extends BaseViewModel {
   ];
 
   List<NavigationPage> get pages => [
-        NavigationPage(name: '收藏的作品', widget: const BookmarkedPage()),
+        NavigationPage(name: '收藏', widget: const BookmarkedPage()),
         NavigationPage(name: '已关注用户的新作品', widget: const FollowingNewIllustPage()),
         NavigationPage(name: '大家的新作品', widget: const NewIllustPage()),
         NavigationPage(name: '关注的用户', widget: FollowingUserPage(int.parse(accountManager.current!.user.id))),

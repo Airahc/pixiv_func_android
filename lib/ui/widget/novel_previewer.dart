@@ -22,16 +22,10 @@ class NovelPreviewer extends StatelessWidget {
       splashRadius: 20,
       onPressed: model.bookmarkStateChange,
       icon: model.isBookmarked
-          ? const Icon(
-              Icons.favorite_sharp,
-              color: Colors.pinkAccent,
-            )
-          : const Icon(
-              Icons.favorite_outline_sharp,
-            ),
+          ? const Icon(Icons.favorite_sharp, color: Colors.pinkAccent)
+          : const Icon(Icons.favorite_outline_sharp),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {

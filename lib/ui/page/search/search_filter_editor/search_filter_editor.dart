@@ -232,7 +232,7 @@ class SearchFilterEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProviderWidget(
-      model: SearchFilterModel(filter: filter),
+      model: SearchFilterModel(filter),
       builder: (BuildContext context, SearchFilterModel model, Widget? child) {
         return Container(
           height: 450,
