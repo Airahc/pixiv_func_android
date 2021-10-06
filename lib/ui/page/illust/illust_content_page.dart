@@ -6,11 +6,9 @@
  * 作者:小草
  */
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:pixiv_func_android/api/entity/illust.dart';
-import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/downloader/downloader.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/model/search_filter.dart';
@@ -33,7 +31,8 @@ class IllustContentPage extends StatefulWidget {
   final Illust illust;
   final IllustPreviewerModel? parentModel;
   final String? heroTag;
-  const IllustContentPage(this.illust, {Key? key, this.parentModel,this.heroTag}) : super(key: key);
+
+  const IllustContentPage(this.illust, {Key? key, this.parentModel, this.heroTag}) : super(key: key);
 
   @override
   _IllustContentPageState createState() => _IllustContentPageState();
@@ -89,7 +88,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
         child: GestureDetector(
           onTap: !model.generatingGif ? model.startGenerateGif : null,
           child: Hero(
-            tag: null != widget.heroTag ?  widget.heroTag! : 'illust:${model.illust.id}',
+            tag: null != widget.heroTag ? widget.heroTag! : 'illust:${model.illust.id}',
             child: Stack(
               alignment: Alignment.center,
               children: [
@@ -109,7 +108,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
         child: GestureDetector(
           onLongPress: model.saveGifFile,
           child: Hero(
-            tag: null != widget.heroTag ?  widget.heroTag! : 'illust:${model.illust.id}',
+            tag: null != widget.heroTag ? widget.heroTag! : 'illust:${model.illust.id}',
             child: ExtendedImage.memory(model.gifBytes!),
           ),
         ),
@@ -121,7 +120,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
     if (1 == illust.pageCount) {
       return SliverToBoxAdapter(
         child: Hero(
-          tag: null != widget.heroTag ?  widget.heroTag! : 'illust:${illust.id}',
+          tag: null != widget.heroTag ? widget.heroTag! : 'illust:${illust.id}',
           child: _buildImageItem(
             illust.id,
             illust.title,
@@ -140,7 +139,7 @@ class _IllustContentPageState extends State<IllustContentPage> {
               if (first) {
                 first = false;
                 return Hero(
-                  tag: null != widget.heroTag ?  widget.heroTag! : 'illust:${illust.id}',
+                  tag: null != widget.heroTag ? widget.heroTag! : 'illust:${illust.id}',
                   child: _buildImageItem(
                     illust.id,
                     illust.title,
@@ -238,37 +237,36 @@ class _IllustContentPageState extends State<IllustContentPage> {
           alignment: Alignment.centerLeft,
           child: Wrap(alignment: WrapAlignment.start, runSpacing: 5, spacing: 5, children: [
             for (final tag in illust.tags)
-              RichText(
-                text: TextSpan(
-                  style: Theme.of(context).textTheme.bodyText2,
-                  children: null != tag.translatedName
-                      ? [
-                          TextSpan(
-                            text: '#${tag.name}  ',
-                            style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                          ),
-                          TextSpan(
-                            text: '${tag.translatedName}',
-                          ),
-                        ]
-                      : [
-                          TextSpan(
-                            text: '#${tag.name}',
-                            style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                          ),
-                        ],
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      PageUtils.to(
-                        context,
-                        SearchIllustResultPage(
-                          word: tag.name,
-                          filter: SearchFilter.create(target: SearchTarget.exactMatchForTags),
-                        ),
-                      );
-                    },
+              GestureDetector(
+                onTap: () => PageUtils.to(
+                  context,
+                  SearchIllustResultPage(
+                    word: tag.name,
+                    filter: SearchFilter.create(),
+                  ),
                 ),
-              )
+                child: RichText(
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodyText2,
+                    children: null != tag.translatedName
+                        ? [
+                            TextSpan(
+                              text: '#${tag.name}  ',
+                              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                            ),
+                            TextSpan(
+                              text: '${tag.translatedName}',
+                            ),
+                          ]
+                        : [
+                            TextSpan(
+                              text: '#${tag.name}',
+                              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                            ),
+                          ],
+                  ),
+                ),
+              ),
           ]),
         ),
       ],

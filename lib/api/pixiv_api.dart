@@ -227,10 +227,9 @@ class PixivAPI {
     return data;
   }
 
-  ///获取关注用户的最新作品 <br/>
-  ///[id] - 用户ID <br/>
-  ///[restrict] - 为ture获取公开的(public) 反之不公开(private)
-  Future<Illusts> getFollowingLatestIllust({bool? restrict}) async {
+  ///获取关注者的新插画 <br/>
+  ///[restrict] - 为ture获取公开的(public) 反之不公开(private) null(全部)
+  Future<Illusts> getFollowerNewIllusts({required bool? restrict}) async {
     final response = await httpClient.get<String>(
       '/v2/illust/follow',
       queryParameters: {
@@ -238,16 +237,34 @@ class PixivAPI {
         'restrict': null == restrict
             ? 'all'
             : restrict
-                ? 'public'
-                : 'private',
+            ? 'public'
+            : 'private',
       },
     );
     final data = Illusts.fromJson(jsonDecode(response.data!));
     return data;
   }
 
+  ///获取关注者的新小说 <br/>
+  ///[restrict] - 为ture获取公开的(public) 反之不公开(private) null(全部)
+  Future<Novels> getFollowerNewNovels({required bool? restrict}) async {
+    final response = await httpClient.get<String>(
+      '/v1/novel/follow',
+      queryParameters: {
+        'filter': 'for_android',
+        'restrict': null == restrict
+            ? 'all'
+            : restrict
+            ? 'public'
+            : 'private',
+      },
+    );
+    final data = Novels.fromJson(jsonDecode(response.data!));
+    return data;
+  }
+
   ///获取最近发布的插画 <br/>
-  ///[type] - 类型([WorkType])
+  ///[type] - 类型([WorkType]) illust , manga
   Future<Illusts> getNewIllusts(String type) async {
     final response = await httpClient.get<String>(
       '/v1/illust/new',
@@ -257,6 +274,16 @@ class PixivAPI {
       },
     );
     final data = Illusts.fromJson(jsonDecode(response.data!));
+    return data;
+  }
+
+  ///获取最近发布的插画 <br/>
+  ///[type] - 类型([WorkType]) illust , manga
+  Future<Novels> getNewNovels() async {
+    final response = await httpClient.get<String>(
+      '/v1/novel/new',
+    );
+    final data = Novels.fromJson(jsonDecode(response.data!));
     return data;
   }
 

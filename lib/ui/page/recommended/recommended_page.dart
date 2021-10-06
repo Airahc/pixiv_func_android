@@ -12,24 +12,12 @@ import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/page/recommended/recommended_illust_content.dart';
 import 'package:pixiv_func_android/ui/page/recommended/recommended_novel_content.dart';
+import 'package:pixiv_func_android/ui/widget/lazy_indexed_stack.dart';
 import 'package:pixiv_func_android/view_model/recommended_model.dart';
 
 class RecommendedPage extends StatelessWidget {
   const RecommendedPage({Key? key}) : super(key: key);
 
-  final contents = const [
-    RecommendedIllustContent(
-      WorkType.illust,
-      key: Key('RecommendedIllustContent(WorkType.illust)'),
-    ),
-    RecommendedIllustContent(
-      WorkType.manga,
-      key: Key('RecommendedIllustContent(WorkType.manga)'),
-    ),
-    RecommendedNovelContent(
-      key: Key('RecommendedNovelContent()'),
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -71,9 +59,18 @@ class RecommendedPage extends StatelessWidget {
               },
             ),
             Expanded(
-              child: IndexedStack(
+              child: LazyIndexedStack(
                 index: model.type.index,
-                children: contents,
+                children: const [
+                  RecommendedIllustContent(
+                    WorkType.illust,
+                  ),
+                  RecommendedIllustContent(
+                    WorkType.manga,
+                  ),
+                  RecommendedNovelContent(
+                  ),
+                ],
               ),
             ),
           ],

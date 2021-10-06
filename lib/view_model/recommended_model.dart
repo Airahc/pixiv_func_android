@@ -6,14 +6,10 @@
  * 作者:小草
  */
 
-import 'package:pixiv_func_android/api/entity/illust.dart';
 import 'package:pixiv_func_android/api/enums.dart';
-import 'package:pixiv_func_android/api/model/illusts.dart';
-import 'package:pixiv_func_android/instance_setup.dart';
-import 'package:pixiv_func_android/provider/base_view_state_refresh_list_model.dart';
-import 'package:pixiv_func_android/util/utils.dart';
+import 'package:pixiv_func_android/provider/base_view_model.dart';
 
-class RecommendedModel extends BaseViewStateRefreshListModel<Illust> {
+class RecommendedModel extends BaseViewModel {
   WorkType _type = WorkType.illust;
 
   WorkType get type => _type;
@@ -25,20 +21,4 @@ class RecommendedModel extends BaseViewStateRefreshListModel<Illust> {
     }
   }
 
-  @override
-  Future<List<Illust>> loadFirstDataRoutine() async {
-    final result = await pixivAPI.getRecommendedIllusts(Utils.enumTypeStringToLittleHump(type));
-    nextUrl = result.nextUrl;
-
-    return result.illusts;
-  }
-
-  @override
-  Future<List<Illust>> loadNextDataRoutine() async {
-    final result = await pixivAPI.next<Illusts>(nextUrl!);
-
-    nextUrl = result.nextUrl;
-
-    return result.illusts;
-  }
 }

@@ -24,7 +24,7 @@ class SearchFilterModel extends BaseViewModel {
 
   int get bookmarkTotalSelected => bookmarkTotalItems.indexWhere((item) => item == filter.bookmarkTotal);
 
-  final bookmarkTotalItems = <int?>[null, 100, 250, 500, 1000, 5000, 10000, 20000, 30000, 50000];
+  final bookmarkTotalItems = <int?>[null, 100, 250, 500, 1000, 5000, 7500, 10000, 20000, 30000, 50000];
 
   set bookmarkTotalSelected(int value) {
     bookmarkTotal = bookmarkTotalItems[value];

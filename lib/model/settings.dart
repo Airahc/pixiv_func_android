@@ -11,7 +11,7 @@ class Settings {
   String imageSource = 'i.pixiv.cat';
 
   //中等 大图
-  bool previewQuality = false;
+  bool previewQuality = true;
 
   //大图 原图
   bool scaleQuality = true;

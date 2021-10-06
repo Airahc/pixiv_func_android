@@ -12,7 +12,7 @@ import 'package:pixiv_func_android/provider/base_view_model.dart';
 class BookmarkedModel extends BaseViewModel {
   BookmarkedFilter _filter = BookmarkedFilter.create();
 
-  int _type = 0;
+  int _index = 0;
 
   bool _restrict = true;
 
@@ -24,16 +24,14 @@ class BookmarkedModel extends BaseViewModel {
     notifyListeners();
   }
 
-  int get type => _type;
+  int get index => _index;
 
-  set type(int value) {
-    if (value != _type) {
-      _type = value;
+  set index(int value) {
+    if (value != _index) {
+      _index = value;
       notifyListeners();
     }
   }
-
-
 
   bool get restrict => _restrict;
 
@@ -43,6 +41,5 @@ class BookmarkedModel extends BaseViewModel {
       notifyListeners();
     }
   }
-
 
 }

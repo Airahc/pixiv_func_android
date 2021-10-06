@@ -10,16 +10,16 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/widget/illust_previewer.dart';
 import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
-import 'package:pixiv_func_android/view_model/all_new_illust_model.dart';
+import 'package:pixiv_func_android/view_model/all_new_manga_model.dart';
 
-class AllNewIllustContent extends StatelessWidget {
-  const AllNewIllustContent({Key? key}) : super(key: key);
+class AllNewMangaContent extends StatelessWidget {
+  const AllNewMangaContent({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ProviderWidget(
-      model: AllNewIllustModel(),
-      builder: (BuildContext context, AllNewIllustModel model, Widget? child) {
+      model: AllNewMangaModel(),
+      builder: (BuildContext context, AllNewMangaModel model, Widget? child) {
         return RefresherWidget(
           model,
           child: CustomScrollView(

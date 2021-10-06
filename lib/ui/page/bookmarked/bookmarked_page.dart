@@ -12,6 +12,7 @@ import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/page/bookmarked/bookmarked_filter_editor.dart';
 import 'package:pixiv_func_android/ui/page/bookmarked/bookmarked_illust_content.dart';
 import 'package:pixiv_func_android/ui/page/bookmarked/bookmarked_novel_content.dart';
+import 'package:pixiv_func_android/ui/widget/lazy_indexed_stack.dart';
 import 'package:pixiv_func_android/view_model/bookmarked_model.dart';
 
 class BookmarkedPage extends StatelessWidget {
@@ -64,10 +65,10 @@ class BookmarkedPage extends StatelessWidget {
                           width: constraints.maxWidth / 2,
                         ),
                       },
-                      groupValue: model.type,
+                      groupValue: model.index,
                       onValueChanged: (int? value) {
                         if (null != value) {
-                          model.type = value;
+                          model.index = value;
                         }
                       },
                     ),
@@ -75,15 +76,18 @@ class BookmarkedPage extends StatelessWidget {
                 },
               ),
               Expanded(
-                child: 0 == model.type
-                    ? BookmarkedIllustContent(
-                        model.filter,
-                        key: Key('BookmarkedIllustContent:${model.filter.hashCode}'),
-                      )
-                    : BookmarkedNovelContent(
-                        model.filter,
-                        key: Key('BookmarkedNovelContent:${model.filter.hashCode}'),
-                      ),
+                child: LazyIndexedStack(
+                  key: Key('LazyIndexedStack:${model.filter.hashCode + model.filter.hashCode}'),
+                  index: model.index,
+                  children: [
+                    BookmarkedIllustContent(
+                      model.filter,
+                    ),
+                    BookmarkedNovelContent(
+                      model.filter,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

@@ -6,7 +6,6 @@
  * 作者:小草
  */
 import 'package:flutter/material.dart';
-import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/api/model/trending_tags.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/model/search_filter.dart';
@@ -67,7 +66,7 @@ class _TrendingIllustState extends State<TrendingIllust> {
                       context,
                       SearchIllustResultPage(
                         word: trendTag.tag,
-                        filter: SearchFilter.create(target: SearchTarget.exactMatchForTags),
+                        filter: SearchFilter.create(),
                       ),
                     ),
                     onLongPress: () => PageUtils.to(

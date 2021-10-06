@@ -30,9 +30,9 @@ class HtmlRichText extends StatefulWidget {
 
 class _HtmlRichTextState extends State<HtmlRichText> {
   static const _aTagStyle = TextStyle(color: Colors.blue);
-  static const _aTagStrongStyle = TextStyle(color: Colors.blue, fontSize: 25);
-  static const _strongTagStyle = TextStyle(fontSize: 25);
-  static const _knownStrongLinkStyle = TextStyle(fontSize: 25, color: Colors.pinkAccent);
+  static const _aTagStrongStyle = TextStyle(color: Colors.blue, fontSize: 22);
+  static const _strongTagStyle = TextStyle(fontSize: 22);
+  static const _knownStrongLinkStyle = TextStyle(fontSize: 22, color: Colors.pinkAccent);
   static const _knownLinkStyle = TextStyle(color: Colors.pinkAccent);
 
   TextSpan _buildNode(html.Node node, {bool isStrong = false}) {
@@ -114,7 +114,17 @@ class _HtmlRichTextState extends State<HtmlRichText> {
             );
           }
 
-          return TextSpan(text: text, style: _strongTagStyle);
+          return TextSpan(
+            text: text,
+            style: _strongTagStyle ,
+          );
+        case '<html span>':
+          if (node.hasChildNodes()) {
+            //忽略span标签的所有属性 (颜色 字体大小等)
+            return _buildNode(node.firstChild!, isStrong: true);
+          }
+
+          return const TextSpan(text: '');
       }
     }
 
