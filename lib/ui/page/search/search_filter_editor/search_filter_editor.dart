@@ -13,6 +13,7 @@ import 'package:pixiv_func_android/model/dropdown_item.dart';
 import 'package:pixiv_func_android/model/search_filter.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/widget/dropdown_menu.dart';
+import 'package:pixiv_func_android/ui/widget/sliding_segmented_control.dart';
 import 'package:pixiv_func_android/view_model/search_filter_model.dart';
 
 class SearchFilterEditor extends StatelessWidget {
@@ -69,76 +70,43 @@ class SearchFilterEditor extends StatelessWidget {
   }
 
   Widget _buildSearchSortEdit(SearchFilterModel model) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        return Container(
-          width: constraints.maxWidth,
-          padding: const EdgeInsets.only(bottom: 20),
-          child: CupertinoSlidingSegmentedControl(
-            children: <SearchSort, Widget>{
-              SearchSort.dateDesc: Container(
-                alignment: Alignment.center,
-                child: const Text('时间降序'),
-                width: constraints.maxWidth / 3,
-              ),
-              SearchSort.dateAsc: Container(
-                alignment: Alignment.center,
-                child: const Text('时间升序'),
-                width: constraints.maxWidth / 3,
-              ),
-              SearchSort.popularDesc: Container(
-                alignment: Alignment.center,
-                child: const Text('热度降序'),
-                width: constraints.maxWidth / 3,
-              ),
-            },
-            groupValue: model.sort,
-            onValueChanged: (SearchSort? value) {
-              if (null != value) {
-                if (SearchSort.popularDesc == value && !accountManager.current!.user.isPremium) {
-                  platformAPI.toast('你不是Pixiv高级会员,所以该选项与时间降序行为一致');
-                }
-                model.sort = value;
-              }
-            },
-          ),
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: SlidingSegmentedControl(
+        children: const <SearchSort, Widget>{
+          SearchSort.dateDesc: Text('时间降序'),
+          SearchSort.dateAsc: Text('时间升序'),
+          SearchSort.popularDesc: Text('热度降序'),
+        },
+        groupValue: model.sort,
+        onValueChanged: (SearchSort? value) {
+          if (null != value) {
+            if (SearchSort.popularDesc == value && !accountManager.current!.user.isPremium) {
+              platformAPI.toast('你不是Pixiv高级会员,所以该选项与时间降序行为一致');
+            }
+            model.sort = value;
+          }
+        },
+      ),
     );
   }
 
   Widget _buildSearchTargetEdit(SearchFilterModel model) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: CupertinoSlidingSegmentedControl(
-            children: <SearchTarget, Widget>{
-              SearchTarget.partialMatchForTags: Container(
-                alignment: Alignment.center,
-                child: const Text('标签(部分匹配)'),
-                width: constraints.maxWidth / 3,
-              ),
-              SearchTarget.exactMatchForTags: Container(
-                alignment: Alignment.center,
-                child: const Text('标签(完全匹配)'),
-                width: constraints.maxWidth / 3,
-              ),
-              SearchTarget.titleAndCaption: Container(
-                alignment: Alignment.center,
-                child: const Text('标签&简介'),
-                width: constraints.maxWidth / 3,
-              ),
-            },
-            groupValue: model.target,
-            onValueChanged: (SearchTarget? value) {
-              if (null != value) {
-                model.target = value;
-              }
-            },
-          ),
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: SlidingSegmentedControl(
+        children: const <SearchTarget, Widget>{
+          SearchTarget.partialMatchForTags: Text('标签(部分匹配)'),
+          SearchTarget.exactMatchForTags: Text('标签(完全匹配)'),
+          SearchTarget.titleAndCaption: Text('标签&简介'),
+        },
+        groupValue: model.target,
+        onValueChanged: (SearchTarget? value) {
+          if (null != value) {
+            model.target = value;
+          }
+        },
+      ),
     );
   }
 

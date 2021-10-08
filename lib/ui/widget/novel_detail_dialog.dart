@@ -112,12 +112,7 @@ class NovelDetailDialog extends StatelessWidget {
             OutlinedButton(
                 onPressed: () {
                   PageUtils.back(context);
-                  PageUtils.to(
-                    context,
-                    NovelPage(
-                      id: model.novel.id,
-                    ),
-                  );
+                  PageUtils.to(context, NovelPage(model.novel.id));
                 },
                 child: const Text('阅读')),
             model.bookmarkRequestWaiting

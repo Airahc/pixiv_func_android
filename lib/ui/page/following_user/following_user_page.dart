@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
+import 'package:pixiv_func_android/ui/widget/sliding_segmented_control.dart';
 import 'package:pixiv_func_android/ui/widget/user_preview_card.dart';
 import 'package:pixiv_func_android/view_model/following_user_model.dart';
 
@@ -29,31 +30,16 @@ class FollowingUserPage extends StatelessWidget {
           ),
           body: Column(
             children: [
-              LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-                  return SizedBox(
-                    width: constraints.maxWidth,
-                    child: CupertinoSlidingSegmentedControl(
-                      children: <bool, Widget>{
-                        true: Container(
-                          alignment: Alignment.center,
-                          child: const Text('公开'),
-                          width: constraints.maxWidth / 2,
-                        ),
-                        false: Container(
-                          alignment: Alignment.center,
-                          child: const Text('私有'),
-                          width: constraints.maxWidth / 2,
-                        ),
-                      },
-                      groupValue: model.restrict,
-                      onValueChanged: (bool? value) {
-                        if (null != value) {
-                          model.restrict = value;
-                        }
-                      },
-                    ),
-                  );
+              SlidingSegmentedControl(
+                children: const <bool, Widget>{
+                  true: Text('公开'),
+                  false: Text('私有'),
+                },
+                groupValue: model.restrict,
+                onValueChanged: (bool? value) {
+                  if (null != value) {
+                    model.restrict = value;
+                  }
                 },
               ),
               Expanded(

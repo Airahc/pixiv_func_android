@@ -36,6 +36,7 @@ class DropdownMenu<T> extends StatelessWidget {
       ],
       value: currentValue,
       onChanged: onChanged,
+      isDense: true,
     );
   }
 }

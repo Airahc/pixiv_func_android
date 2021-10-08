@@ -5,6 +5,7 @@
  * 创建时间:2021/9/3 下午4:14
  * 作者:小草
  */
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 
@@ -12,64 +13,57 @@ import 'package:pixiv_func_android/model/search_filter.dart';
 import 'package:pixiv_func_android/model/search_image_result.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/page/illust/illust_page.dart';
+import 'package:pixiv_func_android/ui/page/novel/novel_page.dart';
 import 'package:pixiv_func_android/ui/page/search/search_filter_editor/search_filter_editor.dart';
 import 'package:pixiv_func_android/ui/page/search/search_illust_result/search_illust_result_page.dart';
 import 'package:pixiv_func_android/ui/page/search/search_image_result/search_image_result_page.dart';
+import 'package:pixiv_func_android/ui/page/search/search_novel_result/search_novel_result_page.dart';
 import 'package:pixiv_func_android/ui/page/search/search_user_result/search_user_result_page.dart';
 import 'package:pixiv_func_android/ui/page/user/user_page.dart';
+import 'package:pixiv_func_android/ui/widget/sliding_segmented_control.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:pixiv_func_android/view_model/search_input_model.dart';
 
 class SearchInputPage extends StatelessWidget {
   const SearchInputPage({Key? key}) : super(key: key);
 
-  Widget _buildBody(BuildContext context, SearchInputModel model) {
-    final children = <Widget>[];
-    if (model.inputAsString.isNotEmpty) {
-      children.add(
-        ListTile(
-          onTap: () => PageUtils.to(context, SearchUserResultPage(model.inputAsString)),
-          title: Text(model.inputAsString),
-          subtitle: const Text('搜索用户'),
-        ),
-      );
-    }
-
-    if (model.inputIsNumber) {
-      children.addAll(
-        [
-          ListTile(
-            onTap: () => PageUtils.to(context, IllustPage(model.inputAsNumber)),
-            title: Text('${model.inputAsNumber}'),
-            subtitle: const Text('插画ID'),
-          ),
-          ListTile(
-            onTap: () => PageUtils.to(context, UserPage(model.inputAsNumber)),
-            title: Text('${model.inputAsNumber}'),
-            subtitle: const Text('用户ID'),
-          )
-        ],
-      );
-    }
-    if (null != model.searchAutocomplete) {
-      for (var tag in model.searchAutocomplete!.tags) {
-        children.add(
-          ListTile(
-            onTap: () => _toSearchIllust(context, model, tag.name),
-            title: Text(tag.name),
-            subtitle: null != tag.translatedName ? Text(tag.translatedName!) : null,
-          ),
-        );
-      }
-    }
-
-    return ListView(children: children);
+  Widget _buildSearchAutocomplete(BuildContext context, SearchInputModel model) {
+    return ListView(
+      children: [
+        if (model.inputIsNumber)
+          if (model.type == 0)
+            ListTile(
+              onTap: () => PageUtils.to(context, IllustPage(model.inputAsNumber)),
+              title: Text('${model.inputAsNumber}'),
+              subtitle: const Text('插画ID'),
+            )
+          else if (model.type == 1)
+            ListTile(
+              onTap: () => PageUtils.to(context, NovelPage(model.inputAsNumber)),
+              title: Text('${model.inputAsNumber}'),
+              subtitle: const Text('小说ID'),
+            )
+          else if (model.type == 2)
+            ListTile(
+              onTap: () => PageUtils.to(context, UserPage(model.inputAsNumber)),
+              title: Text('${model.inputAsNumber}'),
+              subtitle: const Text('用户ID'),
+            ),
+        if (null != model.searchAutocomplete)
+          for (var tag in model.searchAutocomplete!.tags)
+            ListTile(
+              onTap: () => _toSearchResultPage(context, model, tag.name),
+              title: Text(tag.name),
+              subtitle: null != tag.translatedName ? Text(tag.translatedName!) : null,
+            )
+      ],
+    );
   }
 
   Widget _buildInputBox(BuildContext context, SearchInputModel model) {
     return TextField(
       controller: model.wordInput,
-      onSubmitted: (String value) => _toSearchIllust(context, model, value),
+      onSubmitted: (String value) => _toSearchResultPage(context, model, value),
       onChanged: (value) {
         if (value.isNotEmpty) {
           model.lastInputTime = DateTime.now();
@@ -82,22 +76,21 @@ class SearchInputPage extends StatelessWidget {
       decoration: InputDecoration(
         fillColor: Theme.of(context).backgroundColor,
         filled: true,
-        
         hintText: '搜索关键字或ID',
         border: InputBorder.none,
         prefix: const SizedBox(width: 5),
         suffixIcon: model.inputAsString.isNotEmpty
             ? InkWell(
-          onTap: () {
-            model.wordInput.clear();
-            model.searchAutocomplete = null;
-            model.cancelTask();
-          },
-          child: const Icon(
-            Icons.clear_outlined,
-            color: Colors.white54,
-          ),
-        )
+                onTap: () {
+                  model.wordInput.clear();
+                  model.searchAutocomplete = null;
+                  model.cancelTask();
+                },
+                child: const Icon(
+                  Icons.clear_outlined,
+                  color: Colors.white54,
+                ),
+              )
             : null,
       ),
     );
@@ -115,8 +108,35 @@ class SearchInputPage extends StatelessWidget {
     );
   }
 
-  void _toSearchIllust(BuildContext context, SearchInputModel model, String word) {
-    PageUtils.to(context, SearchIllustResultPage(word: word, filter: model.filter));
+  void _toSearchResultPage(BuildContext context, SearchInputModel model, String word) {
+    if (model.type == 0) {
+      PageUtils.to(context, SearchIllustResultPage(word: word, filter: model.filter));
+    } else if (model.type == 1) {
+      PageUtils.to(context, SearchNovelResultPage(word: word, filter: model.filter));
+    } else if (model.type == 2) {
+      PageUtils.to(context, SearchUserResultPage(word));
+    }
+  }
+
+  Widget _buildBody(BuildContext context, SearchInputModel model) {
+    return Column(
+      children: [
+        SlidingSegmentedControl(
+          children: const <int, Widget>{
+            0: Text('插画&漫画'),
+            1: Text('小说'),
+            2: Text('用户'),
+          },
+          groupValue: model.type,
+          onValueChanged: (int? value) {
+            if (null != value) {
+              model.type = value;
+            }
+          },
+        ),
+        Expanded(child: _buildSearchAutocomplete(context, model)),
+      ],
+    );
   }
 
   @override

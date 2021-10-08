@@ -7,21 +7,21 @@
  */
 
 import 'package:json_annotation/json_annotation.dart';
-import '../entity/illust.dart';
+import 'package:pixiv_func_android/api/entity/novel.dart';
 
-part 'search.g.dart';
+part 'search_novel.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class Search {
-  List<Illust> illusts;
+class SearchNovel {
+  List<Novel> novels;
   @JsonKey(name: 'next_url')
   String? nextUrl;
   @JsonKey(name: 'search_span_limit')
   int searchSpanLimit;
 
-  Search(this.illusts, this.nextUrl, this.searchSpanLimit);
+  SearchNovel(this.novels, this.nextUrl, this.searchSpanLimit);
 
-  factory Search.fromJson(Map<String, dynamic> json) => _$SearchFromJson(json);
+  factory SearchNovel.fromJson(Map<String, dynamic> json) => _$SearchNovelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$SearchToJson(this);
+  Map<String, dynamic> toJson() => _$SearchNovelToJson(this);
 }

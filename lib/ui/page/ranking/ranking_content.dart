@@ -12,7 +12,7 @@ import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/widget/illust_previewer.dart';
 import 'package:pixiv_func_android/ui/widget/refresher_widget.dart';
-import 'package:pixiv_func_android/view_model/ranking_model.dart';
+import 'package:pixiv_func_android/view_model/ranking_content_model.dart';
 
 class RankingContent extends StatelessWidget {
   final RankingMode mode;
@@ -23,8 +23,8 @@ class RankingContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProviderWidget(
       autoKeep: true,
-      model: RankingModel(mode),
-      builder: (BuildContext context, RankingModel model, Widget? child) {
+      model: RankingContentModel(mode),
+      builder: (BuildContext context, RankingContentModel model, Widget? child) {
         return RefresherWidget(
           model,
           child: CustomScrollView(

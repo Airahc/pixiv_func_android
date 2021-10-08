@@ -13,6 +13,7 @@ import 'package:pixiv_func_android/ui/page/bookmarked/bookmarked_filter_editor.d
 import 'package:pixiv_func_android/ui/page/bookmarked/bookmarked_illust_content.dart';
 import 'package:pixiv_func_android/ui/page/bookmarked/bookmarked_novel_content.dart';
 import 'package:pixiv_func_android/ui/widget/lazy_indexed_stack.dart';
+import 'package:pixiv_func_android/ui/widget/sliding_segmented_control.dart';
 import 'package:pixiv_func_android/view_model/bookmarked_model.dart';
 
 class BookmarkedPage extends StatelessWidget {
@@ -48,31 +49,16 @@ class BookmarkedPage extends StatelessWidget {
           ),
           body: Column(
             children: [
-              LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-                  return SizedBox(
-                    width: constraints.maxWidth,
-                    child: CupertinoSlidingSegmentedControl(
-                      children: <int, Widget>{
-                        0: Container(
-                          alignment: Alignment.center,
-                          child: const Text('插画·漫画'),
-                          width: constraints.maxWidth / 2,
-                        ),
-                        1: Container(
-                          alignment: Alignment.center,
-                          child: const Text('小说'),
-                          width: constraints.maxWidth / 2,
-                        ),
-                      },
-                      groupValue: model.index,
-                      onValueChanged: (int? value) {
-                        if (null != value) {
-                          model.index = value;
-                        }
-                      },
-                    ),
-                  );
+              SlidingSegmentedControl(
+                children: const <int, Widget>{
+                  0: Text('插画&漫画'),
+                  1: Text('小说'),
+                },
+                groupValue: model.index,
+                onValueChanged: (int? value) {
+                  if (null != value) {
+                    model.index = value;
+                  }
                 },
               ),
               Expanded(

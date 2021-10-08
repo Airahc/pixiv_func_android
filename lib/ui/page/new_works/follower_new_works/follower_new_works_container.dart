@@ -36,7 +36,7 @@ class FollowerNewWorksContainer extends StatelessWidget {
                           children: const <int, Widget>{
                             0: Padding(
                               padding: EdgeInsets.only(left: 15, right: 15),
-                              child: Text('插画·漫画'),
+                              child: Text('插画&漫画'),
                             ),
                             1: Padding(
                               padding: EdgeInsets.only(left: 15, right: 15),

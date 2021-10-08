@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:pixiv_func_android/api/enums.dart';
 import 'package:pixiv_func_android/api/model/user_detail.dart';
-import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/provider/view_state.dart';
 import 'package:pixiv_func_android/ui/page/following_user/following_user_page.dart';
@@ -155,8 +154,8 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
                   pinned: true,
                   delegate: TabBarDelegate(
                     child: TabBar(
-                      labelColor: settingsManager.isLightTheme ? Colors.black : null,
-                      indicatorColor: Theme.of(context).colorScheme.secondary,
+                      labelColor: Theme.of(context).textTheme.button?.color,
+                      indicatorColor: Theme.of(context).colorScheme.primary,
                       controller: _tabController,
                       onTap: (int index) => model.index = index,
                       tabs: const [

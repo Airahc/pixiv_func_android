@@ -11,6 +11,7 @@ import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/page/new_works/all_new_works/all_new_works_container.dart';
 import 'package:pixiv_func_android/ui/page/new_works/follower_new_works/follower_new_works_container.dart';
 import 'package:pixiv_func_android/ui/widget/lazy_indexed_stack.dart';
+import 'package:pixiv_func_android/ui/widget/sliding_segmented_control.dart';
 import 'package:pixiv_func_android/view_model/new_works_model.dart';
 
 class NewWorksPage extends StatelessWidget {
@@ -27,31 +28,16 @@ class NewWorksPage extends StatelessWidget {
           ),
           body: Column(
             children: [
-              LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-                  return SizedBox(
-                    width: constraints.maxWidth,
-                    child: CupertinoSlidingSegmentedControl(
-                      children: <int, Widget>{
-                        0: Container(
-                          alignment: Alignment.center,
-                          child: const Text('关注者'),
-                          width: constraints.maxWidth / 2,
-                        ),
-                        1: Container(
-                          alignment: Alignment.center,
-                          child: const Text('所有人'),
-                          width: constraints.maxWidth / 2,
-                        ),
-                      },
-                      groupValue: model.index,
-                      onValueChanged: (int? value) {
-                        if (null != value) {
-                          model.index = value;
-                        }
-                      },
-                    ),
-                  );
+              SlidingSegmentedControl(
+                children: const <int, Widget>{
+                  0: Text('关注者'),
+                  1: Text('所有人'),
+                },
+                groupValue: model.index,
+                onValueChanged: (int? value) {
+                  if (null != value) {
+                    model.index = value;
+                  }
                 },
               ),
               Expanded(

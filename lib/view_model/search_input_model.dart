@@ -38,6 +38,17 @@ class SearchInputModel extends BaseViewModel {
     notifyListeners();
   }
 
+  int _type = 0;
+
+  int get type => _type;
+
+  set type(int value) {
+    if (value != _type) {
+      _type = value;
+      notifyListeners();
+    }
+  }
+
   bool get inputIsNumber => null != int.tryParse(wordInput.text);
 
   int get inputAsNumber => int.parse(wordInput.text);

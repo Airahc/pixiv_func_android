@@ -17,7 +17,7 @@ import 'package:pixiv_func_android/ui/page/browsing_history/browsing_history_pag
 import 'package:pixiv_func_android/ui/page/download_task/download_task_page.dart';
 import 'package:pixiv_func_android/ui/page/following_user/following_user_page.dart';
 import 'package:pixiv_func_android/ui/page/new_works/new_works_page.dart';
-import 'package:pixiv_func_android/ui/page/ranking/ranking_selector_page.dart';
+import 'package:pixiv_func_android/ui/page/ranking/ranking_page.dart';
 import 'package:pixiv_func_android/ui/page/recommended/recommended_page.dart';
 import 'package:pixiv_func_android/ui/page/search/search_guide_page.dart';
 import 'package:pixiv_func_android/ui/page/settings/settings_page.dart';
@@ -44,7 +44,7 @@ class HomeModel extends BaseViewModel {
 
   final List<Widget> navigationPages = [
     const RecommendedPage(),
-    const RankingSelectorPage(),
+    const RankingPage(),
     const DownloadTaskPage(),
   ];
 

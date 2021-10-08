@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/model/bookmarked_filter.dart';
 import 'package:pixiv_func_android/provider/provider_widget.dart';
+import 'package:pixiv_func_android/ui/widget/sliding_segmented_control.dart';
 import 'package:pixiv_func_android/view_model/bookmarked_filter_model.dart';
 
 class BookmarkedFilterEditor extends StatelessWidget {
@@ -18,32 +19,16 @@ class BookmarkedFilterEditor extends StatelessWidget {
   const BookmarkedFilterEditor({Key? key, required this.filter, required this.onChanged}) : super(key: key);
 
   Widget _buildSearchSortEdit(BookmarkedFilterModel model) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        return Container(
-          width: constraints.maxWidth,
-          padding: const EdgeInsets.only(bottom: 20),
-          child: CupertinoSlidingSegmentedControl(
-            children: <bool, Widget>{
-              true: Container(
-                alignment: Alignment.center,
-                child: const Text('公开'),
-                width: constraints.maxWidth / 2,
-              ),
-              false: Container(
-                alignment: Alignment.center,
-                child: const Text('私有'),
-                width: constraints.maxWidth / 2,
-              ),
-            },
-            groupValue: model.restrict,
-            onValueChanged: (bool? value) {
-              if (null != value) {
-                model.restrict = value;
-              }
-            },
-          ),
-        );
+    return SlidingSegmentedControl(
+      children: const <bool, Widget>{
+        true: Text('公开'),
+        false:  Text('私有'),
+      },
+      groupValue: model.restrict,
+      onValueChanged: (bool? value) {
+        if (null != value) {
+          model.restrict = value;
+        }
       },
     );
   }

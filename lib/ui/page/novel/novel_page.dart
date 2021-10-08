@@ -17,9 +17,9 @@ class NovelPage extends StatelessWidget {
   final int id;
   final int page;
 
-  const NovelPage({
+  const NovelPage(
+    this.id, {
     Key? key,
-    required this.id,
     this.page = 0,
   }) : super(key: key);
 
@@ -70,7 +70,7 @@ class NovelPage extends StatelessWidget {
                       onTap: () => PageUtils.to(
                         context,
                         NovelPage(
-                          id: novelJSData.seriesNavigation!.nextNovel!.id,
+                           novelJSData.seriesNavigation!.nextNovel!.id,
                           page: page + 1,
                         ),
                       ),
@@ -89,7 +89,7 @@ class NovelPage extends StatelessWidget {
         }
         return Scaffold(
           appBar: AppBar(
-            title: Text('小说 第${page+1}页'),
+            title: Text('小说 第${page + 1}页'),
           ),
           body: widget,
         );

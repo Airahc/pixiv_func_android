@@ -13,11 +13,11 @@ import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/ui/page/recommended/recommended_illust_content.dart';
 import 'package:pixiv_func_android/ui/page/recommended/recommended_novel_content.dart';
 import 'package:pixiv_func_android/ui/widget/lazy_indexed_stack.dart';
+import 'package:pixiv_func_android/ui/widget/sliding_segmented_control.dart';
 import 'package:pixiv_func_android/view_model/recommended_model.dart';
 
 class RecommendedPage extends StatelessWidget {
   const RecommendedPage({Key? key}) : super(key: key);
-
 
   @override
   Widget build(BuildContext context) {
@@ -26,36 +26,17 @@ class RecommendedPage extends StatelessWidget {
       builder: (BuildContext context, RecommendedModel model, Widget? child) {
         return Column(
           children: [
-            LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-                return SizedBox(
-                  width: constraints.maxWidth,
-                  child: CupertinoSlidingSegmentedControl(
-                    children: <WorkType, Widget>{
-                      WorkType.illust: Container(
-                        alignment: Alignment.center,
-                        child: const Text('插画'),
-                        width: constraints.maxWidth / 3,
-                      ),
-                      WorkType.manga: Container(
-                        alignment: Alignment.center,
-                        child: const Text('漫画'),
-                        width: constraints.maxWidth / 3,
-                      ),
-                      WorkType.novel: Container(
-                        alignment: Alignment.center,
-                        child: const Text('小说'),
-                        width: constraints.maxWidth / 3,
-                      ),
-                    },
-                    groupValue: model.type,
-                    onValueChanged: (WorkType? value) {
-                      if (null != value) {
-                        model.type = value;
-                      }
-                    },
-                  ),
-                );
+            SlidingSegmentedControl(
+              children: const <WorkType, Widget>{
+                WorkType.illust: Text('插画'),
+                WorkType.manga: Text('漫画'),
+                WorkType.novel: Text('小说'),
+              },
+              groupValue: model.type,
+              onValueChanged: (WorkType? value) {
+                if (null != value) {
+                  model.type = value;
+                }
               },
             ),
             Expanded(
@@ -68,8 +49,7 @@ class RecommendedPage extends StatelessWidget {
                   RecommendedIllustContent(
                     WorkType.manga,
                   ),
-                  RecommendedNovelContent(
-                  ),
+                  RecommendedNovelContent(),
                 ],
               ),
             ),

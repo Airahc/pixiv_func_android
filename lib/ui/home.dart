@@ -93,7 +93,7 @@ class Home extends StatelessWidget {
                 const Text('开发 开源且免费'),
               ],
             ),
-            subtitle: const Text('禁止用于商业用途(包括收取打赏)'),
+            subtitle: const Text('禁止用于商业用途(包括但不仅限于收取打赏)'),
           ),
           const ListTile(
             title: Text('如果无法正常直连是需要开代理(VPN)的'),

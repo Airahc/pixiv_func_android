@@ -11,6 +11,7 @@ import 'package:dio/dio.dart';
 import 'package:pixiv_func_android/api/model/bookmark_tags.dart';
 import 'package:pixiv_func_android/api/model/novels.dart';
 import 'auth_token_interceptor.dart';
+import 'model/search_novel.dart';
 import 'retry_interceptor.dart';
 import 'model/comments.dart';
 import 'model/error_message.dart';
@@ -20,7 +21,7 @@ import 'model/search_autocomplete.dart';
 import 'model/trending_tags.dart';
 import 'model/ugoira_metadata.dart';
 import 'model/users.dart';
-import 'model/search.dart';
+import 'model/search_illust.dart';
 import 'model/user_detail.dart';
 import 'entity/comment.dart';
 
@@ -76,8 +77,8 @@ class PixivAPI {
     if (T == Users) {
       return Users.fromJson(jsonDecode(responseData)) as T;
     }
-    if (T == Search) {
-      return Search.fromJson(jsonDecode(responseData)) as T;
+    if (T == SearchIllust) {
+      return SearchIllust.fromJson(jsonDecode(responseData)) as T;
     }
     if (T == BookmarkTags) {
       return BookmarkTags.fromJson(jsonDecode(responseData)) as T;
@@ -431,15 +432,15 @@ class PixivAPI {
   ///[target] - 搜索目标([SearchTarget]) <br/>
   ///[startDate] - 开始时间(必须跟[endDate]一起填) <br/>
   ///[endDate] - 结束时间(必须跟[startDate]一起填) <br/>
-  ///[bookmarkTotal] - 收藏数量 100, 250, 500, 1000, 5000, 10000, 20000, 30000, 50000
-  Future<Search> searchIllust(
-    String word,
-    String sort,
-    String target, {
-    String? startDate,
-    String? endDate,
-    int? bookmarkTotal,
-  }) async {
+  ///[bookmarkTotal] - 收藏数量 100, 250, 500, 1000, 5000, 7500 , 10000, 20000, 30000, 50000
+  Future<SearchIllust> searchIllust(
+      String word,
+      String sort,
+      String target, {
+        String? startDate,
+        String? endDate,
+        int? bookmarkTotal,
+      }) async {
     final response = await httpClient.get<String>(
       '/v1/search/illust',
       queryParameters: {
@@ -453,7 +454,38 @@ class PixivAPI {
         'end_date': endDate,
       }..removeWhere((key, value) => null == value),
     );
-    final data = Search.fromJson(jsonDecode(response.data!));
+    final data = SearchIllust.fromJson(jsonDecode(response.data!));
+    return data;
+  }
+
+  ///搜索 <br/>
+  ///[word] - 关键字 <br/>
+  ///[sort] - 排序([SearchSort]) <br/>
+  ///[target] - 搜索目标([SearchTarget]) <br/>
+  ///[startDate] - 开始时间(必须跟[endDate]一起填) <br/>
+  ///[endDate] - 结束时间(必须跟[startDate]一起填) <br/>
+  ///[bookmarkTotal] - 收藏数量 100, 250, 500, 1000, 5000, 7500, 10000, 20000, 30000, 50000
+  Future<SearchNovel> searchNovel(
+      String word,
+      String sort,
+      String target, {
+        String? startDate,
+        String? endDate,
+        int? bookmarkTotal,
+      }) async {
+    final response = await httpClient.get<String>(
+      '/v1/search/novel',
+      queryParameters: {
+        'include_translated_tag_results': true,
+        'merge_plain_keyword_results': true,
+        'word': null != bookmarkTotal ? '$word ${bookmarkTotal}users入り' : word,
+        'sort': sort,
+        'search_target': target,
+        'start_date': startDate,
+        'end_date': endDate,
+      }..removeWhere((key, value) => null == value),
+    );
+    final data = SearchNovel.fromJson(jsonDecode(response.data!));
     return data;
   }
 
