@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:pixiv_func_android/api/model/user_account.dart';
 import 'package:pixiv_func_android/instance_setup.dart';
 import 'package:pixiv_func_android/log/log.dart';
-import 'package:pixiv_func_android/ui/widget/lazy_indexed_stack.dart';
 import 'package:pixiv_func_android/view_model/home_model.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +21,7 @@ class Home extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Pixiv Func'),
       ),
-      body: LazyIndexedStack(
+      body: IndexedStack(
         index: model.currentPage,
         children: model.navigationPages,
       ),

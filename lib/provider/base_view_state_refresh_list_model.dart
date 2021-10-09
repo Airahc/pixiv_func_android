@@ -51,11 +51,7 @@ abstract class BaseViewStateRefreshListModel<T> extends BaseViewStateListModel<T
   void scrollToTop() {
     if (scrollController.hasClients) {
       if (scrollController.offset != 0) {
-        scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInQuad,
-        );
+        scrollController.jumpTo(0);
       }
     }
   }
@@ -90,7 +86,6 @@ abstract class BaseViewStateRefreshListModel<T> extends BaseViewStateListModel<T
         list.addAll(result);
         setIdle();
       }
-
     }).catchError((e, s) {
       refreshController.refreshFailed();
       Log.e('异常', e, s);
