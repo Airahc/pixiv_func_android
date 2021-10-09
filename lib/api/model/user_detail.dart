@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2021. by xiao-cao-x, All rights reserved
  * 项目名称:pixiv_func_android
- * 文件名称:user_details.dart
+ * 文件名称:user_details_content.dart
  * 创建时间:2021/8/21 上午9:38
  * 作者:小草
  */

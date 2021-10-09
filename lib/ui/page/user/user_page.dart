@@ -13,9 +13,10 @@ import 'package:pixiv_func_android/provider/provider_widget.dart';
 import 'package:pixiv_func_android/provider/view_state.dart';
 import 'package:pixiv_func_android/ui/page/following_user/following_user_page.dart';
 import 'package:pixiv_func_android/ui/page/user/avatar_viewer.dart';
-import 'package:pixiv_func_android/ui/page/user/user_bookmarked/user_bookmarked.dart';
-import 'package:pixiv_func_android/ui/page/user/user_details/user_details.dart';
-import 'package:pixiv_func_android/ui/page/user/user_illust/user_illust.dart';
+import 'package:pixiv_func_android/ui/page/user/user_bookmarked/user_bookmarked_content.dart';
+import 'package:pixiv_func_android/ui/page/user/user_details/user_details_content.dart';
+import 'package:pixiv_func_android/ui/page/user/user_illust/user_illust_content.dart';
+import 'package:pixiv_func_android/ui/page/user/user_novel/user_novel_content.dart';
 import 'package:pixiv_func_android/ui/widget/avatar_view_from_url.dart';
 import 'package:pixiv_func_android/ui/widget/image_view_from_url.dart';
 import 'package:pixiv_func_android/util/page_utils.dart';
@@ -35,7 +36,7 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin {
-  late final TabController _tabController = TabController(length: 4, vsync: this);
+  late final TabController _tabController = TabController(length: 5, vsync: this);
 
   @override
   void dispose() {
@@ -169,6 +170,9 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
                           text: '漫画',
                         ),
                         Tab(
+                          text: '小说',
+                        ),
+                        Tab(
                           text: '收藏',
                         ),
                       ],
@@ -180,10 +184,11 @@ class _UserPageState extends State<UserPage> with SingleTickerProviderStateMixin
             body: TabBarView(
               controller: _tabController,
               children: [
-                Visibility(visible: null != model.userDetail, child: UserDetails(model)),
-                UserIllust(id: widget.id, type: WorkType.illust, illustContentModel: widget.illustContentModel),
-                UserIllust(id: widget.id, type: WorkType.manga, illustContentModel: widget.illustContentModel),
-                UserBookmarked(widget.id),
+                Visibility(visible: null != model.userDetail, child: UserDetailsContent(model)),
+                UserIllustContent(id: widget.id, type: WorkType.illust, illustContentModel: widget.illustContentModel),
+                UserIllustContent(id: widget.id, type: WorkType.manga, illustContentModel: widget.illustContentModel),
+                UserNovelContent(widget.id),
+                UserBookmarkedContent(widget.id),
               ],
             ),
           ),

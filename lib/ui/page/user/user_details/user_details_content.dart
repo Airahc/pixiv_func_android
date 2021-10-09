@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2021. by xiao-cao-x, All rights reserved
  * 项目名称:pixiv_func_android
- * 文件名称:user_details.dart
+ * 文件名称:user_details_content.dart
  * 创建时间:2021/8/31 上午12:24
  * 作者:小草
  */
@@ -13,10 +13,10 @@ import 'package:pixiv_func_android/ui/widget/html_rich_text.dart';
 import 'package:pixiv_func_android/util/utils.dart';
 import 'package:pixiv_func_android/view_model/user_model.dart';
 
-class UserDetails extends StatelessWidget {
+class UserDetailsContent extends StatelessWidget {
   final UserModel model;
 
-  const UserDetails(this.model, {Key? key}) : super(key: key);
+  const UserDetailsContent(this.model, {Key? key}) : super(key: key);
 
   Widget _buildItem(String name, String value, {bool isUrl = false}) {
     return Card(

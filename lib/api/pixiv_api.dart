@@ -148,6 +148,17 @@ class PixivAPI {
     return data;
   }
 
+  ///获取用户的小说 <br/>
+  ///[userId] - 用户ID <br/>
+  Future<Novels> getUserNovels(int userId) async {
+    final response = await httpClient.get<String>(
+      '/v1/user/novels',
+      queryParameters: {'user_id': userId},
+    );
+    final data = Novels.fromJson(jsonDecode(response.data!));
+    return data;
+  }
+
   ///获取推荐作品 <br/>
   ///[type] - 类型([WorkType])
   Future<Illusts> getRecommendedIllusts(String type) async {
@@ -238,8 +249,8 @@ class PixivAPI {
         'restrict': null == restrict
             ? 'all'
             : restrict
-            ? 'public'
-            : 'private',
+                ? 'public'
+                : 'private',
       },
     );
     final data = Illusts.fromJson(jsonDecode(response.data!));
@@ -256,8 +267,8 @@ class PixivAPI {
         'restrict': null == restrict
             ? 'all'
             : restrict
-            ? 'public'
-            : 'private',
+                ? 'public'
+                : 'private',
       },
     );
     final data = Novels.fromJson(jsonDecode(response.data!));
@@ -434,13 +445,13 @@ class PixivAPI {
   ///[endDate] - 结束时间(必须跟[startDate]一起填) <br/>
   ///[bookmarkTotal] - 收藏数量 100, 250, 500, 1000, 5000, 7500 , 10000, 20000, 30000, 50000
   Future<SearchIllust> searchIllust(
-      String word,
-      String sort,
-      String target, {
-        String? startDate,
-        String? endDate,
-        int? bookmarkTotal,
-      }) async {
+    String word,
+    String sort,
+    String target, {
+    String? startDate,
+    String? endDate,
+    int? bookmarkTotal,
+  }) async {
     final response = await httpClient.get<String>(
       '/v1/search/illust',
       queryParameters: {
@@ -466,13 +477,13 @@ class PixivAPI {
   ///[endDate] - 结束时间(必须跟[startDate]一起填) <br/>
   ///[bookmarkTotal] - 收藏数量 100, 250, 500, 1000, 5000, 7500, 10000, 20000, 30000, 50000
   Future<SearchNovel> searchNovel(
-      String word,
-      String sort,
-      String target, {
-        String? startDate,
-        String? endDate,
-        int? bookmarkTotal,
-      }) async {
+    String word,
+    String sort,
+    String target, {
+    String? startDate,
+    String? endDate,
+    int? bookmarkTotal,
+  }) async {
     final response = await httpClient.get<String>(
       '/v1/search/novel',
       queryParameters: {
